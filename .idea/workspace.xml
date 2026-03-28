@@ -4,7 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="18c1ab68-9d5e-4ff2-b69f-5788a1104b94" name="Changes" comment="" />
+    <list default="true" id="18c1ab68-9d5e-4ff2-b69f-5788a1104b94" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/worknest-mobile/babel.config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/app.json" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/app.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/package.json" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -83,6 +89,7 @@
       <option name="presentableId" value="Default" />
       <updated>1774695446135</updated>
       <workItem from="1774695448529" duration="2146000" />
+      <workItem from="1774697910683" duration="4989000" />
     </task>
     <servers />
   </component>
