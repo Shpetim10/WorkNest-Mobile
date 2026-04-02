@@ -5,27 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="18c1ab68-9d5e-4ff2-b69f-5788a1104b94" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/worknest-mobile/assets/logos/png/1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/worknest-mobile/assets/logos/png/2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/worknest-mobile/assets/logos/png/3.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/worknest-mobile/assets/logos/svg/1.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/worknest-mobile/assets/logos/svg/2.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/worknest-mobile/assets/logos/svg/3.svg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/ARCHITECTURE.md" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/ARCHITECTURE.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/worknest-mobile/src/app/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/app/_layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/app/explore.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/app/index.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/components/animated-icon.module.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/components/animated-icon.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/components/animated-icon.web.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/components/app-tabs.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/components/app-tabs.web.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/components/external-link.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/components/hint-row.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/components/themed-text.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/components/themed-view.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/components/ui/collapsible.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/components/web-badge.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/constants/theme.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/hooks/use-color-scheme.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/hooks/use-color-scheme.web.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/hooks/use-theme.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/common/components/themed-text.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/common/components/themed-text.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/common/constants/theme.ts" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/common/constants/theme.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -77,6 +67,12 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\shaba\Desktop\WorkNest - SPM\WorkNestMobile\worknest-mobile\assets\logos\png" />
+      <recent name="C:\Users\shaba\Desktop\WorkNest - SPM\WorkNestMobile\worknest-mobile\assets\logos\svg" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration default="true" type="JetRunConfigurationType">
       <module name="WorkNestMobile" />
@@ -107,7 +103,7 @@
       <updated>1774695446135</updated>
       <workItem from="1774695448529" duration="2146000" />
       <workItem from="1774697910683" duration="5971000" />
-      <workItem from="1775156683953" duration="2034000" />
+      <workItem from="1775156683953" duration="3124000" />
     </task>
     <servers />
   </component>

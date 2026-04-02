@@ -30,6 +30,7 @@ This document describes the project structure and architectural rules for future
 3. **Hierarchy**: `features` depend on `common`. `common` NEVER depends on `features`.
 4. **Thin Routing**: Keep `src/app` thin. If logic grows in a route, move it to a feature hook or service.
 5. **Naming**: kebab-case for folders, PascalCase for components/types, camelCase for hooks/utils.
+6. **Typography**: Use the custom Apple fonts (**SF Pro** for display/body, **New York** for titles/serifs) through the `Fonts` constant from `@/common/constants/theme` or the `ThemedText` component to maintain brand consistency.
 
 ## Typical Feature Structure
 

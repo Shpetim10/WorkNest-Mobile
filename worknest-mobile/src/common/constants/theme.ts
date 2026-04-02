@@ -26,30 +26,37 @@ export const Colors = {
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
-export const Fonts = Platform.select({
-  ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace',
+export const Fonts = {
+  sf: {
+    regular: 'SF-Pro-Display-Regular',
+    bold: 'SF-Pro-Display-Bold',
+    semibold: 'SF-Pro-Display-Semibold',
   },
-  default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
+  ny: {
+    regular: 'New-York-Medium-Regular',
+    bold: 'New-York-Medium-Bold',
   },
-  web: {
-    sans: 'var(--font-display)',
-    serif: 'var(--font-serif)',
-    rounded: 'var(--font-rounded)',
-    mono: 'var(--font-mono)',
-  },
-});
+  ...Platform.select({
+    ios: {
+      sans: 'system-ui',
+      serif: 'ui-serif',
+      rounded: 'ui-rounded',
+      mono: 'ui-monospace',
+    },
+    default: {
+      sans: 'normal',
+      serif: 'serif',
+      rounded: 'normal',
+      mono: 'monospace',
+    },
+    web: {
+      sans: 'var(--font-display)',
+      serif: 'var(--font-serif)',
+      rounded: 'var(--font-rounded)',
+      mono: 'var(--font-mono)',
+    },
+  }),
+};
 
 export const Spacing = {
   half: 2,
