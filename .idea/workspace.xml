@@ -5,13 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="18c1ab68-9d5e-4ff2-b69f-5788a1104b94" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/worknest-mobile/assets/icons/circle-check.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/worknest-mobile/assets/icons/cross-icon.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/worknest-mobile/assets/icons/email-sent.svg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/app.json" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/app.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/app/(auth)/login.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/app/(auth)/login.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/app/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/app/_layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/common/components/gradient-icon.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/common/components/gradient-icon.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/auth/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/auth/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/auth/screens/create-new-password-screen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/auth/screens/create-new-password-screen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/auth/screens/reset-password-screen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/auth/screens/reset-password-screen.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,6 +53,7 @@
     "git-widget-placeholder": "main",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/shaba/Desktop/WorkNest - SPM/WorkNestMobile/worknest-mobile/assets/icons",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -64,7 +66,12 @@
   }
 }]]></component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\shaba\Desktop\WorkNest - SPM\WorkNestMobile\worknest-mobile\assets\icons" />
+      <recent name="C:\Users\shaba\Desktop\WorkNest - SPM\WorkNestMobile\worknest-mobile\assets" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\shaba\Desktop\WorkNest - SPM\WorkNestMobile\worknest-mobile\assets\icons" />
       <recent name="C:\Users\shaba\Desktop\WorkNest - SPM\WorkNestMobile\worknest-mobile\assets\logos\png" />
       <recent name="C:\Users\shaba\Desktop\WorkNest - SPM\WorkNestMobile\worknest-mobile\assets\logos\svg" />
     </key>
@@ -99,7 +106,7 @@
       <updated>1774695446135</updated>
       <workItem from="1774695448529" duration="2146000" />
       <workItem from="1774697910683" duration="5971000" />
-      <workItem from="1775156683953" duration="10902000" />
+      <workItem from="1775156683953" duration="14204000" />
     </task>
     <servers />
   </component>

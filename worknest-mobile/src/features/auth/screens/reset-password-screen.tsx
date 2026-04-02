@@ -17,7 +17,7 @@ import {
 
 import { GradientButton } from '@/common/components/gradient-button';
 import { GradientIcon } from '@/common/components/gradient-icon';
-import { GradientText } from '@/common/components/gradient-text';
+import { BoldTitle } from '@/common/components/bold-title';
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts, Spacing } from '@/common/constants/theme';
 import { useTheme } from '@/common/hooks/use-theme';
@@ -31,12 +31,11 @@ export function ResetPasswordScreen() {
   const [error, setError] = useState(false);
 
   const handleReset = () => {
-    if (!email.trim() || !email.includes('@')) {
-      setError(true);
-    } else {
-      setError(false);
-      // Proceed with reset logic
+    if (email.trim()) {
       console.log('Sending reset link to:', email);
+      router.replace('/(auth)/email-sent' as any);
+    } else {
+      setError(true);
     }
   };
 
@@ -86,7 +85,7 @@ export function ResetPasswordScreen() {
               />
 
               <View style={styles.titleContainer}>
-                <GradientText 
+                <BoldTitle 
                   text="Reset your password" 
                   style={styles.title} 
                 />

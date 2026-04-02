@@ -36,7 +36,7 @@ export function CreateNewPasswordScreen() {
     // Basic validation
     if (newPassword.length >= 8 && newPassword === confirmPassword) {
       console.log('Password updated successfully');
-      router.replace('/(auth)/login' as any);
+      router.replace('/(auth)/password-success' as any);
     }
   };
 

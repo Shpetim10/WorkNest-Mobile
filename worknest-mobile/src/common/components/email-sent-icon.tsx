@@ -1,46 +1,45 @@
 import { LinearGradient } from 'expo-linear-gradient';
+import { Image } from 'expo-image';
 import React from 'react';
 import { View, StyleSheet, ViewStyle } from 'react-native';
-import { LucideIcon } from 'lucide-react-native';
 
-interface GradientIconProps {
-  Icon: LucideIcon;
+const EMAIL_SENT_SVG = require('../../../assets/icons/email-sent.svg');
+
+interface EmailSentIconProps {
   size?: number;
-  colors?: string[];
   style?: ViewStyle;
 }
 
 /**
- * Generic Gradient Icon for the auth flow.
- * Uses a rounded rectangle background and brand blue shadows.
+ * Specialized Email Sent Icon using the designer-provided SVG asset.
+ * Features a circular blue gradient and dual-layer shadows.
  */
-export function GradientIcon({
-  Icon,
-  size = 40,
-  colors = ['#2B7FFF', '#00BBA7'],
-  style,
-}: GradientIconProps) {
+export function EmailSentIcon({ size = 84, style }: EmailSentIconProps) {
   const shadowColor = '#2B7FFF';
 
   return (
     <View style={[styles.shadowContainer2, { shadowColor }]}>
       <View style={[styles.shadowContainer1, { shadowColor }]}>
         <LinearGradient
-          colors={colors as any}
+          colors={['#2B7FFF', '#00BBA7']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={[
             { 
               width: size, 
               height: size, 
-              borderRadius: 20, 
+              borderRadius: size / 2, 
               alignItems: 'center', 
               justifyContent: 'center' 
             }, 
             style
           ]}
         >
-          <Icon size={size * 0.5} color="white" />
+          <Image 
+            source={EMAIL_SENT_SVG}
+            style={{ width: size * 0.6, height: size * 0.6 }}
+            contentFit="contain"
+          />
         </LinearGradient>
       </View>
     </View>
@@ -49,14 +48,12 @@ export function GradientIcon({
 
 const styles = StyleSheet.create({
   shadowContainer1: {
-    // Figma Drop shadow 1: X: 0, Y: 4, Blur: 6, Spread: -4
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
     elevation: 2,
   },
   shadowContainer2: {
-    // Figma Drop shadow 2: X: 0, Y: 10, Blur: 15, Spread: -3
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.3,
     shadowRadius: 7.5,

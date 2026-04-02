@@ -1,46 +1,45 @@
 import { LinearGradient } from 'expo-linear-gradient';
+import { Image } from 'expo-image';
 import React from 'react';
 import { View, StyleSheet, ViewStyle } from 'react-native';
-import { LucideIcon } from 'lucide-react-native';
 
-interface GradientIconProps {
-  Icon: LucideIcon;
+const CIRCLE_CHECK_SVG = require('../../../assets/icons/circle-check.svg');
+
+interface SuccessIconProps {
   size?: number;
-  colors?: string[];
   style?: ViewStyle;
 }
 
 /**
- * Generic Gradient Icon for the auth flow.
- * Uses a rounded rectangle background and brand blue shadows.
+ * Specialized Success Icon using the designer-provided SVG asset.
+ * Features a circular green gradient and dual-layer shadows.
  */
-export function GradientIcon({
-  Icon,
-  size = 40,
-  colors = ['#2B7FFF', '#00BBA7'],
-  style,
-}: GradientIconProps) {
-  const shadowColor = '#2B7FFF';
+export function SuccessIcon({ size = 84, style }: SuccessIconProps) {
+  const shadowColor = '#00C950';
 
   return (
     <View style={[styles.shadowContainer2, { shadowColor }]}>
       <View style={[styles.shadowContainer1, { shadowColor }]}>
         <LinearGradient
-          colors={colors as any}
+          colors={['#05DF72', '#00BC7D']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={[
             { 
               width: size, 
               height: size, 
-              borderRadius: 20, 
+              borderRadius: size / 2, 
               alignItems: 'center', 
               justifyContent: 'center' 
             }, 
             style
           ]}
         >
-          <Icon size={size * 0.5} color="white" />
+          <Image 
+            source={CIRCLE_CHECK_SVG}
+            style={{ width: size * 0.6, height: size * 0.6 }}
+            contentFit="contain"
+          />
         </LinearGradient>
       </View>
     </View>
