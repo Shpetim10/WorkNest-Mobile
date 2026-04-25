@@ -1,5 +1,11 @@
 import { Slot, useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
+import { useAppSelector } from '@/common/store/hooks';
+import {
+  selectAuthBootstrapped,
+  selectIsAuthenticated,
+  selectRequiresRoleSelection,
+} from '@/features/auth';
 
 /**
  * Protected Layout
@@ -8,13 +14,24 @@ import React, { useEffect } from 'react';
  */
 export default function AppLayout() {
   const router = useRouter();
-  const isAuthenticated = true; // Placeholder for actual auth check
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const requiresRoleSelection = useAppSelector(selectRequiresRoleSelection);
+  const bootstrapped = useAppSelector(selectAuthBootstrapped);
 
   useEffect(() => {
+    if (!bootstrapped) {
+      return;
+    }
+
     if (!isAuthenticated) {
       router.replace('/login' as any);
+      return;
     }
-  }, [isAuthenticated]);
+
+    if (requiresRoleSelection) {
+      router.replace('/role-assignment' as any);
+    }
+  }, [bootstrapped, isAuthenticated, requiresRoleSelection, router]);
 
   return <Slot />;
 }

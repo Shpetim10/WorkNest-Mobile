@@ -3,7 +3,6 @@ import { Image } from 'expo-image';
 import React from 'react';
 import {
   Dimensions,
-  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -13,17 +12,14 @@ import {
   Animated,
 } from 'react-native';
 
-import { GradientButton } from '@/common/components/gradient-button';
 import { GradientText } from '@/common/components/gradient-text';
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts, Spacing } from '@/common/constants/theme';
-import { useTheme } from '@/common/hooks/use-theme';
 import { LoginForm } from '@/features/auth/components/login-form';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export function LoginScreen() {
-  const theme = useTheme();
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
 
   React.useEffect(() => {
@@ -74,15 +70,6 @@ export function LoginScreen() {
             </View>
 
             <LoginForm />
-
-            <View style={styles.buttonContainer}>
-              <GradientButton 
-                title="Login" 
-                onPress={() => {
-                  // Handle login
-                }} 
-              />
-            </View>
           </View>
         </KeyboardAvoidingView>
       </ScrollView>
@@ -141,8 +128,5 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.sf.regular,
     fontSize: 16,
     color: '#64748B',
-  },
-  buttonContainer: {
-    marginTop: Spacing.five,
   },
 });

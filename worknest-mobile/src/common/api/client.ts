@@ -1,11 +1,12 @@
 import axios, { InternalAxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
+import { API_BASE_URL } from '@/common/config/network';
 
 /**
  * Base API client for the application.
  * Aligned with Spring Boot backend structure.
  */
 export const api = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_API_URL,
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },

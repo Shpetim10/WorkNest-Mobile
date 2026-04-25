@@ -1,5 +1,6 @@
 import * as Device from 'expo-device';
 import { Platform, StyleSheet } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AnimatedIcon } from '@/common/components/animated-icon';
@@ -8,6 +9,11 @@ import { ThemedText } from '@/common/components/themed-text';
 import { ThemedView } from '@/common/components/themed-view';
 import { WebBadge } from '@/common/components/web-badge';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/common/constants/theme';
+import { clearPersistedSessionArtifacts } from '@/common/storage/secure-session-storage';
+import { useAppDispatch, useAppSelector } from '@/common/store/hooks';
+import { useLogoutMutation } from '@/features/auth';
+import { logoutCompleted } from '@/features/auth';
+import { useRouter } from 'expo-router';
 
 function getDevMenuHint() {
   if (Platform.OS === 'web') {
@@ -29,6 +35,24 @@ function getDevMenuHint() {
 }
 
 export default function HomeScreen() {
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+  const [logout, { isLoading: isLoggingOut }] = useLogoutMutation();
+  const auth = useAppSelector((state) => state.auth);
+
+  const handleLogout = async () => {
+    const refreshToken = auth.refreshToken;
+    try {
+      if (refreshToken) {
+        await logout({ refreshToken }).unwrap();
+      }
+    } finally {
+      await clearPersistedSessionArtifacts();
+      dispatch(logoutCompleted());
+      router.replace('/login' as any);
+    }
+  };
+
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
@@ -53,7 +77,19 @@ export default function HomeScreen() {
             title="Fresh start"
             hint={<ThemedText type="code">npm run reset-project</ThemedText>}
           />
+          <HintRow
+            title="Workspace"
+            hint={<ThemedText type="small">{auth.tenantContext?.companyName ?? 'N/A'}</ThemedText>}
+          />
+          <HintRow
+            title="Role Assignment"
+            hint={<ThemedText type="small">{auth.activeRoleAssignmentId ?? 'N/A'}</ThemedText>}
+          />
         </ThemedView>
+
+        <TouchableOpacity onPress={handleLogout} disabled={isLoggingOut}>
+          <ThemedText type="link">{isLoggingOut ? 'Signing out...' : 'Sign out'}</ThemedText>
+        </TouchableOpacity>
 
         {Platform.OS === 'web' && <WebBadge />}
       </SafeAreaView>
