@@ -102,3 +102,48 @@ export interface LogoutRequest {
   refreshToken: string;
 }
 
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ForgotPasswordResponseData {
+  message: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  newPassword: string;
+}
+
+export interface ResetPasswordResponseData {
+  message: string;
+}
+
+export interface ValidateInvitationTokenRequest {
+  token: string;
+}
+
+export interface InvitationPreflightData {
+  maskedEmail: string;
+  companyName: string;
+  platformRole: PlatformRole;
+  invitedJobTitle: string | null;
+}
+
+export interface ActivateInvitationRequest {
+  token: string;
+  password?: string;
+  gdprConsent: boolean;
+  preferredLanguage?: string;
+  profileImageStorageKey?: string;
+  profileImageStoragePath?: string;
+}
+
+export interface ActivateInvitationResponseData {
+  userId: string;
+  roleAssignmentId: string;
+  role: PlatformRole;
+  platformAccess: PlatformAccess;
+  status: string;
+  message: string;
+}

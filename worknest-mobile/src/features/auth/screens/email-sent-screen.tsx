@@ -1,7 +1,7 @@
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   Dimensions,
   SafeAreaView,
@@ -11,6 +11,7 @@ import {
 
 import { EmailSentIcon } from '@/common/components/email-sent-icon';
 import { BoldTitle } from '@/common/components/bold-title';
+import { GradientButton } from '@/common/components/gradient-button';
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts, Spacing } from '@/common/constants/theme';
 
@@ -18,15 +19,6 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export function EmailSentScreen() {
   const router = useRouter();
-
-  useEffect(() => {
-    // Automatically redirect back to login after 5 seconds to give time to read
-    const timer = setTimeout(() => {
-      router.replace('/(auth)/login' as any);
-    }, 5000);
-
-    return () => clearTimeout(timer);
-  }, [router]);
 
   return (
     <View style={styles.container}>
@@ -69,9 +61,10 @@ export function EmailSentScreen() {
               </ThemedText>
 
               <View style={styles.statusBox}>
-                <ThemedText style={styles.statusText}>
-                  Redirecting to login...
-                </ThemedText>
+                <GradientButton
+                  title="Back to Login"
+                  onPress={() => router.replace('/login' as any)}
+                />
               </View>
             </View>
           </View>
@@ -147,11 +140,6 @@ const styles = StyleSheet.create({
   },
   statusBox: {
     marginTop: Spacing.two,
-  },
-  statusText: {
-    fontFamily: Fonts.sf.regular,
-    fontSize: 14,
-    color: '#94A3B8',
-    textAlign: 'center',
+    width: '100%',
   },
 });

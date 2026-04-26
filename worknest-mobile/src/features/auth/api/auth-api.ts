@@ -15,19 +15,39 @@ import { API_BASE_URL } from '@/common/config/network';
 import {
   logoutCompleted,
   loginSucceeded,
+  forgotPasswordFailed,
+  forgotPasswordSubmitted,
+  forgotPasswordSubmitting,
+  invitationActivationFailed,
+  invitationActivationStarted,
+  invitationActivationSucceeded,
+  invitationValidationFailed,
+  invitationValidationStarted,
+  invitationValidationSucceeded,
   refreshSucceeded,
+  resetPasswordFailed,
+  resetPasswordSubmitting,
+  resetPasswordSucceeded,
   roleSelectionSucceeded,
 } from '@/features/auth/store/auth-slice';
 import type {
+  ActivateInvitationRequest,
+  ActivateInvitationResponseData,
   ApiErrorEnvelope,
   ApiSuccessEnvelope,
+  ForgotPasswordRequest,
+  ForgotPasswordResponseData,
+  InvitationPreflightData,
   LoginRequest,
   LoginResponseData,
   LogoutRequest,
+  ResetPasswordRequest,
+  ResetPasswordResponseData,
   RefreshRequest,
   RefreshResponseData,
   SelectRoleRequest,
   SelectRoleResponseData,
+  ValidateInvitationTokenRequest,
 } from '@/features/auth/types/contracts';
 import type { RootState } from '@/common/store';
 
@@ -80,7 +100,15 @@ function shouldAttemptRefresh(
   if (!error) {
     return false;
   }
-  if (endpoint === 'login' || endpoint === 'refresh' || endpoint === 'logout') {
+  if (
+    endpoint === 'login' ||
+    endpoint === 'refresh' ||
+    endpoint === 'logout' ||
+    endpoint === 'forgotPassword' ||
+    endpoint === 'resetPassword' ||
+    endpoint === 'validateInvitationToken' ||
+    endpoint === 'activateInvitation'
+  ) {
     return false;
   }
 
@@ -256,6 +284,85 @@ export const authApi = createApi({
         }
       },
     }),
+    forgotPassword: builder.mutation<ForgotPasswordResponseData, ForgotPasswordRequest>({
+      query: (body) => ({
+        url: '/api/v1/auth/forgot-password',
+        method: 'POST',
+        body,
+      }),
+      transformResponse: (response: ApiSuccessEnvelope<ForgotPasswordResponseData>) => response.data,
+      async onQueryStarted({ email }, { dispatch, queryFulfilled }) {
+        dispatch(forgotPasswordSubmitting({ email }));
+        try {
+          await queryFulfilled;
+          dispatch(forgotPasswordSubmitted());
+        } catch {
+          dispatch(forgotPasswordFailed());
+        }
+      },
+    }),
+    resetPassword: builder.mutation<
+      ResetPasswordResponseData,
+      ResetPasswordRequest & { tokenSource: 'deep-link' | 'manual' | null }
+    >({
+      query: ({ token, newPassword }) => ({
+        url: '/api/v1/auth/reset-password',
+        method: 'POST',
+        body: {
+          token,
+          newPassword,
+        } satisfies ResetPasswordRequest,
+      }),
+      transformResponse: (response: ApiSuccessEnvelope<ResetPasswordResponseData>) => response.data,
+      async onQueryStarted({ tokenSource }, { dispatch, queryFulfilled }) {
+        dispatch(resetPasswordSubmitting({ tokenSource }));
+        try {
+          await queryFulfilled;
+          await clearPersistedSessionArtifacts();
+          dispatch(logoutCompleted());
+          dispatch(resetPasswordSucceeded());
+        } catch {
+          dispatch(resetPasswordFailed());
+        }
+      },
+    }),
+    validateInvitationToken: builder.mutation<InvitationPreflightData, ValidateInvitationTokenRequest>({
+      query: (body) => ({
+        url: '/api/v1/auth/invitations/validate',
+        method: 'POST',
+        body,
+      }),
+      transformResponse: (response: ApiSuccessEnvelope<InvitationPreflightData>) => response.data,
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        dispatch(invitationValidationStarted());
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(invitationValidationSucceeded(data));
+        } catch {
+          dispatch(invitationValidationFailed());
+        }
+      },
+    }),
+    activateInvitation: builder.mutation<
+      ActivateInvitationResponseData,
+      ActivateInvitationRequest
+    >({
+      query: (body) => ({
+        url: '/api/v1/auth/invitations/activate',
+        method: 'POST',
+        body,
+      }),
+      transformResponse: (response: ApiSuccessEnvelope<ActivateInvitationResponseData>) => response.data,
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        dispatch(invitationActivationStarted());
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(invitationActivationSucceeded(data));
+        } catch {
+          dispatch(invitationActivationFailed());
+        }
+      },
+    }),
   }),
 });
 
@@ -264,6 +371,10 @@ export const {
   useSelectRoleMutation,
   useRefreshMutation,
   useLogoutMutation,
+  useForgotPasswordMutation,
+  useResetPasswordMutation,
+  useValidateInvitationTokenMutation,
+  useActivateInvitationMutation,
 } = authApi;
 
 export type { AuthError };

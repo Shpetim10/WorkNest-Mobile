@@ -6,4 +6,6 @@ export const selectRequiresRoleSelection = (state: RootState) => state.auth.requ
 export const selectAvailableContexts = (state: RootState) => state.auth.availableContexts;
 export const selectTenantContext = (state: RootState) => state.auth.tenantContext;
 export const selectAuthBootstrapped = (state: RootState) => state.auth.bootstrapped;
-
+export const selectForgotPasswordState = (state: RootState) => state.auth.forgotPassword;
+export const selectResetPasswordState = (state: RootState) => state.auth.resetPassword;
+export const selectInvitationState = (state: RootState) => state.auth.invitation;

@@ -41,7 +41,11 @@ export default function AuthLayout() {
       }}>
       <Stack.Screen name="login" />
       <Stack.Screen name="role-assignment" />
+      <Stack.Screen name="forgot-password" />
       <Stack.Screen name="reset-password" />
+      <Stack.Screen name="invitation-validate" />
+      <Stack.Screen name="invitation-activate" />
+      <Stack.Screen name="invite/activate" />
       <Stack.Screen name="create-new-password" />
       <Stack.Screen name="password-success" />
       <Stack.Screen name="session-expired" />

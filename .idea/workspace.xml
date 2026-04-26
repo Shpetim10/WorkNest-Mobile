@@ -6,19 +6,19 @@
   <component name="ChangeListManager">
     <list default="true" id="18c1ab68-9d5e-4ff2-b69f-5788a1104b94" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/app/(app)/(tabs)/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/app/(app)/(tabs)/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/app/(app)/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/app/(app)/_layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/app.json" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/app.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/app/(app)/(tabs)/attendance.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/app/(app)/(tabs)/attendance.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/worknest-mobile/src/app/(auth)/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/app/(auth)/_layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/app/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/app/_layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/app/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/app/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/common/api/client.ts" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/common/api/client.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/auth/api/auth-service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/attendance/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/attendance/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/auth/api/auth-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/auth/api/auth-api.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/auth/components/login-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/auth/components/login-form.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/auth/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/auth/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/auth/screens/login-screen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/auth/screens/login-screen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/auth/screens/email-sent-screen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/auth/screens/email-sent-screen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/auth/screens/reset-password-screen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/auth/screens/reset-password-screen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/auth/store/auth-slice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/auth/store/auth-slice.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/auth/store/selectors.ts" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/auth/store/selectors.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/auth/types/contracts.ts" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/auth/types/contracts.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/auth/utils/auth-error-messages.ts" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/auth/utils/auth-error-messages.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -104,7 +104,8 @@
       <workItem from="1775638513741" duration="2819000" />
       <workItem from="1775644840578" duration="12000" />
       <workItem from="1775853649499" duration="303000" />
-      <workItem from="1777107918171" duration="2540000" />
+      <workItem from="1777107918171" duration="8002000" />
+      <workItem from="1777206052263" duration="41000" />
     </task>
     <servers />
   </component>

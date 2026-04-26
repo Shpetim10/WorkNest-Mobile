@@ -1,142 +1,166 @@
-import { BlurView } from 'expo-blur';
-import { ChevronLeft, Mail } from 'lucide-react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import {
-  Dimensions,
-  SafeAreaView,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  View,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-} from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, Alert, SafeAreaView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { GradientButton } from '@/common/components/gradient-button';
-import { GradientIcon } from '@/common/components/gradient-icon';
-import { BoldTitle } from '@/common/components/bold-title';
+import { clearPersistedSessionArtifacts } from '@/common/storage/secure-session-storage';
+import { useAppDispatch, useAppSelector } from '@/common/store/hooks';
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts, Spacing } from '@/common/constants/theme';
-import { useTheme } from '@/common/hooks/use-theme';
+import { useResetPasswordMutation } from '@/features/auth/api/auth-api';
+import { clearResetPasswordState, logoutCompleted } from '@/features/auth/store/auth-slice';
+import { selectAuthState } from '@/features/auth/store/selectors';
+import { trackAuthEvent } from '@/features/auth/utils/auth-events';
+import {
+  buildFieldErrorMapFromFieldErrors,
+  mapBackendErrorCodeToMessage,
+} from '@/features/auth/utils/auth-error-messages';
+import { validatePasswordPolicy } from '@/features/auth/utils/password-policy';
+import { parseAuthError } from '@/features/auth/utils/parse-auth-error';
+import { sanitizeAuthFlowToken } from '@/features/auth/utils/token-utils';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const RESET_LINK_ERROR_CODES = new Set([
+  'RESET_TOKEN_INVALID',
+  'RESET_TOKEN_EXPIRED',
+  'RESET_TOKEN_ALREADY_USED',
+]);
 
 export function ResetPasswordScreen() {
   const router = useRouter();
-  const theme = useTheme();
-  const [email, setEmail] = useState('');
-  const [error, setError] = useState(false);
+  const dispatch = useAppDispatch();
+  const params = useLocalSearchParams<{ token?: string }>();
+  const { userEmail } = useAppSelector(selectAuthState);
 
-  const handleReset = () => {
-    if (email.trim()) {
-      console.log('Sending reset link to:', email);
-      router.replace('/(auth)/email-sent' as any);
-    } else {
-      setError(true);
+  const [token, setToken] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [errorText, setErrorText] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [isInvalidLink, setIsInvalidLink] = useState(false);
+  const [resetPassword, { isLoading }] = useResetPasswordMutation();
+
+  useEffect(() => {
+    const sanitizedToken = sanitizeAuthFlowToken(params.token);
+    if (sanitizedToken) {
+      setToken(sanitizedToken);
+    }
+  }, [params.token]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(clearResetPasswordState());
+    };
+  }, [dispatch]);
+
+  const passwordValidation = useMemo(
+    () =>
+      validatePasswordPolicy({
+        password: newPassword,
+        confirmPassword,
+        email: userEmail,
+      }),
+    [newPassword, confirmPassword, userEmail]
+  );
+
+  const onSubmit = async () => {
+    const sanitizedToken = sanitizeAuthFlowToken(token);
+    if (!sanitizedToken) {
+      setErrorText('Reset token is required.');
+      return;
+    }
+    if (!passwordValidation.valid) {
+      setErrorText(passwordValidation.errors[0] ?? 'Password is invalid.');
+      return;
+    }
+
+    setErrorText(null);
+    setFieldErrors({});
+    try {
+      await resetPassword({
+        token: sanitizedToken,
+        newPassword,
+        tokenSource: params.token ? 'deep-link' : 'manual',
+      }).unwrap();
+
+      await clearPersistedSessionArtifacts();
+      dispatch(logoutCompleted());
+      trackAuthEvent('reset_password_success');
+      Alert.alert('Success', 'Password reset successfully. Please login with your new password.');
+      router.replace('/login' as any);
+    } catch (error) {
+      const parsed = parseAuthError(error);
+      const code = parsed.code;
+      setFieldErrors(buildFieldErrorMapFromFieldErrors(parsed.fieldErrors));
+      const message = mapBackendErrorCodeToMessage(code, parsed.message);
+      setErrorText(message);
+      setIsInvalidLink(Boolean(code && RESET_LINK_ERROR_CODES.has(code)));
     }
   };
 
   return (
-    <View style={styles.container}>
-      {/* Background Shadow Glows */}
-      <View style={styles.backgroundContainer}>
-        <View style={StyleSheet.absoluteFill}>
-          {/* Upper Glow */}
-          <LinearGradient
-            colors={['#BEDBFF4D', '#96F7E44D']}
-            locations={[0.3, 0.7]}
-            style={styles.upperGlow}
-          />
-          {/* Bottom Glow */}
-          <LinearGradient
-            colors={['#E9D4FF33', '#FCCEE833']}
-            locations={[0.2, 0.8]}
-            style={styles.bottomGlow}
-          />
-        </View>
-        {/* Blur overlay to achieve the "Blur 128" effect */}
-        <BlurView intensity={100} style={StyleSheet.absoluteFill} tint="light" />
-      </View>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.content}>
+        <ThemedText style={styles.title}>Reset Password</ThemedText>
+        <ThemedText style={styles.subtitle}>Set your new password and sign in again.</ThemedText>
 
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.mainContent}>
-          {/* Back Navigation */}
-          <TouchableOpacity 
-            style={styles.backButton} 
-            onPress={() => router.back()}
-          >
-            <ChevronLeft size={24} color="#1E293B" />
-            <ThemedText style={styles.backText}>Back to Login</ThemedText>
+        <TextInput
+          style={styles.input}
+          placeholder="Reset token"
+          placeholderTextColor="#94A3B8"
+          value={token}
+          onChangeText={setToken}
+          autoCapitalize="none"
+          editable={!isLoading}
+        />
+        {fieldErrors.token ? <ThemedText style={styles.error}>{fieldErrors.token}</ThemedText> : null}
+
+        <TextInput
+          style={styles.input}
+          placeholder="New password"
+          placeholderTextColor="#94A3B8"
+          value={newPassword}
+          onChangeText={setNewPassword}
+          secureTextEntry
+          editable={!isLoading}
+        />
+        {fieldErrors.newPassword ? (
+          <ThemedText style={styles.error}>{fieldErrors.newPassword}</ThemedText>
+        ) : null}
+
+        <TextInput
+          style={styles.input}
+          placeholder="Confirm password"
+          placeholderTextColor="#94A3B8"
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          secureTextEntry
+          editable={!isLoading}
+        />
+        {fieldErrors.confirmPassword ? (
+          <ThemedText style={styles.error}>{fieldErrors.confirmPassword}</ThemedText>
+        ) : null}
+
+        <View style={styles.rules}>
+          <ThemedText style={styles.rule}>Password must be at least 8 characters.</ThemedText>
+          <ThemedText style={styles.rule}>Password must include 1 uppercase and 1 digit.</ThemedText>
+        </View>
+
+        {errorText ? <ThemedText style={styles.error}>{errorText}</ThemedText> : null}
+
+        <GradientButton
+          title={isLoading ? 'Resetting...' : 'Reset Password'}
+          onPress={onSubmit}
+          disabled={isLoading}
+        />
+        {isLoading ? <ActivityIndicator color="#2B7FFF" style={styles.loader} /> : null}
+
+        {isInvalidLink ? (
+          <TouchableOpacity onPress={() => router.replace('/forgot-password' as any)}>
+            <ThemedText type="link">Request new link</ThemedText>
           </TouchableOpacity>
-
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={styles.keyboardView}
-          >
-            {/* Card Content */}
-            <View style={styles.card}>
-              <GradientIcon 
-                Icon={Mail} 
-                size={74} 
-                style={styles.mainIcon} 
-              />
-
-              <View style={styles.titleContainer}>
-                <BoldTitle 
-                  text="Reset your password" 
-                  style={styles.title} 
-                />
-                <ThemedText style={styles.subtitle}>
-                  We will send a reset link to your email
-                </ThemedText>
-              </View>
-
-              {/* Input Area */}
-              <View style={styles.inputArea}>
-                <ThemedText style={styles.inputLabel}>Email Address</ThemedText>
-                <View style={[
-                  styles.inputWrapper,
-                  error && styles.inputWrapperError
-                ]}>
-                  <Mail size={20} color="#94A3B8" />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="your.email@company.com"
-                    placeholderTextColor="#94A3B8"
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    value={email}
-                    onChangeText={(text) => {
-                      setEmail(text);
-                      if (error) setError(false);
-                    }}
-                  />
-                </View>
-                {error && (
-                  <ThemedText style={styles.errorText}>
-                    * Please enter your email address
-                  </ThemedText>
-                )}
-              </View>
-
-              <View style={styles.buttonContainer}>
-                <GradientButton 
-                  title="Send Reset Link" 
-                  onPress={handleReset} 
-                />
-              </View>
-
-              <ThemedText style={styles.footerText}>
-                The reset link will be valid for 24 hours
-              </ThemedText>
-            </View>
-          </KeyboardAvoidingView>
-        </View>
-      </SafeAreaView>
-    </View>
+        ) : null}
+      </View>
+    </SafeAreaView>
   );
 }
 
@@ -145,133 +169,46 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F8FAFC',
   },
-  backgroundContainer: {
-    ...StyleSheet.absoluteFillObject,
-    overflow: 'hidden',
-  },
-  upperGlow: {
-    position: 'absolute',
-    top: -50,
-    right: -100,
-    width: SCREEN_WIDTH * 1.2,
-    height: SCREEN_WIDTH * 1.2,
-    borderRadius: SCREEN_WIDTH,
-  },
-  bottomGlow: {
-    position: 'absolute',
-    bottom: -150,
-    left: -150,
-    width: SCREEN_WIDTH * 1.5,
-    height: SCREEN_WIDTH * 1.5,
-    borderRadius: SCREEN_WIDTH,
-  },
-  safeArea: {
-    flex: 1,
-  },
-  mainContent: {
+  content: {
     flex: 1,
     paddingHorizontal: Spacing.four,
-    paddingTop: Spacing.four,
-    paddingBottom: Spacing.six,
-  },
-  backButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: Spacing.five,
-  },
-  backText: {
-    fontFamily: Fonts.sf.semibold,
-    fontSize: 16,
-    color: '#1E293B',
-    marginLeft: Spacing.one,
-  },
-  keyboardView: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  card: {
-    backgroundColor: 'white',
-    borderRadius: 40,
-    padding: Spacing.five,
-    width: '100%',
-    shadowColor: '#2B7FFF',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
-    elevation: 5,
-    alignItems: 'center',
-  },
-  mainIcon: {
-    marginBottom: Spacing.four,
-    // Shadow / Elevation for the icon card
-    shadowColor: '#2B7FFF',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  titleContainer: {
-    alignItems: 'center',
-    marginBottom: Spacing.five,
+    paddingVertical: Spacing.six,
+    gap: Spacing.three,
   },
   title: {
     fontFamily: Fonts.ny.bold,
-    fontSize: 28,
-    textAlign: 'center',
-    marginBottom: Spacing.two,
+    fontSize: 32,
+    lineHeight: 38,
+    color: '#0F172A',
   },
   subtitle: {
-    fontFamily: Fonts.sf.regular,
-    fontSize: 16,
-    color: '#64748B',
-    textAlign: 'center',
-    lineHeight: 24,
-  },
-  inputArea: {
-    width: '100%',
-    marginBottom: Spacing.five,
-  },
-  inputLabel: {
-    fontFamily: Fonts.sf.semibold,
-    fontSize: 14,
-    color: '#1E293B',
-    marginBottom: Spacing.two,
-  },
-  inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-    borderRadius: 16,
-    paddingHorizontal: Spacing.three,
-    height: 58,
-    backgroundColor: '#FBFDFF',
-  },
-  inputWrapperError: {
-    borderColor: '#EF4444',
-    backgroundColor: '#FEF2F2',
+    color: '#475569',
+    marginBottom: Spacing.one,
   },
   input: {
-    flex: 1,
-    marginLeft: Spacing.two,
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    borderRadius: 14,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.three,
+    backgroundColor: '#FFFFFF',
     fontFamily: Fonts.sf.regular,
-    fontSize: 16,
-    color: '#1E293B',
+    color: '#0F172A',
   },
-  errorText: {
-    color: '#EF4444',
-    fontSize: 14,
-    fontFamily: Fonts.sf.regular,
-    marginTop: Spacing.one,
+  rules: {
+    backgroundColor: '#EEF2FF',
+    borderRadius: 12,
+    padding: Spacing.three,
+    gap: Spacing.one,
   },
-  buttonContainer: {
-    width: '100%',
-    marginBottom: Spacing.four,
+  rule: {
+    color: '#334155',
+    fontSize: 13,
   },
-  footerText: {
-    textAlign: 'center',
-    fontSize: 14,
-    color: '#94A3B8',
-    fontFamily: Fonts.sf.regular,
+  error: {
+    color: '#DC2626',
+  },
+  loader: {
+    marginTop: -Spacing.one,
   },
 });

@@ -103,7 +103,7 @@ export function LoginForm() {
       {/* Forgot Password */}
       <TouchableOpacity 
         style={styles.forgotPassword}
-        onPress={() => router.push('/(auth)/reset-password' as any)}
+        onPress={() => router.push('/forgot-password' as any)}
         disabled={isLoading}
       >
         <ThemedText style={styles.forgotText}>Forgot password?</ThemedText>
