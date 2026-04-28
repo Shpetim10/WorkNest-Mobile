@@ -1,64 +1,153 @@
-import React from 'react';
-import { StyleSheet, View, useColorScheme } from 'react-native';
+import React, { useMemo } from 'react';
+import { StyleSheet, TouchableOpacity, View, useColorScheme } from 'react-native';
+import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 
 import { ThemedText } from '@/common/components/themed-text';
 import { ThemedView } from '@/common/components/themed-view';
 import { Fonts, Spacing, Colors } from '@/common/constants/theme';
+import type { AttendanceMonthDay } from '@/features/attendance/types/contracts';
 
-export function AttendanceCalendar() {
+interface AttendanceCalendarProps {
+  monthDate: Date;
+  monthDays: AttendanceMonthDay[];
+  isLoading: boolean;
+  onMonthChange: (offset: number) => void;
+  onDayPress: (day: AttendanceMonthDay) => void;
+  selectedDay: AttendanceMonthDay | null;
+}
+
+const DAYS_OF_WEEK = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+
+function statusColor(status: string): string {
+  switch (status) {
+    case 'PRESENT':
+      return '#00C950';
+    case 'LATE':
+      return '#F59E0B';
+    case 'ABSENT':
+      return '#EF4444';
+    case 'HOLIDAY':
+    case 'WEEKEND':
+      return '#3B82F6';
+    case 'PENDING_REVIEW':
+      return '#8B5CF6';
+    default:
+      return 'transparent';
+  }
+}
+
+export function AttendanceCalendar({
+  monthDate,
+  monthDays,
+  isLoading,
+  onMonthChange,
+  onDayPress,
+  selectedDay,
+}: AttendanceCalendarProps) {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
 
-  const daysOfWeek = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-  
-  // Mock calendar data
-  const calendarDays = [
-    { day: 1, status: 'present' }, { day: 2, status: 'present' }, { day: 3, status: 'late' }, 
-    { day: 4, status: 'none' }, { day: 5, status: 'absent' }, { day: 6, status: 'none' }, { day: 7, status: 'none' },
-    { day: 8, status: 'present' }, { day: 9, status: 'present' }, { day: 10, status: 'present' }, 
-    { day: 11, status: 'none' }, { day: 12, status: 'present' }, { day: 13, status: 'none' }, { day: 14, status: 'none' },
-    { day: 15, status: 'present' }, { day: 16, status: 'late' }, { day: 17, status: 'present' }, 
-    { day: 18, status: 'none' }, { day: 19, status: 'none' }, { day: 20, status: 'none' }, { day: 21, status: 'none' },
-    { day: 22, status: 'holidays' }, { day: 23, status: 'holidays' }, { day: 24, status: 'holidays' }, 
-    { day: 25, status: 'holidays' }, { day: 26, status: 'none' }, { day: 27, status: 'none' }, { day: 28, status: 'none' },
-    { day: 29, status: 'none' }, { day: 30, status: 'none' }, { day: 31, status: 'none' },
-  ];
+  const monthTitle = useMemo(
+    () =>
+      new Intl.DateTimeFormat(undefined, {
+        month: 'long',
+        year: 'numeric',
+      }).format(monthDate),
+    [monthDate]
+  );
 
-  const getStatusColor = (status: string) => {
-    switch(status) {
-      case 'present': return '#00C950';
-      case 'late': return '#FFB020';
-      case 'absent': return '#FF383C';
-      case 'holidays': return '#2B7FFF';
-      default: return 'transparent';
+  const dayMap = useMemo(() => {
+    const map = new Map<string, AttendanceMonthDay>();
+    monthDays.forEach((day) => map.set(day.date, day));
+    return map;
+  }, [monthDays]);
+
+  const cells = useMemo(() => {
+    const year = monthDate.getFullYear();
+    const month = monthDate.getMonth();
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    const result: { key: string; dayNumber: number | null; payload: AttendanceMonthDay | null }[] = [];
+
+    for (let i = 0; i < firstDay; i += 1) {
+      result.push({ key: `spacer-${i}`, dayNumber: null, payload: null });
     }
-  };
+
+    for (let dayNumber = 1; dayNumber <= daysInMonth; dayNumber += 1) {
+      const isoDate = new Date(Date.UTC(year, month, dayNumber)).toISOString().slice(0, 10);
+      result.push({
+        key: isoDate,
+        dayNumber,
+        payload: dayMap.get(isoDate) ?? null,
+      });
+    }
+
+    return result;
+  }, [dayMap, monthDate]);
 
   return (
     <ThemedView style={[styles.container, isDark && styles.containerDark]}>
-      <ThemedText style={styles.monthTitle}>March 2026</ThemedText>
-      
+      <View style={styles.monthHeader}>
+        <TouchableOpacity style={styles.monthButton} onPress={() => onMonthChange(-1)}>
+          <ChevronLeft size={18} color="#475569" />
+        </TouchableOpacity>
+        <ThemedText style={styles.monthTitle}>{monthTitle}</ThemedText>
+        <TouchableOpacity style={styles.monthButton} onPress={() => onMonthChange(1)}>
+          <ChevronRight size={18} color="#475569" />
+        </TouchableOpacity>
+      </View>
+
       <View style={styles.daysHeader}>
-        {daysOfWeek.map((day, idx) => (
-          <ThemedText key={idx} style={styles.dayLabel}>{day}</ThemedText>
+        {DAYS_OF_WEEK.map((day) => (
+          <ThemedText key={day} style={styles.dayLabel}>
+            {day}
+          </ThemedText>
         ))}
       </View>
 
       <View style={styles.datesGrid}>
-        {calendarDays.map((item, idx) => (
-          <View key={idx} style={styles.dateCell}>
-            <ThemedText style={styles.dateText}>{item.day}</ThemedText>
-            <View style={[styles.dot, { backgroundColor: getStatusColor(item.status) }]} />
-          </View>
-        ))}
+        {cells.map((cell) =>
+          cell.dayNumber ? (
+            <TouchableOpacity
+              key={cell.key}
+              style={[
+                styles.dateCell,
+                selectedDay?.date === cell.payload?.date ? styles.dateCellSelected : undefined,
+              ]}
+              onPress={() => cell.payload && onDayPress(cell.payload)}
+              disabled={!cell.payload}
+            >
+              <ThemedText style={styles.dateText}>{cell.dayNumber}</ThemedText>
+              <View
+                style={[
+                  styles.dot,
+                  { backgroundColor: cell.payload ? statusColor(cell.payload.dayStatus) : 'transparent' },
+                ]}
+              />
+            </TouchableOpacity>
+          ) : (
+            <View key={cell.key} style={styles.dateCell} />
+          )
+        )}
       </View>
 
       <View style={styles.legendContainer}>
         <LegendItem color="#00C950" label="Present" />
-        <LegendItem color="#FFB020" label="Late" />
-        <LegendItem color="#FF383C" label="Absent" />
-        <LegendItem color="#2B7FFF" label="Holidays" />
+        <LegendItem color="#F59E0B" label="Late" />
+        <LegendItem color="#EF4444" label="Absent" />
+        <LegendItem color="#3B82F6" label="Holiday" />
       </View>
+
+      {isLoading ? (
+        <ThemedText style={styles.loadingText}>Loading calendar...</ThemedText>
+      ) : selectedDay ? (
+        <View style={styles.selectedDayCard}>
+          <ThemedText style={styles.selectedDate}>{selectedDay.date}</ThemedText>
+          <ThemedText style={styles.selectedInfo}>Status: {selectedDay.dayStatus}</ThemedText>
+          <ThemedText style={styles.selectedInfo}>Worked minutes: {selectedDay.workedMinutes}</ThemedText>
+        </View>
+      ) : null}
     </ThemedView>
   );
 }
@@ -76,63 +165,79 @@ const styles = StyleSheet.create({
   container: {
     marginHorizontal: Spacing.four,
     marginTop: Spacing.four,
-    marginBottom: Spacing.eight,
+    marginBottom: Spacing.six,
     padding: Spacing.four,
     borderRadius: 24,
     backgroundColor: '#F9FBFF',
     borderWidth: 1,
     borderColor: '#E8F0F8',
-    paddingBottom: Spacing.six,
+    paddingBottom: Spacing.four,
   },
   containerDark: {
-    backgroundColor: Colors.dark.card,
-    borderColor: Colors.dark.border,
+    backgroundColor: Colors.dark.backgroundElement,
+    borderColor: Colors.dark.backgroundSelected,
+  },
+  monthHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: Spacing.three,
+  },
+  monthButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#F1F5F9',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   monthTitle: {
     fontFamily: Fonts.sf.bold,
     fontSize: 18,
-    marginBottom: Spacing.four,
   },
   daysHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: Spacing.three,
+    marginBottom: Spacing.two,
   },
   dayLabel: {
-    width: 30,
+    width: '14.28%',
     textAlign: 'center',
     color: '#A0A0A0',
-    fontFamily: Fonts.sf.medium,
+    fontFamily: Fonts.sf.semibold,
     fontSize: 12,
   },
   datesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'flex-start',
   },
   dateCell: {
-    width: '14.28%', // 100 / 7
+    width: '14.28%',
     aspectRatio: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    borderRadius: 10,
     marginBottom: Spacing.one,
   },
+  dateCellSelected: {
+    backgroundColor: '#EFF6FF',
+  },
   dateText: {
-    fontFamily: Fonts.sf.medium,
+    fontFamily: Fonts.sf.semibold,
     fontSize: 14,
-    marginBottom: 2,
+    marginBottom: 3,
   },
   dot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
+    width: 5,
+    height: 5,
+    borderRadius: 99,
   },
   legendContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     flexWrap: 'wrap',
-    marginTop: Spacing.four,
-    paddingTop: Spacing.four,
+    marginTop: Spacing.three,
+    paddingTop: Spacing.three,
     borderTopWidth: 1,
     borderTopColor: '#F0F0F0',
   },
@@ -143,11 +248,32 @@ const styles = StyleSheet.create({
   legendColor: {
     width: 8,
     height: 8,
-    borderRadius: 4,
+    borderRadius: 99,
     marginRight: Spacing.one,
   },
   legendLabel: {
     fontSize: 12,
     color: '#666666',
+  },
+  loadingText: {
+    marginTop: Spacing.two,
+    color: '#64748B',
+    fontFamily: Fonts.sf.semibold,
+  },
+  selectedDayCard: {
+    marginTop: Spacing.three,
+    paddingTop: Spacing.three,
+    borderTopWidth: 1,
+    borderTopColor: '#E2E8F0',
+    gap: 4,
+  },
+  selectedDate: {
+    fontFamily: Fonts.sf.bold,
+    fontSize: 14,
+  },
+  selectedInfo: {
+    fontFamily: Fonts.sf.semibold,
+    color: '#475569',
+    fontSize: 13,
   },
 });
