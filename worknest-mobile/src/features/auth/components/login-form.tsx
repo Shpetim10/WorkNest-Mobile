@@ -12,7 +12,6 @@ import {
 import { GradientButton } from '@/common/components/gradient-button';
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts, Spacing } from '@/common/constants/theme';
-import { useTheme } from '@/common/hooks/use-theme';
 import { useLoginMutation } from '@/features/auth/api/auth-api';
 import {
   buildFieldErrorMapFromFieldErrors,
@@ -22,7 +21,6 @@ import { parseAuthError } from '@/features/auth/utils/parse-auth-error';
 
 export function LoginForm() {
   const router = useRouter();
-  const theme = useTheme();
   const [login, { isLoading }] = useLoginMutation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -60,7 +58,7 @@ export function LoginForm() {
       <View style={[styles.inputWrapper, { borderColor: '#E2E8F0' }]}>
         <Mail size={20} color={iconColor} strokeWidth={2} />
         <TextInput
-          style={[styles.input, { color: theme.text }]}
+          style={styles.input}
           placeholder="Email"
           placeholderTextColor="#94A3B8"
           keyboardType="email-address"
@@ -76,7 +74,7 @@ export function LoginForm() {
       <View style={[styles.inputWrapper, { borderColor: '#E2E8F0' }]}>
         <Lock size={20} color={iconColor} strokeWidth={2} />
         <TextInput
-          style={[styles.input, { color: theme.text }]}
+          style={styles.input}
           placeholder="Password"
           placeholderTextColor="#94A3B8"
           secureTextEntry={!showPassword}
@@ -143,6 +141,7 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.sf.regular,
     fontSize: 16,
     height: '100%',
+    color: '#0F172A',
   },
   forgotPassword: {
     alignSelf: 'flex-end',
