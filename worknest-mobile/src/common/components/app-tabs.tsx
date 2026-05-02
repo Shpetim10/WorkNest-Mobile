@@ -36,6 +36,14 @@ export default function AppTabs() {
           renderingMode="template"
         />
       </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="requests">
+        <NativeTabTriggerLabel>Requests</NativeTabTriggerLabel>
+        <NativeTabTriggerIcon
+          src={require('@/assets/images/tabIcons/explore.png')}
+          renderingMode="template"
+        />
+      </NativeTabs.Trigger>
     </NativeTabs>
   );
 }
