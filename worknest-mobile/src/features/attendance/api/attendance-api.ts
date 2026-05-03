@@ -30,7 +30,7 @@ function toTodayStateFromClockResponse(
     siteName: previous?.siteName ?? null,
     qrRequired: previous?.qrRequired ?? false,
     locationRequired: previous?.locationRequired ?? false,
-    serverTime: data.serverTime,
+    serverTime: data.serverRecordedAt,
     timezone: data.timezone,
     workDate: data.workDate,
     todayRecord: data.todayRecord,

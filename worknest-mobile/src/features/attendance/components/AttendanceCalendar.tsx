@@ -23,14 +23,18 @@ function statusColor(status: string): string {
     case 'PRESENT':
       return '#00C950';
     case 'LATE':
+    case 'MISSING_CHECKOUT':
       return '#F59E0B';
     case 'ABSENT':
+    case 'FLAGGED':
       return '#EF4444';
+    case 'HALF_DAY':
+      return '#EAB308';
+    case 'ON_LEAVE':
     case 'HOLIDAY':
-    case 'WEEKEND':
       return '#3B82F6';
     case 'PENDING_REVIEW':
-      return '#8B5CF6';
+      return '#94A3B8';
     default:
       return 'transparent';
   }
@@ -134,9 +138,12 @@ export function AttendanceCalendar({
 
       <View style={styles.legendContainer}>
         <LegendItem color="#00C950" label="Present" />
-        <LegendItem color="#F59E0B" label="Late" />
         <LegendItem color="#EF4444" label="Absent" />
-        <LegendItem color="#3B82F6" label="Holiday" />
+        <LegendItem color="#F59E0B" label="Late" />
+        <LegendItem color="#EAB308" label="Half Day" />
+        <LegendItem color="#3B82F6" label="Leave/Holiday" />
+        <LegendItem color="#F59E0B" label="No Checkout" />
+        <LegendItem color="#94A3B8" label="Pending" />
       </View>
 
       {isLoading ? (

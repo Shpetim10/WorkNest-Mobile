@@ -32,8 +32,8 @@ function formatTime(value: string | null, timezone?: string | null) {
 export function TodaysRecords({ record, timezone }: TodaysRecordsProps) {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const clockInTime = formatTime(record?.clockInTime ?? null, timezone);
-  const clockOutTime = formatTime(record?.clockOutTime ?? null, timezone);
+  const clockInTime = formatTime(record?.firstCheckInAt ?? null, timezone);
+  const clockOutTime = formatTime(record?.lastCheckOutAt ?? null, timezone);
 
   return (
     <ThemedView style={[styles.container, isDark && styles.containerDark]}>
@@ -52,8 +52,8 @@ export function TodaysRecords({ record, timezone }: TodaysRecordsProps) {
       
       <View style={styles.recordRow}>
         <View style={styles.recordLeft}>
-          <XCircle size={18} color={record?.clockOutTime ? '#00C950' : '#A0A0A0'} />
-          <ThemedText style={[styles.recordLabel, !record?.clockOutTime && { color: '#A0A0A0' }]}>
+          <XCircle size={18} color={record?.lastCheckOutAt ? '#00C950' : '#A0A0A0'} />
+          <ThemedText style={[styles.recordLabel, !record?.lastCheckOutAt && { color: '#A0A0A0' }]}>
             Clock Out
           </ThemedText>
         </View>

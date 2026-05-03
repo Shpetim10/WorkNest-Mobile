@@ -61,12 +61,12 @@ function makeClientRequestId(): string {
 
 function platformName(): ClockAttendanceRequest['platform'] {
   if (Platform.OS === 'android') {
-    return 'ANDROID';
+    return 'android';
   }
   if (Platform.OS === 'ios') {
-    return 'IOS';
+    return 'ios';
   }
-  return 'WEB';
+  return 'web';
 }
 
 function buildActionCopy(today: AttendanceTodayData | null) {
