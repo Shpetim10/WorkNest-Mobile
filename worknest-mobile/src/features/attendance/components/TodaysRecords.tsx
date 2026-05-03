@@ -1,15 +1,15 @@
 import React from 'react';
-import { StyleSheet, useColorScheme, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { Calendar, CheckCircle2, XCircle } from 'lucide-react-native';
 
-import { ThemedText } from '@/common/components/themed-text';
-import { ThemedView } from '@/common/components/themed-view';
-import { Fonts, Spacing, Colors } from '@/common/constants/theme';
+import { Fonts, Spacing } from '@/common/constants/theme';
 import type { AttendanceDayRecord } from '@/features/attendance/types/contracts';
 
 interface TodaysRecordsProps {
   record: AttendanceDayRecord | null;
   timezone?: string | null;
+  clockIn?: string | null;
+  clockOut?: string | null;
 }
 
 function formatTime(value: string | null, timezone?: string | null) {
@@ -29,46 +29,46 @@ function formatTime(value: string | null, timezone?: string | null) {
   }
 }
 
-export function TodaysRecords({ record, timezone }: TodaysRecordsProps) {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
-  const clockInTime = formatTime(record?.firstCheckInAt ?? null, timezone);
-  const clockOutTime = formatTime(record?.lastCheckOutAt ?? null, timezone);
+export function TodaysRecords({ record, timezone, clockIn, clockOut }: TodaysRecordsProps) {
+  const effectiveClockIn = record?.firstCheckInAt ?? clockIn ?? null;
+  const effectiveClockOut = record?.lastCheckOutAt ?? clockOut ?? null;
+  const clockInTime = formatTime(effectiveClockIn, timezone);
+  const clockOutTime = formatTime(effectiveClockOut, timezone);
 
   return (
-    <ThemedView style={[styles.container, isDark && styles.containerDark]}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <Calendar size={20} color="#2B7FFF" />
-        <ThemedText style={styles.title}>Today Records</ThemedText>
+        <Text style={styles.title}>Today Records</Text>
       </View>
       
       <View style={styles.recordRow}>
         <View style={styles.recordLeft}>
           <CheckCircle2 size={18} color="#00C950" />
-          <ThemedText style={styles.recordLabel}>Clock In</ThemedText>
+          <Text style={styles.recordLabel}>Clock In</Text>
         </View>
-        <ThemedText style={styles.recordTime}>{clockInTime}</ThemedText>
+        <Text style={styles.recordTime}>{clockInTime}</Text>
       </View>
       
       <View style={styles.recordRow}>
         <View style={styles.recordLeft}>
-          <XCircle size={18} color={record?.lastCheckOutAt ? '#00C950' : '#A0A0A0'} />
-          <ThemedText style={[styles.recordLabel, !record?.lastCheckOutAt && { color: '#A0A0A0' }]}>
+          <XCircle size={18} color={effectiveClockOut ? '#00C950' : '#A0A0A0'} />
+          <Text style={[styles.recordLabel, !effectiveClockOut && { color: '#A0A0A0' }]}>
             Clock Out
-          </ThemedText>
+          </Text>
         </View>
-        <ThemedText style={styles.recordTime}>{clockOutTime}</ThemedText>
+        <Text style={styles.recordTime}>{clockOutTime}</Text>
       </View>
 
       <View style={styles.metaRow}>
-        <ThemedText style={styles.metaLabel}>Day Status</ThemedText>
-        <ThemedText style={styles.metaValue}>{record?.dayStatus ?? 'N/A'}</ThemedText>
+        <Text style={styles.metaLabel}>Day Status</Text>
+        <Text style={styles.metaValue}>{record?.dayStatus ?? 'N/A'}</Text>
       </View>
       <View style={styles.metaRow}>
-        <ThemedText style={styles.metaLabel}>Worked Minutes</ThemedText>
-        <ThemedText style={styles.metaValue}>{record?.workedMinutes ?? 0}</ThemedText>
+        <Text style={styles.metaLabel}>Worked Minutes</Text>
+        <Text style={styles.metaValue}>{record?.workedMinutes ?? 0}</Text>
       </View>
-    </ThemedView>
+    </View>
   );
 }
 
@@ -78,13 +78,9 @@ const styles = StyleSheet.create({
     marginTop: Spacing.four,
     padding: Spacing.four,
     borderRadius: 24,
-    backgroundColor: '#F9FBFF', // Very light blue-ish white
+    backgroundColor: '#F9FBFF',
     borderWidth: 1,
     borderColor: '#E8F0F8',
-  },
-  containerDark: {
-    backgroundColor: Colors.dark.backgroundElement,
-    borderColor: Colors.dark.backgroundSelected,
   },
   header: {
     flexDirection: 'row',
@@ -95,6 +91,7 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.sf.bold,
     fontSize: 16,
     marginLeft: Spacing.two,
+    color: '#1E293B',
   },
   recordRow: {
     flexDirection: 'row',
@@ -115,6 +112,7 @@ const styles = StyleSheet.create({
   recordTime: {
     fontFamily: Fonts.sf.bold,
     fontSize: 14,
+    color: '#1E293B',
   },
   metaRow: {
     marginTop: Spacing.two,
@@ -129,5 +127,6 @@ const styles = StyleSheet.create({
   metaValue: {
     fontFamily: Fonts.sf.bold,
     fontSize: 13,
+    color: '#1E293B',
   },
 });

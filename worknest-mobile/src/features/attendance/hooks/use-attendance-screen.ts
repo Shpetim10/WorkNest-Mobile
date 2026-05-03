@@ -187,7 +187,7 @@ export function useAttendanceScreen(): UseAttendanceScreenResult {
     error: monthError,
     refetch: refetchMonth,
   } = useGetAttendanceMonthQuery({ year, month });
-  const [submitClock, { isLoading: isSubmitting }] = useSubmitAttendanceClockMutation();
+  const [submitClock] = useSubmitAttendanceClockMutation();
   const [validateQr] = useValidateAttendanceQrMutation();
 
   useFocusEffect(
@@ -430,9 +430,9 @@ export function useAttendanceScreen(): UseAttendanceScreenResult {
     banner: hasLoadError && !today ? { type: 'error', text: "We couldn't load attendance. Please retry." } : banner,
     actionButtonLabel: actionCopy.label,
     actionButtonHint: actionCopy.hint,
-    actionDisabled: actionCopy.disabled || isSubmitting || workflowBusy || isLoadingToday,
+    actionDisabled: actionCopy.disabled || workflowBusy || isLoadingToday,
     actionDisabledReason: actionCopy.reason,
-    isActionBusy: isSubmitting || workflowBusy,
+    isActionBusy: workflowBusy,
     changeMonth,
     selectDay: setSelectedDay,
     clearSelectedDay: () => setSelectedDay(null),

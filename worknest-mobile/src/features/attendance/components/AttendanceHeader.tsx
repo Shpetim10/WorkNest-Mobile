@@ -6,58 +6,74 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
 import { ThemedText } from '@/common/components/themed-text';
-import { Fonts, Spacing } from '@/common/constants/theme';
+import { Fonts } from '@/common/constants/theme';
 
 export function AttendanceHeader() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
   return (
-    <LinearGradient
-      colors={['#2B7FFF', '#00C950E5']}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={[styles.container, { paddingTop: insets.top + Spacing.four }]}
-    >
-      <View style={styles.headerRow}>
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => router.back()}
-          activeOpacity={0.7}
-        >
-          <ArrowLeft size={24} color="#FFFFFF" />
-        </TouchableOpacity>
-        <ThemedText style={styles.title}>Attendance</ThemedText>
-      </View>
-    </LinearGradient>
+    <View style={styles.headerWrapper}>
+      <LinearGradient
+        colors={['#2B7FFF', '#00BBA7']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.container, { paddingTop: insets.top + 20 }]}
+      >
+        <View style={styles.headerRow}>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()} activeOpacity={0.7}>
+            <ArrowLeft size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+          <View style={styles.titleContainer}>
+            <ThemedText style={styles.title}>Attendance</ThemedText>
+          </View>
+        </View>
+      </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  headerWrapper: {
+    shadowColor: '#2B7FFF',
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 4,
+    backgroundColor: 'transparent',
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
+    zIndex: 10,
+  },
   container: {
-    paddingBottom: 100,
-    borderBottomLeftRadius: 60,
-    borderBottomRightRadius: 60,
-    paddingHorizontal: Spacing.four,
+    height: 185,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
+    paddingHorizontal: 32,
   },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  titleContainer: {
+    flex: 1,
   },
   backButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.5)',
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    width: 48,
+    height: 48,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.35)',
+    backgroundColor: 'rgba(255,255,255,0.12)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: Spacing.three,
+    marginRight: 12,
   },
   title: {
     color: '#FFFFFF',
     fontFamily: Fonts.sf.bold,
+    fontWeight: '700',
     fontSize: 24,
   },
 });

@@ -56,6 +56,8 @@ export default function AttendanceScreen() {
           <TodaysRecords
             record={attendance.today?.todayRecord ?? null}
             timezone={attendance.today?.timezone}
+            clockIn={attendance.today?.clockIn ?? null}
+            clockOut={attendance.today?.clockOut ?? null}
           />
           <AttendanceCalendar
             monthDate={attendance.monthDate}
@@ -100,19 +102,20 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   content: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 45,
-    marginHorizontal: Spacing.four,
-    marginTop: -60, // Strong overlap with the rounded header
-    paddingBottom: Spacing.six,
-    paddingTop: Spacing.two,
-    // Fancy shadow/glow
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
+    marginTop: -58,
+    paddingTop: 24,
+    flex: 1,
+    minHeight: 600,
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    zIndex: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
-    elevation: 10,
-    zIndex: 10,
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 5,
+    paddingBottom: Spacing.six,
   },
   banner: {
     marginHorizontal: Spacing.four,

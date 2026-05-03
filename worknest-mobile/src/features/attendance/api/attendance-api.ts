@@ -16,16 +16,36 @@ interface GetMonthArgs {
   month: number;
 }
 
+function normalizeTodayResponse(response: AttendanceTodayEnvelope): AttendanceTodayData {
+  const data = response.data as AttendanceTodayData & { ClockOut?: string | null; ClockIn?: string | null };
+
+  return {
+    ...data,
+    clockIn: data.clockIn ?? data.ClockIn ?? data.todayRecord?.firstCheckInAt ?? null,
+    clockOut: data.clockOut ?? data.ClockOut ?? data.todayRecord?.lastCheckOutAt ?? null,
+  };
+}
+
 function toTodayStateFromClockResponse(
   data: ClockAttendanceResponseData,
   previous: AttendanceTodayData | undefined
 ): AttendanceTodayData {
+  const prevRecord = previous?.todayRecord ?? null;
+  const todayRecord = data.todayRecord ?? (prevRecord
+    ? {
+        ...prevRecord,
+        firstCheckInAt: data.firstCheckInAt ?? prevRecord.firstCheckInAt,
+        lastCheckOutAt: data.lastCheckOutAt ?? prevRecord.lastCheckOutAt,
+        warnings: data.warnings ?? prevRecord.warnings,
+      }
+    : null);
+
   return {
     state: data.state,
     nextAllowedAction: data.nextAllowedAction,
-    blocked: data.blocked ?? previous?.blocked ?? false,
-    blockReasonCode: data.blockReasonCode ?? previous?.blockReasonCode ?? null,
-    blockReasonMessage: data.blockReasonMessage ?? previous?.blockReasonMessage ?? null,
+    blocked: previous?.blocked ?? false,
+    blockReasonCode: previous?.blockReasonCode ?? null,
+    blockReasonMessage: previous?.blockReasonMessage ?? null,
     siteId: previous?.siteId ?? null,
     siteName: previous?.siteName ?? null,
     qrRequired: previous?.qrRequired ?? false,
@@ -33,7 +53,9 @@ function toTodayStateFromClockResponse(
     serverTime: data.serverRecordedAt,
     timezone: data.timezone,
     workDate: data.workDate,
-    todayRecord: data.todayRecord,
+    clockIn: data.firstCheckInAt ?? previous?.clockIn ?? null,
+    clockOut: data.lastCheckOutAt ?? previous?.clockOut ?? null,
+    todayRecord,
     warnings: data.warnings ?? [],
   };
 }
@@ -45,7 +67,7 @@ export const attendanceApi = authApi.injectEndpoints({
         url: '/api/v1/mobile/attendance/today',
         method: 'GET',
       }),
-      transformResponse: (response: AttendanceTodayEnvelope) => response.data,
+      transformResponse: (response: AttendanceTodayEnvelope) => normalizeTodayResponse(response),
       providesTags: ['AttendanceToday'],
     }),
     submitAttendanceClock: builder.mutation<ClockAttendanceResponseData, ClockAttendanceRequest>({

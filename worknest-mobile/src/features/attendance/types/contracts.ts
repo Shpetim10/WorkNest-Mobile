@@ -48,6 +48,8 @@ export interface AttendanceTodayData {
   serverTime: string;
   timezone: string;
   workDate: string;
+  clockIn: string | null;
+  clockOut: string | null;
   todayRecord: AttendanceDayRecord | null;
   warnings: AttendanceWarning[];
 }
