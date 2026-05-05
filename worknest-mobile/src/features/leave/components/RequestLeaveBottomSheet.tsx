@@ -39,6 +39,8 @@ interface RequestLeaveBottomSheetProps {
     setEndDate: (date: Date) => void;
     note: string;
     setNote: (note: string) => void;
+    requestedDays: number;
+    availableDaysForType: number;
   };
 }
 
@@ -120,9 +122,9 @@ export function RequestLeaveBottomSheet({
   ).current;
 
   const leaveTypes: { label: string; value: LeaveType }[] = [
-    { label: 'Vacation', value: 'vacation' },
-    { label: 'Sick Leave', value: 'sick' },
-    { label: 'Personal', value: 'personal' },
+    { label: 'Vacation', value: 'VACATION' },
+    { label: 'Sick Leave', value: 'SICK' },
+    { label: 'Personal', value: 'PERSONAL' },
   ];
 
   const formatDate = (date: Date) => {
@@ -276,6 +278,15 @@ export function RequestLeaveBottomSheet({
                     onChangeText={form.setNote}
                   />
                 </View>
+
+                {/* Balance advisory warning */}
+                {form.requestedDays > form.availableDaysForType && form.availableDaysForType >= 0 && (
+                  <View style={styles.warningContainer}>
+                    <ThemedText style={styles.warningText}>
+                      You are requesting {form.requestedDays} day{form.requestedDays !== 1 ? 's' : ''} but only have {form.availableDaysForType} available. Your request will still be submitted for review.
+                    </ThemedText>
+                  </View>
+                )}
 
                 {/* Submit Button */}
                 <TouchableOpacity
@@ -499,5 +510,18 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontFamily: Fonts.sf.bold,
     fontSize: 18,
+  },
+  warningContainer: {
+    backgroundColor: '#FEF9C2',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginBottom: 12,
+  },
+  warningText: {
+    fontFamily: Fonts.sf.regular,
+    fontSize: 13,
+    color: '#A65F00',
+    lineHeight: 18,
   },
 });

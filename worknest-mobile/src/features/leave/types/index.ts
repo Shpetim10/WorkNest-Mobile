@@ -1,21 +1,33 @@
-export type LeaveStatus = 'pending' | 'approved' | 'rejected' | 'cancelled';
+export type LeaveType = 'VACATION' | 'SICK' | 'PERSONAL';
+export type LeaveStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 
-export type LeaveType = 'vacation' | 'sick' | 'personal' | 'unpaid';
-
-export interface LeaveBalance {
-  type: LeaveType;
-  label: string;
-  total: number;
-  used: number;
-  available: number;
+export interface LeaveBalanceDto {
+  leaveType: LeaveType;
+  totalDays: number;
+  usedDays: number;
+  availableDays: number;
 }
 
-export interface LeaveRequest {
+export interface LeaveRequestDto {
   id: string;
-  type: LeaveType;
+  employeeId: string;
+  employeeName: string;
+  siteName: string | null;
+  departmentName: string | null;
+  leaveType: LeaveType;
   startDate: string;
   endDate: string;
+  totalDays: number;
   status: LeaveStatus;
-  note?: string;
+  note: string | null;
+  rejectionReason: string | null;
+  reviewedAt: string | null;
   createdAt: string;
+}
+
+export interface CreateLeaveRequestBody {
+  leaveType: LeaveType;
+  startDate: string;
+  endDate: string;
+  note?: string | null;
 }

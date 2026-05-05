@@ -1,14 +1,19 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { LeaveBalance } from '../types';
-import { LeaveBalanceCard } from './LeaveBalanceCard';
-import { Spacing } from '@/common/constants/theme';
 import { ThemedText } from '@/common/components/themed-text';
-import { Fonts } from '@/common/constants/theme';
+import { Fonts, Spacing } from '@/common/constants/theme';
+import type { LeaveBalanceDto } from '../types';
+import { LeaveBalanceCard } from './LeaveBalanceCard';
+
+const LEAVE_TYPE_LABELS: Record<string, string> = {
+  VACATION: 'Vacation',
+  SICK: 'Sick Leave',
+  PERSONAL: 'Personal',
+};
 
 interface LeaveBalanceSectionProps {
-  balances: LeaveBalance[];
+  balances: LeaveBalanceDto[];
 }
 
 export function LeaveBalanceSection({ balances }: LeaveBalanceSectionProps) {
@@ -17,11 +22,11 @@ export function LeaveBalanceSection({ balances }: LeaveBalanceSectionProps) {
       <ThemedText style={styles.sectionTitle}>YOUR BALANCE</ThemedText>
       <View style={styles.cardsContainer}>
         {balances.map((balance) => (
-          <View key={balance.type} style={styles.cardWrapper}>
-            <LeaveBalanceCard 
-              title={balance.label} 
-              value={balance.available} 
-              type={balance.type as any}
+          <View key={balance.leaveType} style={styles.cardWrapper}>
+            <LeaveBalanceCard
+              title={LEAVE_TYPE_LABELS[balance.leaveType] ?? balance.leaveType}
+              value={balance.availableDays}
+              type={balance.leaveType}
             />
           </View>
         ))}

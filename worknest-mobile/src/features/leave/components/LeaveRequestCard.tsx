@@ -4,23 +4,29 @@ import { Calendar } from 'lucide-react-native';
 
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts } from '@/common/constants/theme';
-import { LeaveRequest } from '../types';
+import type { LeaveRequestDto } from '../types';
+
+const LEAVE_TYPE_LABELS: Record<string, string> = {
+  VACATION: 'Vacation',
+  SICK: 'Sick Leave',
+  PERSONAL: 'Personal',
+};
 
 interface LeaveRequestCardProps {
-  request: LeaveRequest;
+  request: LeaveRequestDto;
 }
 
 export function LeaveRequestCard({ request }: LeaveRequestCardProps) {
   const getStatusConfig = () => {
     switch (request.status) {
-      case 'approved':
+      case 'APPROVED':
         return { bg: '#DCFCE7', text: '#15803D', label: 'Approved' };
-      case 'pending':
+      case 'PENDING':
         return { bg: '#FEF9C2', text: '#A65F00', label: 'Pending' };
-      case 'rejected':
+      case 'REJECTED':
         return { bg: '#FEE2E2', text: '#B91C1C', label: 'Rejected' };
       default:
-        return { bg: '#F1F5F9', text: '#64748B', label: request.status.charAt(0).toUpperCase() + request.status.slice(1) };
+        return { bg: '#F1F5F9', text: '#64748B', label: request.status };
     }
   };
 
@@ -32,25 +38,18 @@ export function LeaveRequestCard({ request }: LeaveRequestCardProps) {
     return `${months[date.getMonth()]} ${date.getDate()}`;
   };
 
-  const calculateDuration = (start: string, end: string) => {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-    return `${diffDays} ${diffDays === 1 ? 'day' : 'days'}`;
-  };
+  const dateRange =
+    request.startDate === request.endDate
+      ? formatDate(request.startDate)
+      : `${formatDate(request.startDate)} - ${formatDate(request.endDate)}`;
 
-  const dateRange = request.startDate === request.endDate
-    ? formatDate(request.startDate)
-    : `${formatDate(request.startDate)} - ${formatDate(request.endDate)}`;
-
-  const duration = calculateDuration(request.startDate, request.endDate);
+  const duration = `${request.totalDays} ${request.totalDays === 1 ? 'day' : 'days'}`;
 
   return (
     <View style={styles.card}>
       <View style={styles.topRow}>
         <ThemedText style={styles.title}>
-          {request.type.charAt(0).toUpperCase() + request.type.slice(1)}
+          {LEAVE_TYPE_LABELS[request.leaveType] ?? request.leaveType}
         </ThemedText>
         <View style={[styles.statusPill, { backgroundColor: statusConfig.bg }]}>
           <ThemedText style={[styles.statusText, { color: statusConfig.text }]}>
@@ -65,6 +64,14 @@ export function LeaveRequestCard({ request }: LeaveRequestCardProps) {
           {dateRange}  •  {duration}
         </ThemedText>
       </View>
+
+      {request.status === 'REJECTED' && request.rejectionReason && (
+        <View style={styles.rejectionRow}>
+          <ThemedText style={styles.rejectionText}>
+            Reason: {request.rejectionReason}
+          </ThemedText>
+        </View>
+      )}
     </View>
   );
 }
@@ -72,7 +79,6 @@ export function LeaveRequestCard({ request }: LeaveRequestCardProps) {
 const styles = StyleSheet.create({
   card: {
     width: '100%',
-    minHeight: 88,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: '#E5E7EB',
@@ -103,7 +109,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statusText: {
-    fontFamily: Fonts.sf.semibold, // Using semibold for 500-600 feel
+    fontFamily: Fonts.sf.semibold,
     fontSize: 12,
     lineHeight: 16,
   },
@@ -117,5 +123,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     color: '#6A7282',
+  },
+  rejectionRow: {
+    marginTop: 8,
+  },
+  rejectionText: {
+    fontFamily: Fonts.sf.regular,
+    fontSize: 13,
+    lineHeight: 18,
+    color: '#B91C1C',
   },
 });

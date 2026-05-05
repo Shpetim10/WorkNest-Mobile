@@ -1,38 +1,27 @@
-import { LinearGradient } from 'expo-linear-gradient';
 import { Umbrella, Stethoscope, User } from 'lucide-react-native';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts } from '@/common/constants/theme';
+import type { LeaveType } from '../types';
 
 interface LeaveBalanceCardProps {
   title: string;
   value: number | string;
-  type?: 'vacation' | 'sick' | 'personal';
-  colors?: string[]; // Optional for later styling
-  icon?: React.ReactNode; // If already used
+  type?: LeaveType;
 }
 
-export function LeaveBalanceCard({ title, value, type = 'vacation' }: LeaveBalanceCardProps) {
+export function LeaveBalanceCard({ title, value, type = 'VACATION' }: LeaveBalanceCardProps) {
   const getIconConfig = () => {
     switch (type) {
-      case 'sick':
-        return {
-          icon: <Stethoscope size={20} color="#B91C1C" />,
-          bgColor: '#FEE2E2',
-        };
-      case 'personal':
-        return {
-          icon: <User size={20} color="#7E22CE" />,
-          bgColor: '#F3E8FF',
-        };
-      case 'vacation':
+      case 'SICK':
+        return { icon: <Stethoscope size={20} color="#B91C1C" />, bgColor: '#FEE2E2' };
+      case 'PERSONAL':
+        return { icon: <User size={20} color="#7E22CE" />, bgColor: '#F3E8FF' };
+      case 'VACATION':
       default:
-        return {
-          icon: <Umbrella size={20} color="#0369A1" />,
-          bgColor: '#DBEAFE',
-        };
+        return { icon: <Umbrella size={20} color="#0369A1" />, bgColor: '#DBEAFE' };
     }
   };
 
@@ -72,7 +61,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 21,
-    paddingVertical: 12, // Tightened vertical padding
+    paddingVertical: 12,
   },
   leftSection: {
     flexDirection: 'row',
@@ -94,13 +83,13 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.sf.bold,
     fontWeight: '700',
     fontSize: 18,
-    lineHeight: 22, // Adjusted for closer spacing
+    lineHeight: 22,
     color: '#1E2939',
   },
   subtitle: {
     fontFamily: Fonts.sf.regular,
     fontSize: 14,
-    lineHeight: 18, // Adjusted for closer spacing
+    lineHeight: 18,
     color: '#6A7282',
     marginTop: 2,
   },
