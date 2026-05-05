@@ -1,10 +1,8 @@
 import React, { useMemo } from 'react';
-import { StyleSheet, TouchableOpacity, View, useColorScheme } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 
-import { ThemedText } from '@/common/components/themed-text';
-import { ThemedView } from '@/common/components/themed-view';
-import { Fonts, Spacing, Colors } from '@/common/constants/theme';
+import { Fonts, Spacing } from '@/common/constants/theme';
 import type { AttendanceMonthDay } from '@/features/attendance/types/contracts';
 
 interface AttendanceCalendarProps {
@@ -23,14 +21,18 @@ function statusColor(status: string): string {
     case 'PRESENT':
       return '#00C950';
     case 'LATE':
+    case 'MISSING_CHECKOUT':
       return '#F59E0B';
     case 'ABSENT':
+    case 'FLAGGED':
       return '#EF4444';
+    case 'HALF_DAY':
+      return '#EAB308';
+    case 'ON_LEAVE':
     case 'HOLIDAY':
-    case 'WEEKEND':
       return '#3B82F6';
     case 'PENDING_REVIEW':
-      return '#8B5CF6';
+      return '#94A3B8';
     default:
       return 'transparent';
   }
@@ -44,9 +46,6 @@ export function AttendanceCalendar({
   onDayPress,
   selectedDay,
 }: AttendanceCalendarProps) {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
-
   const monthTitle = useMemo(
     () =>
       new Intl.DateTimeFormat(undefined, {
@@ -87,22 +86,22 @@ export function AttendanceCalendar({
   }, [dayMap, monthDate]);
 
   return (
-    <ThemedView style={[styles.container, isDark && styles.containerDark]}>
+    <View style={styles.container}>
       <View style={styles.monthHeader}>
         <TouchableOpacity style={styles.monthButton} onPress={() => onMonthChange(-1)}>
           <ChevronLeft size={18} color="#475569" />
         </TouchableOpacity>
-        <ThemedText style={styles.monthTitle}>{monthTitle}</ThemedText>
+        <Text style={styles.monthTitle}>{monthTitle}</Text>
         <TouchableOpacity style={styles.monthButton} onPress={() => onMonthChange(1)}>
           <ChevronRight size={18} color="#475569" />
         </TouchableOpacity>
       </View>
 
       <View style={styles.daysHeader}>
-        {DAYS_OF_WEEK.map((day) => (
-          <ThemedText key={day} style={styles.dayLabel}>
+        {DAYS_OF_WEEK.map((day, index) => (
+          <Text key={`weekday-${index}-${day}`} style={styles.dayLabel}>
             {day}
-          </ThemedText>
+          </Text>
         ))}
       </View>
 
@@ -118,7 +117,7 @@ export function AttendanceCalendar({
               onPress={() => cell.payload && onDayPress(cell.payload)}
               disabled={!cell.payload}
             >
-              <ThemedText style={styles.dateText}>{cell.dayNumber}</ThemedText>
+              <Text style={styles.dateText}>{cell.dayNumber}</Text>
               <View
                 style={[
                   styles.dot,
@@ -134,21 +133,24 @@ export function AttendanceCalendar({
 
       <View style={styles.legendContainer}>
         <LegendItem color="#00C950" label="Present" />
-        <LegendItem color="#F59E0B" label="Late" />
         <LegendItem color="#EF4444" label="Absent" />
-        <LegendItem color="#3B82F6" label="Holiday" />
+        <LegendItem color="#F59E0B" label="Late" />
+        <LegendItem color="#EAB308" label="Half Day" />
+        <LegendItem color="#3B82F6" label="Leave/Holiday" />
+        <LegendItem color="#F59E0B" label="No Checkout" />
+        <LegendItem color="#94A3B8" label="Pending" />
       </View>
 
       {isLoading ? (
-        <ThemedText style={styles.loadingText}>Loading calendar...</ThemedText>
+        <Text style={styles.loadingText}>Loading calendar...</Text>
       ) : selectedDay ? (
         <View style={styles.selectedDayCard}>
-          <ThemedText style={styles.selectedDate}>{selectedDay.date}</ThemedText>
-          <ThemedText style={styles.selectedInfo}>Status: {selectedDay.dayStatus}</ThemedText>
-          <ThemedText style={styles.selectedInfo}>Worked minutes: {selectedDay.workedMinutes}</ThemedText>
+          <Text style={styles.selectedDate}>{selectedDay.date}</Text>
+          <Text style={styles.selectedInfo}>Status: {selectedDay.dayStatus}</Text>
+          <Text style={styles.selectedInfo}>Worked minutes: {selectedDay.workedMinutes}</Text>
         </View>
       ) : null}
-    </ThemedView>
+    </View>
   );
 }
 
@@ -156,7 +158,7 @@ function LegendItem({ color, label }: { color: string; label: string }) {
   return (
     <View style={styles.legendItem}>
       <View style={[styles.legendColor, { backgroundColor: color }]} />
-      <ThemedText style={styles.legendLabel}>{label}</ThemedText>
+      <Text style={styles.legendLabel}>{label}</Text>
     </View>
   );
 }
@@ -167,15 +169,11 @@ const styles = StyleSheet.create({
     marginTop: Spacing.four,
     marginBottom: Spacing.six,
     padding: Spacing.four,
+    paddingBottom: Spacing.four,
     borderRadius: 24,
     backgroundColor: '#F9FBFF',
     borderWidth: 1,
     borderColor: '#E8F0F8',
-    paddingBottom: Spacing.four,
-  },
-  containerDark: {
-    backgroundColor: Colors.dark.backgroundElement,
-    borderColor: Colors.dark.backgroundSelected,
   },
   monthHeader: {
     flexDirection: 'row',
@@ -194,6 +192,7 @@ const styles = StyleSheet.create({
   monthTitle: {
     fontFamily: Fonts.sf.bold,
     fontSize: 18,
+    color: '#1E293B',
   },
   daysHeader: {
     flexDirection: 'row',
@@ -226,6 +225,7 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.sf.semibold,
     fontSize: 14,
     marginBottom: 3,
+    color: '#1E293B',
   },
   dot: {
     width: 5,
@@ -270,6 +270,7 @@ const styles = StyleSheet.create({
   selectedDate: {
     fontFamily: Fonts.sf.bold,
     fontSize: 14,
+    color: '#1E293B',
   },
   selectedInfo: {
     fontFamily: Fonts.sf.semibold,

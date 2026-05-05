@@ -2,36 +2,35 @@ import type { ApiErrorEnvelope, ApiSuccessEnvelope } from '@/features/auth/types
 
 export type AttendanceAction = 'CHECK_IN' | 'CHECK_OUT' | 'NONE';
 
-export type AttendanceState =
-  | 'NOT_CHECKED_IN'
-  | 'CHECKED_IN'
-  | 'CHECKED_OUT'
-  | 'PENDING_REVIEW'
-  | string;
+export type AttendanceState = 'NOT_CHECKED_IN' | 'CHECKED_IN' | 'CHECKED_OUT' | string;
 
 export type AttendanceDayStatus =
   | 'PRESENT'
   | 'ABSENT'
   | 'LATE'
   | 'HALF_DAY'
-  | 'PENDING_REVIEW'
-  | 'WEEKEND'
+  | 'ON_LEAVE'
   | 'HOLIDAY'
+  | 'MISSING_CHECKOUT'
+  | 'FLAGGED'
+  | 'PENDING_REVIEW'
   | string;
+
+export type AttendanceReviewStatus = 'NONE' | 'PENDING_REVIEW' | 'APPROVED' | 'REJECTED' | string;
 
 export interface AttendanceWarning {
   code: string;
-  severity?: 'LOW' | 'MEDIUM' | 'HIGH' | string;
+  severity?: 'INFO' | 'WARNING' | 'ERROR' | string;
   message: string;
 }
 
 export interface AttendanceDayRecord {
-  dayRecordId: string;
-  clockInTime: string | null;
-  clockOutTime: string | null;
+  id: string;
+  firstCheckInAt: string | null;
+  lastCheckOutAt: string | null;
   workedMinutes: number;
   dayStatus: AttendanceDayStatus;
-  reviewStatus: 'NONE' | 'PENDING' | 'APPROVED' | 'REJECTED' | string;
+  reviewStatus: AttendanceReviewStatus;
   hasWarnings: boolean;
   warnings: AttendanceWarning[];
 }
@@ -49,6 +48,8 @@ export interface AttendanceTodayData {
   serverTime: string;
   timezone: string;
   workDate: string;
+  clockIn: string | null;
+  clockOut: string | null;
   todayRecord: AttendanceDayRecord | null;
   warnings: AttendanceWarning[];
 }
@@ -61,7 +62,7 @@ export interface ClockAttendanceRequest {
   accuracyMeters?: number;
   clientCapturedAt?: string;
   devicePublicId?: string;
-  platform: 'ANDROID' | 'IOS' | 'WEB';
+  platform: 'android' | 'ios' | 'web';
   appVersion?: string;
   employeeNote?: string;
 }
@@ -69,15 +70,12 @@ export interface ClockAttendanceRequest {
 export interface ClockAttendanceResponseData {
   state: AttendanceState;
   nextAllowedAction: AttendanceAction;
-  blocked?: boolean;
-  blockReasonCode?: string | null;
-  blockReasonMessage?: string | null;
-  eventTypeCreated: 'CHECK_IN' | 'CHECK_OUT' | string;
-  eventStatus: string;
-  attendanceDecision: string;
-  clockInTime: string | null;
-  clockOutTime: string | null;
-  serverTime: string;
+  eventType: 'CHECK_IN' | 'CHECK_OUT' | string;
+  eventStatus: 'ACCEPTED' | 'ACCEPTED_WITH_WARNINGS' | string;
+  decision: 'ACCEPTED' | 'ACCEPTED_WITH_WARNINGS' | string;
+  firstCheckInAt: string | null;
+  lastCheckOutAt: string | null;
+  serverRecordedAt: string;
   workDate: string;
   timezone: string;
   message?: string;
@@ -92,7 +90,7 @@ export interface AttendanceMonthDay {
   clockOutTime: string | null;
   workedMinutes: number;
   hasWarnings: boolean;
-  reviewStatus: 'NONE' | 'PENDING' | 'APPROVED' | 'REJECTED' | string;
+  reviewStatus: AttendanceReviewStatus;
 }
 
 export interface AttendanceMonthData {
