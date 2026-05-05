@@ -1,68 +1,54 @@
-import { useState, useCallback, useEffect } from 'react';
-import { MOCK_LEAVE_BALANCES, MOCK_LEAVE_HISTORY } from '../api/mock';
-import { LeaveBalance, LeaveRequest, LeaveType } from '../types';
+import { useState, useCallback } from 'react';
+import { Alert } from 'react-native';
+
+import {
+  useGetLeaveBalanceQuery,
+  useGetLeaveRequestsQuery,
+  useSubmitLeaveRequestMutation,
+} from '../api/leave-api';
+import type { LeaveType } from '../types';
 
 export function useLeaveScreen() {
-  const [balances, setBalances] = useState<LeaveBalance[]>([]);
-  const [history, setHistory] = useState<LeaveRequest[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const { data: balances = [], isLoading: balancesLoading } = useGetLeaveBalanceQuery();
+  const { data: history = [], isLoading: historyLoading } = useGetLeaveRequestsQuery();
+  const [submitLeaveRequest, { isLoading: isSubmitting }] = useSubmitLeaveRequestMutation();
 
-  // Form state
-  const [leaveType, setLeaveType] = useState<LeaveType>('vacation');
+  const isLoading = balancesLoading || historyLoading;
+
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [leaveType, setLeaveType] = useState<LeaveType>('VACATION');
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [note, setNote] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    // TODO: [Backend Integration] Replace with real API calls to fetch balances and history
-    // const { data: balancesData } = useGetLeaveBalancesQuery();
-    // const { data: historyData } = useGetLeaveHistoryQuery();
-    
-    // Simulate API call
-    const timer = setTimeout(() => {
-      setBalances(MOCK_LEAVE_BALANCES);
-      setHistory(MOCK_LEAVE_HISTORY);
-      setIsLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, []);
+  const requestedDays =
+    Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+  const availableDaysForType =
+    balances.find((b) => b.leaveType === leaveType)?.availableDays ?? 0;
 
   const openModal = useCallback(() => setIsModalVisible(true), []);
   const closeModal = useCallback(() => {
     setIsModalVisible(false);
-    // Reset form
-    setLeaveType('vacation');
+    setLeaveType('VACATION');
     setStartDate(new Date());
     setEndDate(new Date());
     setNote('');
   }, []);
 
   const submitRequest = useCallback(async () => {
-    setIsSubmitting(true);
-    
-    // TODO: [Backend Integration] Replace with real mutation call
-    // await requestLeaveMutation({ type: leaveType, startDate, endDate, note }).unwrap();
-    
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    
-    const newRequest: LeaveRequest = {
-      id: Math.random().toString(36).substr(2, 9),
-      type: leaveType,
-      startDate: startDate.toISOString().split('T')[0],
-      endDate: endDate.toISOString().split('T')[0],
-      status: 'pending',
-      note: note.trim() || undefined,
-      createdAt: new Date().toISOString(),
-    };
-
-    setHistory((prev) => [newRequest, ...prev]);
-    setIsSubmitting(false);
-    closeModal();
-  }, [leaveType, startDate, endDate, note, closeModal]);
+    try {
+      await submitLeaveRequest({
+        leaveType,
+        startDate: startDate.toISOString().split('T')[0],
+        endDate: endDate.toISOString().split('T')[0],
+        note: note.trim() || null,
+      }).unwrap();
+      closeModal();
+    } catch (err: any) {
+      const message = err?.message ?? 'Failed to submit leave request. Please try again.';
+      Alert.alert('Error', message);
+    }
+  }, [leaveType, startDate, endDate, note, submitLeaveRequest, closeModal]);
 
   return {
     balances,
@@ -82,6 +68,8 @@ export function useLeaveScreen() {
       setNote,
       isSubmitting,
       submitRequest,
+      requestedDays,
+      availableDaysForType,
     },
   };
 }

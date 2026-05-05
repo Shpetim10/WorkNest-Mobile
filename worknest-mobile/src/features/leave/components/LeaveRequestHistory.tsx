@@ -1,13 +1,13 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { LeaveRequest } from '../types';
-import { LeaveRequestCard } from './LeaveRequestCard';
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts, Spacing } from '@/common/constants/theme';
+import type { LeaveRequestDto } from '../types';
+import { LeaveRequestCard } from './LeaveRequestCard';
 
 interface LeaveRequestHistoryProps {
-  history: LeaveRequest[];
+  history: LeaveRequestDto[];
 }
 
 export function LeaveRequestHistory({ history }: LeaveRequestHistoryProps) {

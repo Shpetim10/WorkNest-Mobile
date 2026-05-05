@@ -1,63 +1,27 @@
-import { LeaveBalance, LeaveRequest } from '../types';
+// Mock data kept for reference only — feature now uses real API via leave-api.ts
+import type { LeaveBalanceDto, LeaveRequestDto } from '../types';
 
-export const MOCK_LEAVE_BALANCES: LeaveBalance[] = [
-  {
-    type: 'vacation',
-    label: 'Vacation',
-    total: 20,
-    used: 5,
-    available: 15,
-  },
-  {
-    type: 'sick',
-    label: 'Sick Leave',
-    total: 10,
-    used: 2,
-    available: 8,
-  },
-  {
-    type: 'personal',
-    label: 'Personal',
-    total: 5,
-    used: 1,
-    available: 4,
-  },
+export const MOCK_LEAVE_BALANCES: LeaveBalanceDto[] = [
+  { leaveType: 'VACATION', totalDays: 20, usedDays: 5, availableDays: 15 },
+  { leaveType: 'SICK', totalDays: 10, usedDays: 2, availableDays: 8 },
+  { leaveType: 'PERSONAL', totalDays: 5, usedDays: 1, availableDays: 4 },
 ];
 
-export const MOCK_LEAVE_HISTORY: LeaveRequest[] = [
+export const MOCK_LEAVE_HISTORY: LeaveRequestDto[] = [
   {
     id: '1',
-    type: 'vacation',
+    employeeId: 'emp-1',
+    employeeName: 'Jane Doe',
+    siteName: null,
+    departmentName: null,
+    leaveType: 'VACATION',
     startDate: '2026-05-10',
     endDate: '2026-05-15',
-    status: 'pending',
+    totalDays: 6,
+    status: 'PENDING',
     note: 'Family trip to the mountains.',
+    rejectionReason: null,
+    reviewedAt: null,
     createdAt: '2026-04-28T10:00:00Z',
-  },
-  {
-    id: '2',
-    type: 'sick',
-    startDate: '2026-04-20',
-    endDate: '2026-04-21',
-    status: 'approved',
-    createdAt: '2026-04-19T08:30:00Z',
-  },
-  {
-    id: '3',
-    type: 'personal',
-    startDate: '2026-03-15',
-    endDate: '2026-03-15',
-    status: 'approved',
-    note: 'Personal errand.',
-    createdAt: '2026-03-10T14:20:00Z',
-  },
-  {
-    id: '4',
-    type: 'vacation',
-    startDate: '2026-02-01',
-    endDate: '2026-02-10',
-    status: 'rejected',
-    note: 'Winter holiday.',
-    createdAt: '2026-01-15T09:00:00Z',
   },
 ];

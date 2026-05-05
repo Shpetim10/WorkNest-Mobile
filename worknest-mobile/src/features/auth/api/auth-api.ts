@@ -196,7 +196,7 @@ const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, AuthError> =
 export const authApi = createApi({
   reducerPath: 'authApi',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['AttendanceToday', 'AttendanceMonth'],
+  tagTypes: ['AttendanceToday', 'AttendanceMonth', 'LeaveBalance', 'LeaveRequests', 'Announcements', 'AnnouncementUnreadCount'],
   endpoints: (builder) => ({
     login: builder.mutation<LoginResponseData, { email: string; password: string }>({
       query: ({ email, password }) => ({
