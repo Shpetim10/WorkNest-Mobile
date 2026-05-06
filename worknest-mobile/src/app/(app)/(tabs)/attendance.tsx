@@ -87,6 +87,7 @@ export default function AttendanceScreen() {
         visible={attendance.scannerVisible}
         onCancel={attendance.onQrCancelled}
         onScanned={attendance.onQrScanned}
+        errorMessage={attendance.scannerError}
       />
     </ThemedView>
   );
