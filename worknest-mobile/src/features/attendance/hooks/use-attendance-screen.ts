@@ -32,6 +32,7 @@ interface UseAttendanceScreenResult {
   monthDate: Date;
   selectedDay: AttendanceMonthDay | null;
   scannerVisible: boolean;
+  scannerError: string | null;
   banner: BannerState | null;
   actionButtonLabel: string;
   actionButtonHint: string;
@@ -165,6 +166,7 @@ export function useAttendanceScreen(): UseAttendanceScreenResult {
   const [monthDate, setMonthDate] = useState(() => new Date());
   const [selectedDay, setSelectedDay] = useState<AttendanceMonthDay | null>(null);
   const [scannerVisible, setScannerVisible] = useState(false);
+  const [scannerError, setScannerError] = useState<string | null>(null);
   const [banner, setBanner] = useState<BannerState | null>(null);
   const [workflowBusy, setWorkflowBusy] = useState(false);
   const qrResolverRef = useRef<((value: string | null) => void) | null>(null);
@@ -204,6 +206,7 @@ export function useAttendanceScreen(): UseAttendanceScreenResult {
           const resolver = qrResolverRef.current;
           qrResolverRef.current = null;
           setScannerVisible(false);
+          setScannerError(null);
           resolver(null);
         }
       });
@@ -214,7 +217,8 @@ export function useAttendanceScreen(): UseAttendanceScreenResult {
     }, [])
   );
 
-  const requestQrToken = useCallback(() => {
+  const requestQrToken = useCallback((error?: string) => {
+    setScannerError(error ?? null);
     return new Promise<string | null>((resolve) => {
       qrResolverRef.current = resolve;
       setScannerVisible(true);
@@ -232,6 +236,7 @@ export function useAttendanceScreen(): UseAttendanceScreenResult {
     const resolver = qrResolverRef.current;
     qrResolverRef.current = null;
     setScannerVisible(false);
+    setScannerError(null);
     resolver?.(null);
   }, []);
 
@@ -279,43 +284,37 @@ export function useAttendanceScreen(): UseAttendanceScreenResult {
     try {
       let qrToken: string | undefined;
       if (today.qrRequired) {
-        // Keep scanning until valid QR is provided or user cancels.
-        // QR token is not persisted and only lives in this call scope.
-        for (;;) {
-          const scanned = await requestQrToken();
-          if (!scanned) {
-            throw new Error('SCAN_CANCELLED');
-          }
+        const scanned = await requestQrToken();
+        if (!scanned) {
+          throw new Error('SCAN_CANCELLED');
+        }
 
-          if (!today.siteId) {
-            qrToken = scanned;
-            break;
-          }
-
+        if (today.siteId) {
           try {
             const qrValidation = await validateQr({
               siteId: today.siteId,
               qrToken: scanned,
             }).unwrap();
 
-            if (qrValidation.valid) {
-              qrToken = scanned;
-              break;
+            if (!qrValidation.valid) {
+              throw new Error(
+                qrValidation.message || 'Invalid QR code. Please scan the correct site QR.'
+              );
             }
-
-            setBanner({
-              type: 'error',
-              text:
-                qrValidation.message ||
-                'This QR code is not valid. Please scan the current site QR again.',
-            });
-          } catch {
-            // Pre-validation is optional. If helper endpoint fails,
-            // continue and let clock endpoint perform final validation.
-            qrToken = scanned;
-            break;
+          } catch (err) {
+            if (err instanceof Error && err.message !== 'SCAN_CANCELLED') {
+              // Surface validation errors as banner; abort so user can retry cleanly
+              setBanner({
+                type: 'error',
+                text: err.message || 'QR validation failed. Please try again.',
+              });
+              throw new Error('SCAN_CANCELLED');
+            }
+            throw err;
           }
         }
+
+        qrToken = scanned;
       }
 
       let latitude: number | undefined;
@@ -427,6 +426,7 @@ export function useAttendanceScreen(): UseAttendanceScreenResult {
     monthDate,
     selectedDay,
     scannerVisible,
+    scannerError,
     banner: hasLoadError && !today ? { type: 'error', text: "We couldn't load attendance. Please retry." } : banner,
     actionButtonLabel: actionCopy.label,
     actionButtonHint: actionCopy.hint,

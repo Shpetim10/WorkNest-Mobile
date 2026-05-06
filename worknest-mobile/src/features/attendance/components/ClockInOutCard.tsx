@@ -72,6 +72,10 @@ export function ClockInOutCard({
           {locationRequired ? <InfoPill icon="gps" text="GPS required" /> : null}
         </View>
       ) : null}
+
+      <Text style={styles.hintText}>
+        Tap the button above to clock in or out and track your attendance.
+      </Text>
     </View>
   );
 }
@@ -168,6 +172,13 @@ const styles = StyleSheet.create({
   pillText: {
     color: '#475569',
     fontFamily: Fonts.sf.semibold,
+    fontSize: 12,
+  },
+  hintText: {
+    marginTop: Spacing.two,
+    textAlign: 'center',
+    color: '#94A3B8',
+    fontFamily: Fonts.sf.regular,
     fontSize: 12,
   },
 });
