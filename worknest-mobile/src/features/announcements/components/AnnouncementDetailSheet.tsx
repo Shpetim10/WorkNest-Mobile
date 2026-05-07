@@ -37,11 +37,13 @@ export function AnnouncementDetailSheet({
   onMarkRead,
 }: AnnouncementDetailSheetProps) {
   const [shouldRender, setShouldRender] = useState(visible);
+  const [isActionPressed, setIsActionPressed] = useState(false);
   const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
   const backdropOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (visible) {
+      setIsActionPressed(false);
       setShouldRender(true);
       Animated.parallel([
         Animated.timing(backdropOpacity, {
@@ -70,7 +72,17 @@ export function AnnouncementDetailSheet({
         }),
       ]).start(() => setShouldRender(false));
     }
-  }, [visible]);
+  }, [backdropOpacity, translateY, visible]);
+
+  const handleMarkRead = () => {
+    if (isActionPressed) return;
+
+    setIsActionPressed(true);
+    onClose();
+    if (!detail?.read) {
+      requestAnimationFrame(onMarkRead);
+    }
+  };
 
   const panResponder = useRef(
     PanResponder.create({
@@ -92,6 +104,9 @@ export function AnnouncementDetailSheet({
   if (!shouldRender && !visible) return null;
 
   const isImportant = detail?.priority === 'IMPORTANT';
+  const categoryLabel = isImportant ? 'Important' : 'General';
+  const categoryStyle = isImportant ? styles.importantBadge : styles.generalBadge;
+  const categoryTextStyle = isImportant ? styles.importantBadgeText : styles.generalBadgeText;
 
   return (
     <Modal animationType="none" transparent visible={shouldRender} onRequestClose={onClose}>
@@ -114,7 +129,7 @@ export function AnnouncementDetailSheet({
 
           {isLoading || !detail ? (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color="#7C3AED" />
+              <ActivityIndicator size="large" color="#2B7FFF" />
             </View>
           ) : (
             <ScrollView
@@ -122,15 +137,13 @@ export function AnnouncementDetailSheet({
               contentContainerStyle={styles.scrollContent}
               bounces={false}
             >
-              {isImportant && (
-                <View style={styles.importantBadge}>
-                  <ThemedText style={styles.importantBadgeText}>Important</ThemedText>
-                </View>
-              )}
+              <View style={categoryStyle}>
+                <ThemedText style={categoryTextStyle}>{categoryLabel}</ThemedText>
+              </View>
 
               <ThemedText style={styles.title}>{detail.title}</ThemedText>
 
-              <ThemedText style={styles.meta}>
+              <ThemedText style={styles.subtitle}>
                 {new Date(detail.createdAt).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
@@ -138,34 +151,33 @@ export function AnnouncementDetailSheet({
                 })}
               </ThemedText>
 
-              <View style={styles.divider} />
+              <View style={styles.bodyBox}>
+                {detail.content.split('\n').map((paragraph, idx) =>
+                  paragraph.trim() ? (
+                    <ThemedText key={idx} style={styles.paragraph}>
+                      {paragraph}
+                    </ThemedText>
+                  ) : (
+                    <View key={idx} style={styles.paragraphSpacer} />
+                  )
+                )}
+              </View>
 
-              {detail.content.split('\n').map((paragraph, idx) =>
-                paragraph.trim() ? (
-                  <ThemedText key={idx} style={styles.paragraph}>
-                    {paragraph}
-                  </ThemedText>
-                ) : (
-                  <View key={idx} style={styles.paragraphSpacer} />
-                )
-              )}
-
-              {!detail.read && (
-                <TouchableOpacity
-                  onPress={onMarkRead}
-                  activeOpacity={0.8}
-                  style={styles.markReadButtonContainer}
+              <TouchableOpacity
+                onPress={handleMarkRead}
+                disabled={isActionPressed}
+                activeOpacity={0.8}
+                style={styles.markReadButtonContainer}
+              >
+                <LinearGradient
+                  colors={['#2B7FFF', '#00BBA7']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.markReadButton}
                 >
-                  <LinearGradient
-                    colors={['#7C3AED', '#2B7FFF']}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.markReadButton}
-                  >
-                    <ThemedText style={styles.markReadButtonText}>Mark as read</ThemedText>
-                  </LinearGradient>
-                </TouchableOpacity>
-              )}
+                  <ThemedText style={styles.markReadButtonText}>Mark as read</ThemedText>
+                </LinearGradient>
+              </TouchableOpacity>
             </ScrollView>
           )}
         </Animated.View>
@@ -233,56 +245,76 @@ const styles = StyleSheet.create({
   },
   importantBadge: {
     alignSelf: 'flex-start',
-    backgroundColor: '#FEE2E2',
+    backgroundColor: '#FFE2E2',
     borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    marginBottom: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    marginBottom: 26,
   },
   importantBadgeText: {
     fontFamily: Fonts.sf.semibold,
-    fontSize: 12,
-    color: '#B91C1C',
+    fontSize: 11,
+    color: '#D60000',
+  },
+  generalBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#DBEAFE',
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    marginBottom: 26,
+  },
+  generalBadgeText: {
+    fontFamily: Fonts.sf.semibold,
+    fontSize: 11,
+    color: '#2563EB',
   },
   title: {
-    fontFamily: Fonts.sf.bold,
-    fontSize: 22,
-    fontWeight: '700',
+    fontFamily: Fonts.sf.semibold,
+    fontSize: 15,
+    fontWeight: '600',
     color: '#1E2939',
-    lineHeight: 30,
-    marginBottom: 6,
+    lineHeight: 22,
+    marginBottom: 8,
   },
-  meta: {
+  subtitle: {
     fontFamily: Fonts.sf.regular,
     fontSize: 13,
-    color: '#94A3B8',
-    marginBottom: 16,
+    color: '#6A7282',
+    lineHeight: 18,
+    marginBottom: 10,
   },
-  divider: {
-    height: 1,
-    backgroundColor: '#F1F5F9',
-    marginBottom: 16,
+  bodyBox: {
+    width: '100%',
+    minHeight: 240,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 16,
+    backgroundColor: '#F8FAFC',
+    paddingHorizontal: 14,
+    paddingVertical: 14,
   },
   paragraph: {
     fontFamily: Fonts.sf.regular,
-    fontSize: 15,
+    fontSize: 16,
     lineHeight: 24,
-    color: '#374151',
-    marginBottom: 12,
+    color: '#838383',
+    marginBottom: 20,
   },
   paragraphSpacer: {
-    height: 8,
+    height: 12,
   },
   markReadButtonContainer: {
-    marginTop: 24,
-    shadowColor: '#7C3AED',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 10,
+    width: '100%',
+    marginTop: 16,
+    shadowColor: '#2B7FFF',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
     elevation: 4,
   },
   markReadButton: {
-    height: 52,
+    height: 56,
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
@@ -290,6 +322,6 @@ const styles = StyleSheet.create({
   markReadButtonText: {
     color: '#FFFFFF',
     fontFamily: Fonts.sf.bold,
-    fontSize: 16,
+    fontSize: 17,
   },
 });

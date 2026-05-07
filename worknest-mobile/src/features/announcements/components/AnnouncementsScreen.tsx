@@ -9,7 +9,6 @@ import type { MobileAnnouncementListItem } from '../types';
 import { AnnouncementsHeader } from './AnnouncementsHeader';
 import { AnnouncementCard } from './AnnouncementCard';
 import { AnnouncementDetailSheet } from './AnnouncementDetailSheet';
-import { useMarkAnnouncementReadMutation } from '../api/announcements-api';
 
 export function AnnouncementsScreen() {
   const {
@@ -21,13 +20,8 @@ export function AnnouncementsScreen() {
     isDetailLoading,
     openDetail,
     closeDetail,
+    markSelectedAsRead,
   } = useAnnouncementsScreen();
-
-  const [markRead] = useMarkAnnouncementReadMutation();
-
-  const handleMarkRead = () => {
-    if (selectedId) markRead(selectedId);
-  };
 
   return (
     <ThemedView style={styles.container}>
@@ -36,7 +30,7 @@ export function AnnouncementsScreen() {
       <View style={styles.content}>
         {isLoading ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#7C3AED" />
+            <ActivityIndicator size="large" color="#2B7FFF" />
           </View>
         ) : announcements.length === 0 ? (
           <View style={styles.emptyContainer}>
@@ -60,7 +54,7 @@ export function AnnouncementsScreen() {
         detail={detail}
         isLoading={isDetailLoading}
         onClose={closeDetail}
-        onMarkRead={handleMarkRead}
+        onMarkRead={markSelectedAsRead}
       />
     </ThemedView>
   );
@@ -104,7 +98,8 @@ const styles = StyleSheet.create({
     color: '#94A3B8',
   },
   listContent: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 28,
     paddingBottom: 100,
+    gap: 12,
   },
 });
