@@ -6,12 +6,8 @@ import {
   selectIsAuthenticated,
   selectRequiresRoleSelection,
 } from '@/features/auth';
+import { RealtimeProvider, GlobalNotificationHandler } from '@/features/realtime';
 
-/**
- * Protected Layout
- * This is where we'd check if the user is authenticated.
- * If not, we'd redirect to /(auth)/login.
- */
 export default function AppLayout() {
   const router = useRouter();
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
@@ -33,5 +29,10 @@ export default function AppLayout() {
     }
   }, [bootstrapped, isAuthenticated, requiresRoleSelection, router]);
 
-  return <Slot />;
+  return (
+    <RealtimeProvider>
+      <GlobalNotificationHandler />
+      <Slot />
+    </RealtimeProvider>
+  );
 }

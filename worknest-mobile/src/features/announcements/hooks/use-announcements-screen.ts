@@ -8,9 +8,14 @@ import {
   useMarkAnnouncementReadMutation,
 } from '../api/announcements-api';
 import type { MobileAnnouncementListItem } from '../types';
+import { useAppSelector } from '@/common/store/hooks';
+import { selectTenantContext } from '@/features/auth';
+import { useCompanyTopic, RealtimeEventType } from '@/features/realtime';
 
 export function useAnnouncementsScreen() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const tenantContext = useAppSelector(selectTenantContext);
+  const companyId = tenantContext?.companyId ?? null;
 
   const {
     data: announcements = [],
@@ -27,6 +32,16 @@ export function useAnnouncementsScreen() {
   );
 
   const [markRead] = useMarkAnnouncementReadMutation();
+
+  useCompanyTopic(companyId, 'announcements', (envelope) => {
+    if (
+      envelope.type === RealtimeEventType.ANNOUNCEMENT_CREATED ||
+      envelope.type === RealtimeEventType.ANNOUNCEMENT_DELETED
+    ) {
+      refetchList();
+      refetchCount();
+    }
+  });
 
   useEffect(() => {
     const sub = AppState.addEventListener('change', (nextState) => {
