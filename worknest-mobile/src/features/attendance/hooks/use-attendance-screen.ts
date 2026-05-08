@@ -17,6 +17,9 @@ import {
   useValidateAttendanceQrMutation,
 } from '@/features/attendance/api/attendance-api';
 import { getFriendlyAttendanceError } from '@/features/attendance/utils/attendance-error-messages';
+import { useAppSelector } from '@/common/store/hooks';
+import { selectTenantContext, selectAuthState } from '@/features/auth';
+import { useCompanyTopic, RealtimeEventType } from '@/features/realtime';
 
 interface BannerState {
   type: 'success' | 'warning' | 'error';
@@ -172,6 +175,9 @@ export function useAttendanceScreen(): UseAttendanceScreenResult {
   const qrResolverRef = useRef<((value: string | null) => void) | null>(null);
   const submittingRef = useRef(false);
 
+  const tenantContext = useAppSelector(selectTenantContext);
+  const companyId = tenantContext?.companyId ?? null;
+
   const year = monthDate.getFullYear();
   const month = monthDate.getMonth() + 1;
 
@@ -191,6 +197,19 @@ export function useAttendanceScreen(): UseAttendanceScreenResult {
   } = useGetAttendanceMonthQuery({ year, month });
   const [submitClock] = useSubmitAttendanceClockMutation();
   const [validateQr] = useValidateAttendanceQrMutation();
+
+  // Realtime: admin manual check-in/out or day adjustments refetch attendance state
+  useCompanyTopic(companyId, 'attendance', (envelope) => {
+    if (
+      envelope.type === RealtimeEventType.ATTENDANCE_MANUAL_CHECK_IN ||
+      envelope.type === RealtimeEventType.ATTENDANCE_MANUAL_CHECK_OUT ||
+      envelope.type === RealtimeEventType.ATTENDANCE_EVENT_REVIEWED ||
+      envelope.type === RealtimeEventType.ATTENDANCE_DAY_ADJUSTED
+    ) {
+      refetchToday();
+      refetchMonth();
+    }
+  });
 
   useFocusEffect(
     useCallback(() => {

@@ -11,7 +11,7 @@ import {
   clearPersistedSessionArtifacts,
   persistSessionArtifacts,
 } from '@/common/storage/secure-session-storage';
-import { API_BASE_URL } from '@/common/config/network';
+import { API_BASE_URL, NETWORK_TIMEOUT_MS } from '@/common/config/network';
 import {
   logoutCompleted,
   loginSucceeded,
@@ -58,10 +58,13 @@ interface AuthError {
   fieldErrors?: ApiErrorEnvelope['fieldErrors'];
 }
 
-let refreshPromise: Promise<boolean> | null = null;
+type RefreshResult = 'success' | 'no_token' | 'failed';
+
+let refreshPromise: Promise<RefreshResult> | null = null;
 
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: API_BASE_URL,
+  timeout: NETWORK_TIMEOUT_MS,
   prepareHeaders: (headers, { getState }) => {
     const state = getState() as RootState;
     if (state.auth.accessToken) {
@@ -84,6 +87,18 @@ function toAuthError(error?: FetchBaseQueryError): AuthError {
       code: errorData?.code,
       message: errorData?.message,
       fieldErrors: errorData?.fieldErrors,
+    };
+  }
+
+  if (error.status === 'TIMEOUT_ERROR') {
+    return {
+      message: 'The server took too long to respond. Please verify the API host and try again.',
+    };
+  }
+
+  if (error.status === 'FETCH_ERROR') {
+    return {
+      message: 'Unable to reach the server. Please verify the API host and network connection.',
     };
   }
 
@@ -119,11 +134,12 @@ function shouldAttemptRefresh(
   return code === 'UNAUTHORIZED';
 }
 
-async function performRefresh(api: BaseQueryApi): Promise<boolean> {
+async function performRefresh(api: BaseQueryApi): Promise<RefreshResult> {
   const state = api.getState() as RootState;
   const refreshToken = state.auth.refreshToken;
+  // No token means Redux hasn't been hydrated yet — don't treat this as a real failure.
   if (!refreshToken) {
-    return false;
+    return 'no_token';
   }
 
   const result = await rawBaseQuery(
@@ -137,7 +153,7 @@ async function performRefresh(api: BaseQueryApi): Promise<boolean> {
   );
 
   if (result.error) {
-    return false;
+    return 'failed';
   }
 
   const envelope = result.data as ApiSuccessEnvelope<RefreshResponseData>;
@@ -152,7 +168,7 @@ async function performRefresh(api: BaseQueryApi): Promise<boolean> {
     activePlatformRole: state.auth.activePlatformRole ?? 'EMPLOYEE',
     tenantContext: payload.tenantContext,
   });
-  return true;
+  return 'success';
 }
 
 const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, AuthError> = async (
@@ -178,10 +194,14 @@ const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, AuthError> =
     });
   }
 
-  const refreshOk = await refreshPromise;
-  if (!refreshOk) {
-    await clearPersistedSessionArtifacts();
-    api.dispatch(logoutCompleted());
+  const refreshResult = await refreshPromise;
+  if (refreshResult !== 'success') {
+    // Only wipe storage when a real refresh attempt failed — not when tokens simply
+    // aren't in Redux yet because hydration is still in progress.
+    if (refreshResult === 'failed') {
+      await clearPersistedSessionArtifacts();
+      api.dispatch(logoutCompleted());
+    }
     return { error: toAuthError(firstResult.error) };
   }
 
@@ -210,17 +230,21 @@ export const authApi = createApi({
       }),
       transformResponse: (response: ApiSuccessEnvelope<LoginResponseData>) => response.data,
       async onQueryStarted({ email }, { dispatch, queryFulfilled }) {
-        const { data } = await queryFulfilled;
-        dispatch(loginSucceeded({ userEmail: email, payload: data }));
-        await persistSessionArtifacts({
-          accessToken: data.accessToken,
-          refreshToken: data.refreshToken,
-          accessTokenExpiresAt: data.accessTokenExpiresAt,
-          refreshTokenExpiresAt: data.refreshTokenExpiresAt,
-          activeRoleAssignmentId: data.activeRoleAssignmentId,
-          activePlatformRole: data.role,
-          tenantContext: data.tenantContext,
-        });
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(loginSucceeded({ userEmail: email, payload: data }));
+          await persistSessionArtifacts({
+            accessToken: data.accessToken,
+            refreshToken: data.refreshToken,
+            accessTokenExpiresAt: data.accessTokenExpiresAt,
+            refreshTokenExpiresAt: data.refreshTokenExpiresAt,
+            activeRoleAssignmentId: data.activeRoleAssignmentId,
+            activePlatformRole: data.role,
+            tenantContext: data.tenantContext,
+          });
+        } catch {
+          // Let the caller handle the rejected mutation result without surfacing an unhandled promise.
+        }
       },
     }),
     selectRole: builder.mutation<SelectRoleResponseData, { roleAssignmentId: string }>({
@@ -234,17 +258,21 @@ export const authApi = createApi({
       }),
       transformResponse: (response: ApiSuccessEnvelope<SelectRoleResponseData>) => response.data,
       async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
-        const { data } = await queryFulfilled;
-        dispatch(roleSelectionSucceeded(data));
-        await persistSessionArtifacts({
-          accessToken: data.accessToken,
-          refreshToken: data.refreshToken,
-          accessTokenExpiresAt: data.accessTokenExpiresAt,
-          refreshTokenExpiresAt: data.refreshTokenExpiresAt,
-          activeRoleAssignmentId: data.activeRoleAssignmentId,
-          activePlatformRole: data.platformRole,
-          tenantContext: data.tenantContext,
-        });
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(roleSelectionSucceeded(data));
+          await persistSessionArtifacts({
+            accessToken: data.accessToken,
+            refreshToken: data.refreshToken,
+            accessTokenExpiresAt: data.accessTokenExpiresAt,
+            refreshTokenExpiresAt: data.refreshTokenExpiresAt,
+            activeRoleAssignmentId: data.activeRoleAssignmentId,
+            activePlatformRole: data.platformRole,
+            tenantContext: data.tenantContext,
+          });
+        } catch {
+          // Let the caller handle the rejected mutation result without surfacing an unhandled promise.
+        }
       },
     }),
     refresh: builder.mutation<RefreshResponseData, RefreshRequest>({
@@ -255,18 +283,22 @@ export const authApi = createApi({
       }),
       transformResponse: (response: ApiSuccessEnvelope<RefreshResponseData>) => response.data,
       async onQueryStarted(_arg, { dispatch, queryFulfilled, getState }) {
-        const { data } = await queryFulfilled;
-        dispatch(refreshSucceeded(data));
-        const state = getState() as RootState;
-        await persistSessionArtifacts({
-          accessToken: data.accessToken,
-          refreshToken: data.refreshToken,
-          accessTokenExpiresAt: data.accessTokenExpiresAt,
-          refreshTokenExpiresAt: data.refreshTokenExpiresAt,
-          activeRoleAssignmentId: data.activeRoleAssignmentId,
-          activePlatformRole: state.auth.activePlatformRole ?? 'EMPLOYEE',
-          tenantContext: data.tenantContext,
-        });
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(refreshSucceeded(data));
+          const state = getState() as RootState;
+          await persistSessionArtifacts({
+            accessToken: data.accessToken,
+            refreshToken: data.refreshToken,
+            accessTokenExpiresAt: data.accessTokenExpiresAt,
+            refreshTokenExpiresAt: data.refreshTokenExpiresAt,
+            activeRoleAssignmentId: data.activeRoleAssignmentId,
+            activePlatformRole: state.auth.activePlatformRole ?? 'EMPLOYEE',
+            tenantContext: data.tenantContext,
+          });
+        } catch {
+          // Refresh failures are handled by the base query retry/logout path.
+        }
       },
     }),
     logout: builder.mutation<void, LogoutRequest>({
