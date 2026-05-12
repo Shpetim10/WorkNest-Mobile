@@ -6,40 +6,59 @@
   <component name="ChangeListManager">
     <list default="true" id="18c1ab68-9d5e-4ff2-b69f-5788a1104b94" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/app.json" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/app.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/app/(app)/(tabs)/attendance.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/app/(app)/(tabs)/attendance.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/app/(auth)/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/app/(auth)/_layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/attendance/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/attendance/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/auth/api/auth-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/auth/api/auth-api.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/auth/components/login-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/auth/components/login-form.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/auth/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/auth/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/auth/screens/email-sent-screen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/auth/screens/email-sent-screen.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/auth/screens/reset-password-screen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/auth/screens/reset-password-screen.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/auth/store/auth-slice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/auth/store/auth-slice.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/auth/store/selectors.ts" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/auth/store/selectors.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/auth/types/contracts.ts" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/auth/types/contracts.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/auth/utils/auth-error-messages.ts" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/auth/utils/auth-error-messages.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/attendance/api/attendance-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/attendance/api/attendance-api.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/attendance/components/TodaysRecords.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/attendance/components/TodaysRecords.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/attendance/types/contracts.ts" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/attendance/types/contracts.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/leave/api/leave-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/leave/api/leave-api.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/leave/api/mock.ts" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/leave/api/mock.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/leave/components/LeaveBalanceCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/leave/components/LeaveBalanceCard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/leave/components/LeaveBalanceSection.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/leave/components/LeaveBalanceSection.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/leave/components/LeaveRequestCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/leave/components/LeaveRequestCard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/leave/components/LeaveRequestHistory.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/leave/components/LeaveRequestHistory.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/leave/components/LeaveRequestsScreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/leave/components/LeaveRequestsScreen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/leave/components/RequestLeaveBottomSheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/leave/components/RequestLeaveBottomSheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/leave/hooks/use-leave-screen.ts" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/leave/hooks/use-leave-screen.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worknest-mobile/src/features/leave/types/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/worknest-mobile/src/features/leave/types/index.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="194" />
+    <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
+  </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
-  &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;Shpetim10&quot;
-  }
+  &quot;lastFilter&quot;: {}
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/Shpetim10/WorkNest-Mobile.git&quot;,
-    &quot;accountId&quot;: &quot;55ca64f5-f40c-4725-9b7d-73fe0d212e8b&quot;
+    &quot;url&quot;: &quot;https://github.com/Shpetim10/WorkNest-Mobile&quot;,
+    &quot;accountId&quot;: &quot;6fe380ff-8365-4479-82ce-47c661f85dff&quot;
   }
 }</component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="DEPENDENCY_CHECKER_PROBLEMS_TAB" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
 }</component>
@@ -52,11 +71,15 @@
   &quot;keyToString&quot;: {
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
     &quot;React Native.Android.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
     &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;leave-v2&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;C:/Users/shaba/Desktop/WorkNest - SPM/WorkNestMobile/worknest-mobile/assets/icons&quot;,
@@ -67,7 +90,7 @@
     &quot;nodejs_interpreter_path&quot;: &quot;node&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\shaba\\Desktop\\WorkNest - SPM\\WorkNestMobile\\worknest-mobile\\node_modules\\typescript\\lib&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\joldi\\IdeaProjects\\WorkNest-Mobile\\worknest-mobile\\node_modules\\typescript\\lib&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -106,10 +129,36 @@
       <workItem from="1775853649499" duration="303000" />
       <workItem from="1777107918171" duration="8002000" />
       <workItem from="1777206052263" duration="41000" />
+      <workItem from="1778235984588" duration="159000" />
+      <workItem from="1778351418685" duration="454000" />
+      <workItem from="1778357275146" duration="723000" />
+      <workItem from="1778358040954" duration="278000" />
+      <workItem from="1778532994696" duration="549000" />
+      <workItem from="1778533570155" duration="454000" />
+      <workItem from="1778534071372" duration="506000" />
+      <workItem from="1778534583899" duration="517000" />
+      <workItem from="1778535118268" duration="2456000" />
+      <workItem from="1778591101122" duration="1847000" />
+      <workItem from="1778612082754" duration="4351000" />
+      <workItem from="1778620859785" duration="1721000" />
+      <workItem from="1778623128484" duration="877000" />
+      <workItem from="1778624164800" duration="42000" />
+      <workItem from="1778624281408" duration="651000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
 </project>

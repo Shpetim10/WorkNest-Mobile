@@ -30,8 +30,8 @@ function formatTime(value: string | null, timezone?: string | null) {
 }
 
 export function TodaysRecords({ record, timezone, clockIn, clockOut }: TodaysRecordsProps) {
-  const effectiveClockIn = record?.firstCheckInAt ?? clockIn ?? null;
-  const effectiveClockOut = record?.lastCheckOutAt ?? clockOut ?? null;
+  const effectiveClockIn = record?.clockInTime ?? clockIn ?? null;
+  const effectiveClockOut = record?.clockOutTime ?? clockOut ?? null;
   const clockInTime = formatTime(effectiveClockIn, timezone);
   const clockOutTime = formatTime(effectiveClockOut, timezone);
 

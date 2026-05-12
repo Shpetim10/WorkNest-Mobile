@@ -25,9 +25,9 @@ export interface AttendanceWarning {
 }
 
 export interface AttendanceDayRecord {
-  id: string;
-  firstCheckInAt: string | null;
-  lastCheckOutAt: string | null;
+  dayRecordId: string;
+  clockInTime: string | null;
+  clockOutTime: string | null;
   workedMinutes: number;
   dayStatus: AttendanceDayStatus;
   reviewStatus: AttendanceReviewStatus;
@@ -70,12 +70,12 @@ export interface ClockAttendanceRequest {
 export interface ClockAttendanceResponseData {
   state: AttendanceState;
   nextAllowedAction: AttendanceAction;
-  eventType: 'CHECK_IN' | 'CHECK_OUT' | string;
+  eventTypeCreated: 'CHECK_IN' | 'CHECK_OUT' | string;
   eventStatus: 'ACCEPTED' | 'ACCEPTED_WITH_WARNINGS' | string;
-  decision: 'ACCEPTED' | 'ACCEPTED_WITH_WARNINGS' | string;
-  firstCheckInAt: string | null;
-  lastCheckOutAt: string | null;
-  serverRecordedAt: string;
+  attendanceDecision: 'ACCEPTED' | 'ACCEPTED_WITH_WARNINGS' | string;
+  clockInTime: string | null;
+  clockOutTime: string | null;
+  serverTime: string;
   workDate: string;
   timezone: string;
   message?: string;

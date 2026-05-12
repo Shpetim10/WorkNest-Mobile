@@ -8,16 +8,17 @@ import { LeaveRequestCard } from './LeaveRequestCard';
 
 interface LeaveRequestHistoryProps {
   history: LeaveRequestDto[];
+  onCancel?: (id: string) => void;
 }
 
-export function LeaveRequestHistory({ history }: LeaveRequestHistoryProps) {
+export function LeaveRequestHistory({ history, onCancel }: LeaveRequestHistoryProps) {
   return (
     <View style={styles.container}>
       <ThemedText style={styles.sectionTitle}>REQUEST HISTORY</ThemedText>
       <View style={styles.list}>
         {history.length > 0 ? (
           history.map((request) => (
-            <LeaveRequestCard key={request.id} request={request} />
+            <LeaveRequestCard key={request.id} request={request} onCancel={onCancel} />
           ))
         ) : (
           <View style={styles.emptyContainer}>

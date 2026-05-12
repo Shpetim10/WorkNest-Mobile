@@ -1,4 +1,4 @@
-import { Umbrella, Stethoscope, User } from 'lucide-react-native';
+import { Umbrella, Stethoscope, User, Heart, Ban, HelpCircle } from 'lucide-react-native';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -19,6 +19,14 @@ export function LeaveBalanceCard({ title, value, type = 'VACATION' }: LeaveBalan
         return { icon: <Stethoscope size={20} color="#B91C1C" />, bgColor: '#FEE2E2' };
       case 'PERSONAL':
         return { icon: <User size={20} color="#7E22CE" />, bgColor: '#F3E8FF' };
+      case 'UNPAID':
+        return { icon: <Ban size={20} color="#6B7280" />, bgColor: '#F3F4F6' };
+      case 'MATERNITY':
+        return { icon: <Heart size={20} color="#DB2777" />, bgColor: '#FCE7F3' };
+      case 'PATERNITY':
+        return { icon: <Heart size={20} color="#2563EB" />, bgColor: '#DBEAFE' };
+      case 'OTHER':
+        return { icon: <HelpCircle size={20} color="#6B7280" />, bgColor: '#F3F4F6' };
       case 'VACATION':
       default:
         return { icon: <Umbrella size={20} color="#0369A1" />, bgColor: '#DBEAFE' };

@@ -39,6 +39,8 @@ interface RequestLeaveBottomSheetProps {
     setEndDate: (date: Date) => void;
     note: string;
     setNote: (note: string) => void;
+    medicalReportDocumentId: string;
+    setMedicalReportDocumentId: (id: string) => void;
     requestedDays: number;
     availableDaysForType: number;
   };
@@ -125,6 +127,10 @@ export function RequestLeaveBottomSheet({
     { label: 'Vacation', value: 'VACATION' },
     { label: 'Sick Leave', value: 'SICK' },
     { label: 'Personal', value: 'PERSONAL' },
+    { label: 'Unpaid', value: 'UNPAID' },
+    { label: 'Maternity', value: 'MATERNITY' },
+    { label: 'Paternity', value: 'PATERNITY' },
+    { label: 'Other', value: 'OTHER' },
   ];
 
   const formatDate = (date: Date) => {
@@ -264,6 +270,21 @@ export function RequestLeaveBottomSheet({
                     </TouchableOpacity>
                   </View>
                 </View>
+
+                {/* Medical Report ID — required for Sick Leave */}
+                {form.leaveType === 'SICK' && (
+                  <View style={styles.field}>
+                    <ThemedText style={styles.label}>Medical Report ID (Required)</ThemedText>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Enter document ID..."
+                      placeholderTextColor="#94A3B8"
+                      value={form.medicalReportDocumentId}
+                      onChangeText={form.setMedicalReportDocumentId}
+                      autoCapitalize="none"
+                    />
+                  </View>
+                )}
 
                 {/* Note field */}
                 <View style={styles.field}>
@@ -473,6 +494,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8FAFC',
   },
   dateInputText: {
+    fontFamily: Fonts.sf.regular,
+    fontSize: 15,
+    color: '#1E293B',
+  },
+  input: {
+    width: '100%',
+    height: 56,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    backgroundColor: '#F8FAFC',
     fontFamily: Fonts.sf.regular,
     fontSize: 15,
     color: '#1E293B',
