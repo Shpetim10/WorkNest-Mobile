@@ -1,5 +1,5 @@
 import axios, { InternalAxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
-import { API_BASE_URL } from '@/common/config/network';
+import { API_BASE_URL, NETWORK_TIMEOUT_MS } from '@/common/config/network';
 
 /**
  * Base API client for the application.
@@ -7,6 +7,7 @@ import { API_BASE_URL } from '@/common/config/network';
  */
 export const api = axios.create({
   baseURL: API_BASE_URL,
+  timeout: NETWORK_TIMEOUT_MS,
   headers: {
     'Content-Type': 'application/json',
   },

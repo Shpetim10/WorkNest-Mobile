@@ -10,6 +10,9 @@ import {
   useMarkAnnouncementReadMutation,
 } from '../api/announcements-api';
 import type { MobileAnnouncementListItem } from '../types';
+import { useAppSelector } from '@/common/store/hooks';
+import { selectTenantContext } from '@/features/auth';
+import { useCompanyTopic, RealtimeEventType } from '@/features/realtime';
 
 const READ_STORAGE_PREFIX = 'readAnnouncements';
 const SAFE_STORAGE_KEY_CHARACTER = /[^A-Za-z0-9._-]/g;
@@ -44,18 +47,8 @@ function resolveUserIdFromToken(token: string | null): string | null {
 
 export function useAnnouncementsScreen() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [locallyReadIds, setLocallyReadIds] = useState<Set<string>>(() => new Set());
-  const [readStateLoaded, setReadStateLoaded] = useState(false);
-  const accessToken = useAppSelector((state) => state.auth.accessToken);
-  const userEmail = useAppSelector((state) => state.auth.userEmail);
-  const activeRoleAssignmentId = useAppSelector((state) => state.auth.activeRoleAssignmentId);
-  const userId = useMemo(
-    () => resolveUserIdFromToken(accessToken) ?? userEmail ?? activeRoleAssignmentId,
-    [accessToken, activeRoleAssignmentId, userEmail]
-  );
-  const userReadStorageKey = userId
-    ? `${READ_STORAGE_PREFIX}_${userId.replace(SAFE_STORAGE_KEY_CHARACTER, '_')}`
-    : null;
+  const tenantContext = useAppSelector(selectTenantContext);
+  const companyId = tenantContext?.companyId ?? null;
 
   const {
     data: fetchedAnnouncements = [],
@@ -72,73 +65,15 @@ export function useAnnouncementsScreen() {
 
   const [markRead] = useMarkAnnouncementReadMutation();
 
-  const visibleAnnouncements = useMemo(
-    () =>
-      fetchedAnnouncements.map((item) => ({
-        ...item,
-        read: locallyReadIds.has(item.id) || item.read,
-      })),
-    [fetchedAnnouncements, locallyReadIds]
-  );
-
-  const visibleDetail = useMemo(
-    () =>
-      detail
-        ? {
-            ...detail,
-            read: locallyReadIds.has(detail.id) || detail.read,
-          }
-        : detail,
-    [detail, locallyReadIds]
-  );
-
-  const unreadCount = readStateLoaded
-    ? visibleAnnouncements.filter((item) => !item.read).length
-    : unreadData?.count ?? 0;
-
-  useEffect(() => {
-    let isActive = true;
-
-    setSelectedId(null);
-    setReadStateLoaded(false);
-    setLocallyReadIds(new Set());
-
-    if (!userReadStorageKey) {
-      setReadStateLoaded(true);
-      return () => {
-        isActive = false;
-      };
+  useCompanyTopic(companyId, 'announcements', (envelope) => {
+    if (
+      envelope.type === RealtimeEventType.ANNOUNCEMENT_CREATED ||
+      envelope.type === RealtimeEventType.ANNOUNCEMENT_DELETED
+    ) {
+      refetchList();
+      refetchCount();
     }
-
-    SecureStore.getItemAsync(userReadStorageKey)
-      .then((raw) => {
-        if (!isActive) return;
-
-        const ids = raw ? (JSON.parse(raw) as string[]) : [];
-        setLocallyReadIds((current) => new Set([...ids, ...current]));
-      })
-      .catch(() => {
-        if (isActive) {
-          setLocallyReadIds(new Set());
-        }
-      })
-      .finally(() => {
-        if (isActive) {
-          setReadStateLoaded(true);
-        }
-      });
-
-    return () => {
-      isActive = false;
-    };
-  }, [userReadStorageKey]);
-
-  useEffect(() => {
-    if (!userReadStorageKey) return;
-
-    refetchList();
-    refetchCount();
-  }, [refetchCount, refetchList, userReadStorageKey]);
+  });
 
   useEffect(() => {
     const sub = AppState.addEventListener('change', (nextState) => {
