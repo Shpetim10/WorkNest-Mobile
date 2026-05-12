@@ -5,6 +5,7 @@ import {
   useGetLeaveBalanceQuery,
   useGetLeaveRequestsQuery,
   useSubmitLeaveRequestMutation,
+  useCancelLeaveRequestMutation,
 } from '../api/leave-api';
 import type { LeaveType } from '../types';
 
@@ -12,6 +13,7 @@ export function useLeaveScreen() {
   const { data: balances = [], isLoading: balancesLoading } = useGetLeaveBalanceQuery();
   const { data: history = [], isLoading: historyLoading } = useGetLeaveRequestsQuery();
   const [submitLeaveRequest, { isLoading: isSubmitting }] = useSubmitLeaveRequestMutation();
+  const [cancelLeaveRequest] = useCancelLeaveRequestMutation();
 
   const isLoading = balancesLoading || historyLoading;
 
@@ -20,6 +22,7 @@ export function useLeaveScreen() {
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [note, setNote] = useState('');
+  const [medicalReportDocumentId, setMedicalReportDocumentId] = useState('');
 
   const requestedDays =
     Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
@@ -33,6 +36,7 @@ export function useLeaveScreen() {
     setStartDate(new Date());
     setEndDate(new Date());
     setNote('');
+    setMedicalReportDocumentId('');
   }, []);
 
   const submitRequest = useCallback(async () => {
@@ -42,13 +46,26 @@ export function useLeaveScreen() {
         startDate: startDate.toISOString().split('T')[0],
         endDate: endDate.toISOString().split('T')[0],
         note: note.trim() || null,
+        medicalReportDocumentId: medicalReportDocumentId.trim() || null,
       }).unwrap();
       closeModal();
     } catch (err: any) {
       const message = err?.message ?? 'Failed to submit leave request. Please try again.';
       Alert.alert('Error', message);
     }
-  }, [leaveType, startDate, endDate, note, submitLeaveRequest, closeModal]);
+  }, [leaveType, startDate, endDate, note, medicalReportDocumentId, submitLeaveRequest, closeModal]);
+
+  const cancelRequest = useCallback(async (requestId: string) => {
+    try {
+      await cancelLeaveRequest(requestId).unwrap();
+    } catch (err: any) {
+      const message =
+        err?.code === 'PAYROLL_PERIOD_LOCKED'
+          ? 'This leave cannot be cancelled because payroll for this period has already been processed.'
+          : (err?.message ?? 'Failed to cancel leave request. Please try again.');
+      Alert.alert('Error', message);
+    }
+  }, [cancelLeaveRequest]);
 
   return {
     balances,
@@ -57,6 +74,7 @@ export function useLeaveScreen() {
     isModalVisible,
     openModal,
     closeModal,
+    cancelRequest,
     form: {
       leaveType,
       setLeaveType,
@@ -66,6 +84,8 @@ export function useLeaveScreen() {
       setEndDate,
       note,
       setNote,
+      medicalReportDocumentId,
+      setMedicalReportDocumentId,
       isSubmitting,
       submitRequest,
       requestedDays,
