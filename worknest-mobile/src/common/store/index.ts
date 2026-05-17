@@ -1,16 +1,23 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore, Middleware } from '@reduxjs/toolkit';
 
 import { authApi } from '@/features/auth/api/auth-api';
-import { authReducer } from '@/features/auth/store/auth-slice';
+import { authReducer, logoutCompleted } from '@/features/auth/store/auth-slice';
+
+const logoutMiddleware: Middleware = (storeApi) => (next) => (action: any) => {
+  if (action.type === logoutCompleted.type) {
+    storeApi.dispatch(authApi.util.resetApiState());
+  }
+  return next(action);
+};
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     [authApi.reducerPath]: authApi.reducer,
   },
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(authApi.middleware),
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(authApi.middleware, logoutMiddleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
-
