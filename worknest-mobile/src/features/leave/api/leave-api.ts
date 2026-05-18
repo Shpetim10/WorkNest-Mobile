@@ -19,6 +19,14 @@ export const leaveApi = authApi.injectEndpoints({
       transformResponse: () => undefined,
       invalidatesTags: ['LeaveBalance', 'LeaveRequests'],
     }),
+    cancelLeaveRequest: builder.mutation<void, string>({
+      query: (requestId) => ({
+        url: `/api/v1/mobile/leave/requests/${requestId}/cancel`,
+        method: 'POST',
+      }),
+      transformResponse: () => undefined,
+      invalidatesTags: ['LeaveBalance', 'LeaveRequests'],
+    }),
   }),
   overrideExisting: false,
 });
@@ -27,4 +35,5 @@ export const {
   useGetLeaveBalanceQuery,
   useGetLeaveRequestsQuery,
   useSubmitLeaveRequestMutation,
+  useCancelLeaveRequestMutation,
 } = leaveApi;

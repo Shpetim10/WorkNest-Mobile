@@ -1,6 +1,6 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Calendar } from 'lucide-react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Calendar, XCircle } from 'lucide-react-native';
 
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts } from '@/common/constants/theme';
@@ -10,13 +10,18 @@ const LEAVE_TYPE_LABELS: Record<string, string> = {
   VACATION: 'Vacation',
   SICK: 'Sick Leave',
   PERSONAL: 'Personal',
+  UNPAID: 'Unpaid',
+  MATERNITY: 'Maternity',
+  PATERNITY: 'Paternity',
+  OTHER: 'Other',
 };
 
 interface LeaveRequestCardProps {
   request: LeaveRequestDto;
+  onCancel?: (id: string) => void;
 }
 
-export function LeaveRequestCard({ request }: LeaveRequestCardProps) {
+export function LeaveRequestCard({ request, onCancel }: LeaveRequestCardProps) {
   const getStatusConfig = () => {
     switch (request.status) {
       case 'APPROVED':
@@ -25,6 +30,8 @@ export function LeaveRequestCard({ request }: LeaveRequestCardProps) {
         return { bg: '#FEF9C2', text: '#A65F00', label: 'Pending' };
       case 'REJECTED':
         return { bg: '#FEE2E2', text: '#B91C1C', label: 'Rejected' };
+      case 'CANCELLED':
+        return { bg: '#F1F5F9', text: '#64748B', label: 'Cancelled' };
       default:
         return { bg: '#F1F5F9', text: '#64748B', label: request.status };
     }
@@ -43,7 +50,7 @@ export function LeaveRequestCard({ request }: LeaveRequestCardProps) {
       ? formatDate(request.startDate)
       : `${formatDate(request.startDate)} - ${formatDate(request.endDate)}`;
 
-  const duration = `${request.totalDays} ${request.totalDays === 1 ? 'day' : 'days'}`;
+  const duration = `${request.daysCount} ${request.daysCount === 1 ? 'day' : 'days'}`;
 
   return (
     <View style={styles.card}>
@@ -71,6 +78,25 @@ export function LeaveRequestCard({ request }: LeaveRequestCardProps) {
             Reason: {request.rejectionReason}
           </ThemedText>
         </View>
+      )}
+
+      {request.status === 'APPROVED' && request.approvalNote && (
+        <View style={styles.approvalNoteRow}>
+          <ThemedText style={styles.approvalNoteText}>
+            Note from approver: {request.approvalNote}
+          </ThemedText>
+        </View>
+      )}
+
+      {(request.status === 'PENDING' || request.status === 'APPROVED') && onCancel && (
+        <TouchableOpacity
+          style={styles.cancelRow}
+          onPress={() => onCancel(request.id)}
+          activeOpacity={0.7}
+        >
+          <XCircle size={14} color="#DC2626" />
+          <ThemedText style={styles.cancelText}>Cancel Request</ThemedText>
+        </TouchableOpacity>
       )}
     </View>
   );
@@ -132,5 +158,26 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
     color: '#B91C1C',
+  },
+  approvalNoteRow: {
+    marginTop: 8,
+  },
+  approvalNoteText: {
+    fontFamily: Fonts.sf.regular,
+    fontSize: 13,
+    lineHeight: 18,
+    color: '#15803D',
+  },
+  cancelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 10,
+    alignSelf: 'flex-start',
+  },
+  cancelText: {
+    fontFamily: Fonts.sf.semibold,
+    fontSize: 13,
+    color: '#DC2626',
   },
 });

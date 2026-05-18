@@ -17,6 +17,7 @@ export function LeaveRequestsScreen() {
     isModalVisible,
     openModal,
     closeModal,
+    cancelRequest,
     form,
   } = useLeaveScreen();
 
@@ -38,7 +39,7 @@ export function LeaveRequestsScreen() {
           ) : (
             <>
               <LeaveBalanceSection balances={balances} />
-              <LeaveRequestHistory history={history} />
+              <LeaveRequestHistory history={history} onCancel={cancelRequest} />
             </>
           )}
         </View>

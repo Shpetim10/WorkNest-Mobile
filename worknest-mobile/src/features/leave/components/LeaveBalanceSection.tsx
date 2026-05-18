@@ -10,6 +10,10 @@ const LEAVE_TYPE_LABELS: Record<string, string> = {
   VACATION: 'Vacation',
   SICK: 'Sick Leave',
   PERSONAL: 'Personal',
+  UNPAID: 'Unpaid',
+  MATERNITY: 'Maternity',
+  PATERNITY: 'Paternity',
+  OTHER: 'Other',
 };
 
 interface LeaveBalanceSectionProps {

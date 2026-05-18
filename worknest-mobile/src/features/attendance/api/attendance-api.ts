@@ -17,12 +17,11 @@ interface GetMonthArgs {
 }
 
 function normalizeTodayResponse(response: AttendanceTodayEnvelope): AttendanceTodayData {
-  const data = response.data as AttendanceTodayData & { ClockOut?: string | null; ClockIn?: string | null };
-
+  const data = response.data;
   return {
     ...data,
-    clockIn: data.clockIn ?? data.ClockIn ?? data.todayRecord?.firstCheckInAt ?? null,
-    clockOut: data.clockOut ?? data.ClockOut ?? data.todayRecord?.lastCheckOutAt ?? null,
+    clockIn: data.clockIn ?? data.todayRecord?.clockInTime ?? null,
+    clockOut: data.clockOut ?? data.todayRecord?.clockOutTime ?? null,
   };
 }
 
@@ -34,8 +33,8 @@ function toTodayStateFromClockResponse(
   const todayRecord = data.todayRecord ?? (prevRecord
     ? {
         ...prevRecord,
-        firstCheckInAt: data.firstCheckInAt ?? prevRecord.firstCheckInAt,
-        lastCheckOutAt: data.lastCheckOutAt ?? prevRecord.lastCheckOutAt,
+        clockInTime: data.clockInTime ?? prevRecord.clockInTime,
+        clockOutTime: data.clockOutTime ?? prevRecord.clockOutTime,
         warnings: data.warnings ?? prevRecord.warnings,
       }
     : null);
@@ -50,11 +49,11 @@ function toTodayStateFromClockResponse(
     siteName: previous?.siteName ?? null,
     qrRequired: previous?.qrRequired ?? false,
     locationRequired: previous?.locationRequired ?? false,
-    serverTime: data.serverRecordedAt,
+    serverTime: data.serverTime,
     timezone: data.timezone,
     workDate: data.workDate,
-    clockIn: data.firstCheckInAt ?? previous?.clockIn ?? null,
-    clockOut: data.lastCheckOutAt ?? previous?.clockOut ?? null,
+    clockIn: data.clockInTime ?? previous?.clockIn ?? null,
+    clockOut: data.clockOutTime ?? previous?.clockOut ?? null,
     todayRecord,
     warnings: data.warnings ?? [],
   };

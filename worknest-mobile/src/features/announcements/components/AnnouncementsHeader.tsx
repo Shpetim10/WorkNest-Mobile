@@ -1,6 +1,8 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { ArrowLeft } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/common/components/themed-text';
@@ -12,26 +14,30 @@ interface AnnouncementsHeaderProps {
 
 export function AnnouncementsHeader({ unreadCount }: AnnouncementsHeaderProps) {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
 
   return (
     <View style={styles.headerWrapper}>
       <LinearGradient
-        colors={['#7C3AED', '#2B7FFF']}
+        colors={['#2B7FFF', '#00BBA7']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={[styles.container, { paddingTop: insets.top + 20 }]}
       >
         <View style={styles.headerRow}>
-          <View style={styles.titleContainer}>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()} activeOpacity={0.7}>
+            <ArrowLeft size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+          <View style={styles.titleGroup}>
             <ThemedText style={styles.title}>Announcements</ThemedText>
+            {unreadCount > 0 && (
+              <View style={styles.badge}>
+                <ThemedText style={styles.badgeText}>
+                  {unreadCount} new
+                </ThemedText>
+              </View>
+            )}
           </View>
-          {unreadCount > 0 && (
-            <View style={styles.badge}>
-              <ThemedText style={styles.badgeText}>
-                {unreadCount} new
-              </ThemedText>
-            </View>
-          )}
         </View>
       </LinearGradient>
     </View>
@@ -40,7 +46,7 @@ export function AnnouncementsHeader({ unreadCount }: AnnouncementsHeaderProps) {
 
 const styles = StyleSheet.create({
   headerWrapper: {
-    shadowColor: '#7C3AED',
+    shadowColor: '#2B7FFF',
     shadowOpacity: 0.3,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 8 },
@@ -55,28 +61,38 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 32,
     borderBottomRightRadius: 32,
     paddingHorizontal: 32,
-    justifyContent: 'flex-end',
-    paddingBottom: 28,
   },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: 14,
   },
-  titleContainer: {
+  backButton: {
+    width: 26,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+  },
+  titleGroup: {
     flex: 1,
+    minWidth: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
   },
   title: {
     color: '#FFFFFF',
     fontFamily: Fonts.sf.bold,
     fontWeight: '700',
     fontSize: 24,
+    flexShrink: 1,
   },
   badge: {
-    backgroundColor: 'rgba(255,255,255,0.25)',
+    backgroundColor: '#1E2939',
     borderRadius: 999,
     paddingHorizontal: 12,
-    paddingVertical: 5,
+    paddingVertical: 6,
   },
   badgeText: {
     color: '#FFFFFF',
