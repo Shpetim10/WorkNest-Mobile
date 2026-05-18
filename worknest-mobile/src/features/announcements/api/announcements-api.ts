@@ -11,7 +11,7 @@ export const announcementsApi = authApi.injectEndpoints({
     getAnnouncements: builder.query<MobileAnnouncementListItem[], void>({
       query: () => ({ url: '/api/v1/mobile/announcements', method: 'GET' }),
       transformResponse: (response: ApiSuccessEnvelope<MobileAnnouncementListItem[]>) =>
-        response.data,
+        Array.isArray(response.data) ? response.data : [],
       providesTags: ['Announcements'],
     }),
     getAnnouncementUnreadCount: builder.query<UnreadCountResponse, void>({

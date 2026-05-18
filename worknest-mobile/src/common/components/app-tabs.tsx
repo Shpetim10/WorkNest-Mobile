@@ -21,6 +21,7 @@ export default function AppTabs() {
       <Tabs.Screen name="index" options={{ title: 'Home' }} />
       <Tabs.Screen name="attendance" options={{ title: 'Attendance' }} />
       <Tabs.Screen name="requests" options={{ title: 'Requests' }} />
+      <Tabs.Screen name="payroll" options={{ title: 'Payroll' }} />
       <Tabs.Screen name="announcements" options={{ title: 'Announcements' }} />
       <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
     </Tabs>
@@ -29,7 +30,7 @@ export default function AppTabs() {
 
 function CustomTabBar({ state, descriptors, navigation }: any) {
   const insets = useSafeAreaInsets();
-  const allowedRoutes = ['index', 'attendance', 'requests', 'announcements', 'profile'];
+  const allowedRoutes = ['index', 'attendance', 'requests', 'payroll', 'announcements', 'profile'];
 
   const getIcon = (routeName: string, focused: boolean) => {
     switch (routeName) {
@@ -39,6 +40,8 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
         return focused ? 'time' : 'time-outline';
       case 'requests':
         return focused ? 'document-text' : 'document-text-outline';
+      case 'payroll':
+        return focused ? 'cash' : 'cash-outline';
       case 'announcements':
         return focused ? 'notifications' : 'notifications-outline';
       case 'profile':
@@ -56,6 +59,8 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
         return 'Attendance';
       case 'requests':
         return 'Requests';
+      case 'payroll':
+        return 'Payroll';
       case 'announcements':
         return 'Updates';
       case 'profile':

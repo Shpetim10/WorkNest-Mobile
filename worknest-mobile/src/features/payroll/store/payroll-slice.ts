@@ -1,12 +1,17 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+interface PayrollSelectionPayload {
+  year: number;
+  month: number;
+}
+
 interface PayrollUIState {
-  selectedPayslipId: string | null;
+  selectedPeriod: PayrollSelectionPayload | null;
   isModalVisible: boolean;
 }
 
 const initialState: PayrollUIState = {
-  selectedPayslipId: null,
+  selectedPeriod: null,
   isModalVisible: false,
 };
 
@@ -14,13 +19,13 @@ const payrollSlice = createSlice({
   name: 'payroll',
   initialState,
   reducers: {
-    openPayslipModal(state, action: PayloadAction<string>) {
-      state.selectedPayslipId = action.payload;
+    openPayslipModal(state, action: PayloadAction<PayrollSelectionPayload>) {
+      state.selectedPeriod = action.payload;
       state.isModalVisible = true;
     },
     closePayslipModal(state) {
       state.isModalVisible = false;
-      state.selectedPayslipId = null;
+      state.selectedPeriod = null;
     },
   },
 });
