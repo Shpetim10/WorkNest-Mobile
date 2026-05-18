@@ -1,61 +1,177 @@
-import { NativeTabs } from 'expo-router/unstable-native-tabs';
+import { Tabs } from 'expo-router';
 import React from 'react';
-import { useColorScheme } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, Text, useColorScheme } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 
-import { Colors } from '@/common/constants/theme';
+import { Fonts, Colors } from '@/common/constants/theme';
 
 export default function AppTabs() {
   const scheme = useColorScheme();
   const colors = Colors[scheme ?? 'light'];
 
   return (
-    <NativeTabs
-      backgroundColor={colors.background}
-      indicatorColor={colors.backgroundElement}
-      labelStyle={{ selected: { color: colors.text } }}>
-      <NativeTabs.Trigger name="index">
-        <NativeTabTriggerLabel>Home</NativeTabTriggerLabel>
-        <NativeTabTriggerIcon
-          src={require('@/assets/images/tabIcons/home.png')}
-          renderingMode="template"
-        />
-      </NativeTabs.Trigger>
-
-      <NativeTabs.Trigger name="employees">
-        <NativeTabTriggerLabel>Employees</NativeTabTriggerLabel>
-        <NativeTabTriggerIcon
-          src={require('@/assets/images/tabIcons/explore.png')}
-          renderingMode="template"
-        />
-      </NativeTabs.Trigger>
-
-      <NativeTabs.Trigger name="attendance">
-        <NativeTabTriggerLabel>Attendance</NativeTabTriggerLabel>
-        <NativeTabTriggerIcon
-          src={require('@/assets/images/tabIcons/explore.png')}
-          renderingMode="template"
-        />
-      </NativeTabs.Trigger>
-
-      <NativeTabs.Trigger name="requests">
-        <NativeTabTriggerLabel>Requests</NativeTabTriggerLabel>
-        <NativeTabTriggerIcon
-          src={require('@/assets/images/tabIcons/explore.png')}
-          renderingMode="template"
-        />
-      </NativeTabs.Trigger>
-
-      <NativeTabs.Trigger name="announcements">
-        <NativeTabTriggerLabel>Updates</NativeTabTriggerLabel>
-        <NativeTabTriggerIcon
-          src={require('@/assets/images/tabIcons/explore.png')}
-          renderingMode="template"
-        />
-      </NativeTabs.Trigger>
-    </NativeTabs>
+    <Tabs
+      tabBar={(props) => <CustomTabBar {...props} />}
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Tabs.Screen name="index" options={{ title: 'Home' }} />
+      <Tabs.Screen name="attendance" options={{ title: 'Attendance' }} />
+      <Tabs.Screen name="requests" options={{ title: 'Requests' }} />
+      <Tabs.Screen name="announcements" options={{ title: 'Announcements' }} />
+      <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
+    </Tabs>
   );
 }
 
-// These are likely exported or should be accessed this way in some versions
-const NativeTabTriggerLabel = (NativeTabs.Trigger as any).Label;
-const NativeTabTriggerIcon = (NativeTabs.Trigger as any).Icon;
+function CustomTabBar({ state, descriptors, navigation }: any) {
+  const insets = useSafeAreaInsets();
+  const allowedRoutes = ['index', 'attendance', 'requests', 'announcements', 'profile'];
+
+  const getIcon = (routeName: string, focused: boolean) => {
+    switch (routeName) {
+      case 'index':
+        return focused ? 'home' : 'home-outline';
+      case 'attendance':
+        return focused ? 'time' : 'time-outline';
+      case 'requests':
+        return focused ? 'document-text' : 'document-text-outline';
+      case 'announcements':
+        return focused ? 'notifications' : 'notifications-outline';
+      case 'profile':
+        return focused ? 'person' : 'person-outline';
+      default:
+        return 'help-circle-outline';
+    }
+  };
+
+  const getLabel = (routeName: string) => {
+    switch (routeName) {
+      case 'index':
+        return 'Home';
+      case 'attendance':
+        return 'Attendance';
+      case 'requests':
+        return 'Requests';
+      case 'announcements':
+        return 'Updates';
+      case 'profile':
+        return 'Profile';
+      default:
+        return routeName;
+    }
+  };
+
+  // Filter routes to only render the allowed five tabs in the correct order
+  const routesToRender = state.routes.filter((route: any) => allowedRoutes.includes(route.name));
+
+  return (
+    <View style={[styles.tabBarContainer, { paddingBottom: Math.max(insets.bottom, 12) }]}>
+      {routesToRender.map((route: any) => {
+        const isFocused = state.routes[state.index]?.name === route.name;
+
+        const onPress = () => {
+          const event = navigation.emit({
+            type: 'tabPress',
+            target: route.key,
+            canPreventDefault: true,
+          });
+
+          if (!isFocused && !event.defaultPrevented) {
+            navigation.navigate({ name: route.name, merge: true });
+          }
+        };
+
+        const iconName = getIcon(route.name, isFocused);
+        const label = getLabel(route.name);
+
+        return (
+          <TouchableOpacity
+            key={route.key}
+            onPress={onPress}
+            style={styles.tabButton}
+            activeOpacity={0.7}
+          >
+            {isFocused ? (
+              <LinearGradient
+                colors={['#2B7FFF', '#00BBA7']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.activePill}
+              >
+                <Ionicons name={iconName as any} size={22} color="#FFFFFF" />
+              </LinearGradient>
+            ) : (
+              <View style={styles.inactiveIconWrapper}>
+                <Ionicons name={iconName as any} size={22} color="#94A3B8" />
+              </View>
+            )}
+            <Text style={[styles.label, isFocused ? styles.labelActive : styles.labelInactive]}>
+              {label}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  tabBarContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    paddingTop: 12,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    shadowColor: '#000000',
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: -4 },
+    elevation: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(229, 231, 235, 0.4)',
+  },
+  tabButton: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+  },
+  activePill: {
+    width: 48,
+    height: 48,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#2B7FFF',
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
+  },
+  inactiveIconWrapper: {
+    width: 48,
+    height: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  label: {
+    fontFamily: Fonts.sf.semibold,
+    fontSize: 11,
+    lineHeight: 14,
+    textAlign: 'center',
+  },
+  labelActive: {
+    color: '#2B7FFF',
+  },
+  labelInactive: {
+    color: '#94A3B8',
+  },
+});
