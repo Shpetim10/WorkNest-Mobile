@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\joldi\\\\IdeaProjects\\\\WorkNest-Mobile\\\\worknest-mobile\\\\src\" -Recurse -File)",
+      "Bash(Select-Object FullName)",
+      "Bash(Sort-Object FullName)",
+      "Bash(npx tsc *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\joldi\\\\IdeaProjects\\\\WorkNest-Mobile\\\\worknest-mobile\\\\src\" -Recurse)"
+    ]
+  }
+}

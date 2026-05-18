@@ -12,6 +12,7 @@ import {
   markBootstrapped,
 } from '@/features/auth/store/auth-slice';
 import { selectAuthBootstrapped } from '@/features/auth/store/selectors';
+import { fetchSubscription } from '@/features/subscription/store/subscriptionSlice';
 
 const EXPIRY_BUFFER_MS = 30 * 1000;
 
@@ -54,6 +55,8 @@ export function useAuthBootstrap() {
         if (isExpiredOrNearExpiry(session.accessTokenExpiresAt)) {
           await refresh({ refreshToken: session.refreshToken }).unwrap();
         }
+
+        dispatch(fetchSubscription());
       } catch {
         await clearPersistedSessionArtifacts();
         dispatch(logoutCompleted());

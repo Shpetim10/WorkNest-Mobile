@@ -1,5 +1,6 @@
 import { Slot, useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
+import { View } from 'react-native';
 import { useAppSelector } from '@/common/store/hooks';
 import {
   selectAuthBootstrapped,
@@ -7,6 +8,7 @@ import {
   selectRequiresRoleSelection,
 } from '@/features/auth';
 import { RealtimeProvider, GlobalNotificationHandler } from '@/features/realtime';
+import { TrialBanner, PlanLimitBanner } from '@/features/subscription';
 
 export default function AppLayout() {
   const router = useRouter();
@@ -32,7 +34,11 @@ export default function AppLayout() {
   return (
     <RealtimeProvider>
       <GlobalNotificationHandler />
-      <Slot />
+      <View style={{ flex: 1 }}>
+        <PlanLimitBanner />
+        <TrialBanner />
+        <Slot />
+      </View>
     </RealtimeProvider>
   );
 }

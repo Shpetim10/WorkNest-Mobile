@@ -1,14 +1,15 @@
 import * as Device from 'expo-device';
 import { Platform, StyleSheet } from 'react-native';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { DollarSign, ChevronRight } from 'lucide-react-native';
 
 import { AnimatedIcon } from '@/common/components/animated-icon';
 import { HintRow } from '@/common/components/hint-row';
 import { ThemedText } from '@/common/components/themed-text';
 import { ThemedView } from '@/common/components/themed-view';
 import { WebBadge } from '@/common/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/common/constants/theme';
+import { BottomTabInset, Fonts, MaxContentWidth, Spacing } from '@/common/constants/theme';
 import { clearPersistedSessionArtifacts } from '@/common/storage/secure-session-storage';
 import { useAppDispatch, useAppSelector } from '@/common/store/hooks';
 import { useLogoutMutation } from '@/features/auth';
@@ -87,6 +88,17 @@ export default function HomeScreen() {
           />
         </ThemedView>
 
+        {/* Payroll quick-access */}
+        <TouchableOpacity style={styles.payrollCard} onPress={() => router.push('/payroll' as any)} activeOpacity={0.75}>
+          <View style={styles.payrollCardLeft}>
+            <View style={styles.payrollIconWrapper}>
+              <DollarSign size={20} color="#00BBA7" strokeWidth={2.5} />
+            </View>
+            <ThemedText style={styles.payrollCardLabel}>Payroll</ThemedText>
+          </View>
+          <ChevronRight size={18} color="#94A3B8" />
+        </TouchableOpacity>
+
         <TouchableOpacity onPress={handleLogout} disabled={isLoggingOut}>
           <ThemedText type="link">{isLoggingOut ? 'Signing out...' : 'Sign out'}</ThemedText>
         </TouchableOpacity>
@@ -130,5 +142,40 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.four,
     borderRadius: Spacing.four,
+  },
+  payrollCard: {
+    alignSelf: 'stretch',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  payrollCardLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  payrollIconWrapper: {
+    width: 38,
+    height: 38,
+    borderRadius: 10,
+    backgroundColor: '#DCFCE7',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  payrollCardLabel: {
+    fontFamily: Fonts.sf.semibold,
+    fontSize: 15,
+    color: '#1E2939',
   },
 });
