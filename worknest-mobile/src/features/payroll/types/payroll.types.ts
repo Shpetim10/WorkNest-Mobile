@@ -8,6 +8,19 @@ export interface PayrollPeriodOption extends PayrollPeriodKey {
   label: string;
   shortLabel: string;
   isCurrentMonth: boolean;
+  status?: PayrollStatus;
+  netPay?: number;
+  grossEarnings?: number;
+  currency?: string;
+}
+
+export interface PayrollMonthSummary {
+  year: number;
+  month: number;
+  status: PayrollStatus;
+  grossEarnings: number;
+  netPay: number;
+  currency: string;
 }
 
 export type PaymentMethod = 'FIXED_MONTHLY' | 'HOURLY';
@@ -143,8 +156,17 @@ export interface AbsenceDetails {
   applied: boolean;
 }
 
+export interface OvertimeDetails {
+  expectedHours: number;
+  workedHours: number;
+  overtimeHours: number;
+  overtimeHourlyRate: number;
+  overtimePay: number;
+}
+
 export interface PayrollTotals {
   basePay: string;
+  overtimePay: string | null;
   grossEarnings: string;
   statutoryDeductions: string;
   totalDeductions: string;
@@ -172,6 +194,7 @@ export interface PayrollCalculationResponse {
   adjustments: AdjustmentDetails;
   statutoryDeductions: StatutoryDeductionDetails;
   absenceDetails: AbsenceDetails | null;
+  overtimeDetails: OvertimeDetails | null;
   totals: PayrollTotals;
   warnings: string[];
 }

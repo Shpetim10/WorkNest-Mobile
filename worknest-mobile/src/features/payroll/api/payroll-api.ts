@@ -1,6 +1,10 @@
 import { authApi } from '@/features/auth/api/auth-api';
 import type { ApiSuccessEnvelope } from '@/features/auth/types/contracts';
-import type { PayrollCalculationResponse, PayrollPeriodKey } from '../types/payroll.types';
+import type {
+  PayrollCalculationResponse,
+  PayrollMonthSummary,
+  PayrollPeriodKey,
+} from '../types/payroll.types';
 
 export const payrollApi = authApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -12,8 +16,15 @@ export const payrollApi = authApi.injectEndpoints({
       transformResponse: (response: ApiSuccessEnvelope<PayrollCalculationResponse>) =>
         response.data,
     }),
+    getPayrollHistory: builder.query<PayrollMonthSummary[], void>({
+      query: () => ({
+        url: '/api/v1/mobile/payroll/history',
+        method: 'GET',
+      }),
+      transformResponse: (response: ApiSuccessEnvelope<PayrollMonthSummary[]>) => response.data,
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useGetPayrollDetailsQuery } = payrollApi;
+export const { useGetPayrollDetailsQuery, useGetPayrollHistoryQuery } = payrollApi;

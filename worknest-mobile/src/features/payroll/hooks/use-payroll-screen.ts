@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Alert, Platform } from 'react-native';
 import { Directory, File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
@@ -7,9 +7,13 @@ import { API_BASE_URL } from '@/common/config/network';
 import { useAppDispatch, useAppSelector } from '@/common/store/hooks';
 import { openPayslipModal, closePayslipModal } from '../store/payroll-slice';
 import { selectIsPayslipModalVisible, selectSelectedPayrollPeriod } from '../store/selectors';
-import { useGetPayrollDetailsQuery } from '../api/payroll-api';
-import { buildRecentPayrollPeriods } from '../utils/payroll-formatters';
-import type { PayrollPeriodKey } from '../types/payroll.types';
+import { useGetPayrollDetailsQuery, useGetPayrollHistoryQuery } from '../api/payroll-api';
+import {
+  buildPayrollPeriodKey,
+  buildRecentPayrollPeriods,
+  formatPayrollMonthLabel,
+} from '../utils/payroll-formatters';
+import type { PayrollMonthSummary, PayrollPeriodKey, PayrollPeriodOption } from '../types/payroll.types';
 
 function getErrorMessage(error: unknown, fallback: string): string {
   if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string') {
@@ -31,8 +35,52 @@ export function usePayrollScreen() {
   const subscription = useAppSelector((state) => state.subscription.subscription);
   const isFoundationPlan = subscription?.plan === 'FOUNDATION';
 
-  const periods = buildRecentPayrollPeriods(12);
   const [isDownloading, setIsDownloading] = useState(false);
+
+  const { data: payrollHistory, isLoading: isHistoryLoading } = useGetPayrollHistoryQuery(
+    undefined,
+    { skip: isFoundationPlan }
+  );
+
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+
+  const periods = useMemo<PayrollPeriodOption[]>(() => {
+    if (!payrollHistory || payrollHistory.length === 0) {
+      return buildRecentPayrollPeriods(12);
+    }
+
+    const hasCurrentMonth = payrollHistory.some(
+      (s) => s.year === currentYear && s.month === currentMonth
+    );
+
+    const fromHistory = payrollHistory.map((s: PayrollMonthSummary): PayrollPeriodOption => ({
+      year: s.year,
+      month: s.month,
+      key: buildPayrollPeriodKey({ year: s.year, month: s.month }),
+      label: formatPayrollMonthLabel(s.year, s.month),
+      shortLabel: formatPayrollMonthLabel(s.year, s.month, true),
+      isCurrentMonth: s.year === currentYear && s.month === currentMonth,
+      status: s.status,
+      netPay: s.netPay,
+      grossEarnings: s.grossEarnings,
+      currency: s.currency,
+    }));
+
+    if (!hasCurrentMonth) {
+      fromHistory.unshift({
+        year: currentYear,
+        month: currentMonth,
+        key: buildPayrollPeriodKey({ year: currentYear, month: currentMonth }),
+        label: formatPayrollMonthLabel(currentYear, currentMonth),
+        shortLabel: formatPayrollMonthLabel(currentYear, currentMonth, true),
+        isCurrentMonth: true,
+      });
+    }
+
+    return fromHistory;
+  }, [payrollHistory, currentYear, currentMonth]);
 
   const {
     data: selectedPayroll,
@@ -123,6 +171,7 @@ export function usePayrollScreen() {
 
   return {
     periods,
+    isHistoryLoading,
     isFoundationPlan,
     isModalVisible,
     selectedPeriod,

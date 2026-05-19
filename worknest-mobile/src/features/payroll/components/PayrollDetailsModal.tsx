@@ -304,6 +304,13 @@ export function PayrollDetailsModal({
                     value={formatPayrollAmount(payroll.totals.basePay, currency)}
                     positive
                   />
+                  {payroll.totals.overtimePay != null ? (
+                    <DetailRow
+                      label="Overtime pay"
+                      value={formatPayrollAmount(payroll.totals.overtimePay ?? '0', currency)}
+                      positive
+                    />
+                  ) : null}
                   <DetailRow
                     label="Gross earnings"
                     value={formatPayrollAmount(payroll.totals.grossEarnings, currency)}
@@ -560,6 +567,41 @@ export function PayrollDetailsModal({
                     value={payroll.basePayCalculation.prorationMethod ?? 'Not applicable'}
                   />
                 </SectionCard>
+
+                {/* Overtime — only if present */}
+                {payroll.overtimeDetails ? (
+                  <SectionCard title="Overtime" defaultOpen>
+                    <DetailRow
+                      label="Expected hours"
+                      value={String(payroll.overtimeDetails.expectedHours)}
+                    />
+                    <DetailRow
+                      label="Worked hours"
+                      value={String(payroll.overtimeDetails.workedHours)}
+                    />
+                    <DetailRow
+                      label="Overtime hours"
+                      value={String(payroll.overtimeDetails.overtimeHours)}
+                    />
+                    <DetailRow
+                      label="Overtime rate"
+                      value={formatPayrollAmount(
+                        String(payroll.overtimeDetails.overtimeHourlyRate),
+                        currency
+                      )}
+                    />
+                    <View style={styles.divider} />
+                    <DetailRow
+                      label="Overtime pay"
+                      value={formatPayrollAmount(
+                        String(payroll.overtimeDetails.overtimePay),
+                        currency
+                      )}
+                      emphasized
+                      positive
+                    />
+                  </SectionCard>
+                ) : null}
 
                 {/* Hourly attendance — only if present */}
                 {payroll.hourlyAttendancePayment ? (
