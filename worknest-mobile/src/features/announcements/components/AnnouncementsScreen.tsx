@@ -1,5 +1,5 @@
-import React from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
+import React, { useState } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, View, RefreshControl } from 'react-native';
 
 import { ThemedText } from '@/common/components/themed-text';
 import { ThemedView } from '@/common/components/themed-view';
@@ -21,33 +21,52 @@ export function AnnouncementsScreen() {
     openDetail,
     closeDetail,
     markSelectedAsRead,
+    refetchList,
   } = useAnnouncementsScreen();
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await refetchList();
+    setRefreshing(false);
+  };
 
   return (
     <ThemedView style={styles.container}>
-      <AnnouncementsHeader unreadCount={unreadCount} />
-
-      <View style={styles.content}>
-        {isLoading ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#2B7FFF" />
-          </View>
-        ) : announcements.length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <ThemedText style={styles.emptyText}>No announcements yet</ThemedText>
-          </View>
-        ) : (
-          <FlatList
-            data={announcements}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }: { item: MobileAnnouncementListItem }) => (
-              <AnnouncementCard item={item} onPress={openDetail} />
-            )}
-            contentContainerStyle={styles.listContent}
-            showsVerticalScrollIndicator={false}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+        bounces={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#2B7FFF"
+            colors={['#2B7FFF']}
           />
-        )}
-      </View>
+        }
+      >
+        <AnnouncementsHeader unreadCount={unreadCount} />
+
+        <View style={styles.content}>
+          {isLoading ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#2B7FFF" />
+            </View>
+          ) : announcements.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <ThemedText style={styles.emptyText}>No announcements yet</ThemedText>
+            </View>
+          ) : (
+            <View style={styles.listContent}>
+              {announcements.map((item: MobileAnnouncementListItem) => (
+                <AnnouncementCard key={item.id} item={item} onPress={openDetail} />
+              ))}
+            </View>
+          )}
+        </View>
+      </ScrollView>
 
       <AnnouncementDetailSheet
         visible={!!selectedId}
@@ -64,6 +83,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5F7FA',
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
   content: {
     backgroundColor: 'rgba(255,255,255,0.92)',

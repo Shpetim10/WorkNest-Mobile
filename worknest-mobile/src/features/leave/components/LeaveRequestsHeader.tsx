@@ -27,21 +27,14 @@ export function LeaveRequestsHeader({ onAddPress }: LeaveRequestsHeaderProps) {
           <ThemedText style={styles.title}>Leave Requests</ThemedText>
         </View>
         <TouchableOpacity 
-          style={styles.addButtonContainer}
+          style={styles.addButton}
           onPress={() => {
             console.log('plus pressed');
             onAddPress();
           }}
           activeOpacity={0.7}
         >
-          <LinearGradient
-            colors={['#2B7FFF', '#00BBA7']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.addButton}
-          >
-            <Plus size={28} strokeWidth={2} color="#FFFFFF" />
-          </LinearGradient>
+          <Plus size={28} strokeWidth={2} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
       </LinearGradient>
@@ -75,17 +68,13 @@ const styles = StyleSheet.create({
   titleContainer: {
     flex: 1,
   },
-  addButtonContainer: {
-    shadowColor: '#FFFFFF',
-    shadowOpacity: 0.65,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 6,
-  },
   addButton: {
     width: 48,
     height: 48,
     borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.35)',
+    backgroundColor: 'rgba(255,255,255,0.12)',
     justifyContent: 'center',
     alignItems: 'center',
   },

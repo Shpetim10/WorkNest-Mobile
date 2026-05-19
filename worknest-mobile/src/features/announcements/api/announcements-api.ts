@@ -10,8 +10,8 @@ export const announcementsApi = authApi.injectEndpoints({
   endpoints: (builder) => ({
     getAnnouncements: builder.query<MobileAnnouncementListItem[], void>({
       query: () => ({ url: '/api/v1/mobile/announcements', method: 'GET' }),
-      transformResponse: (response: ApiSuccessEnvelope<MobileAnnouncementListItem[]>) =>
-        Array.isArray(response.data) ? response.data : [],
+      transformResponse: (response: ApiSuccessEnvelope<{ items: MobileAnnouncementListItem[] }>) =>
+        Array.isArray(response.data?.items) ? response.data.items : [],
       providesTags: ['Announcements'],
     }),
     getAnnouncementUnreadCount: builder.query<UnreadCountResponse, void>({
@@ -34,7 +34,7 @@ export const announcementsApi = authApi.injectEndpoints({
       ],
     }),
   }),
-  overrideExisting: false,
+  overrideExisting: true,
 });
 
 export const {

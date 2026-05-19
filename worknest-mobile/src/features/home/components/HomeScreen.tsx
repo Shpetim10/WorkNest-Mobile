@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -39,6 +39,19 @@ export function HomeScreen() {
     refetchList,
   } = useHomeScreen();
 
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await refetchList();
+    } catch (error) {
+      // ignore
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetchList]);
+
   const headerHeight = insets.top + 135;
 
   if (isLoading) {
@@ -56,12 +69,13 @@ export function HomeScreen() {
   return (
     <View style={styles.container}>
       {/* Absolute Overlapping Header */}
-      <View style={[styles.headerWrapper, { height: headerHeight }]}>
+      <View style={[styles.headerWrapper, { height: headerHeight }]} pointerEvents="box-none">
         <LinearGradient
           colors={['#2B7FFF', '#00BBA7']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={[styles.headerGradient, { paddingTop: insets.top + 28 }]}
+          pointerEvents="box-none"
         >
           <View style={styles.headerRow}>
             {/* Profile Info */}
@@ -91,7 +105,7 @@ export function HomeScreen() {
               activeOpacity={0.7}
               onPress={() => router.push('/notifications' as any)}
             >
-              <Bell size={22} color="#475569" strokeWidth={2} />
+              <Bell size={22} color="#FFFFFF" strokeWidth={2} />
               {profile.hasNotifications && <View style={styles.badgeDot} />}
             </TouchableOpacity>
           </View>
@@ -110,10 +124,10 @@ export function HomeScreen() {
         ]}
         refreshControl={
           <RefreshControl
-            refreshing={false}
-            onRefresh={refetchList}
-            tintColor="#2B7FFF"
-            colors={['#2B7FFF']}
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#0D9488"
+            colors={['#0D9488']}
           />
         }
       >
@@ -191,7 +205,11 @@ export function HomeScreen() {
           </TouchableOpacity>
 
           {/* Latest Payroll Card */}
-          <View style={styles.card}>
+          <TouchableOpacity
+            style={styles.card}
+            activeOpacity={0.85}
+            onPress={() => router.push('/payroll' as any)}
+          >
             <View style={styles.cardHeader}>
               <View style={[styles.iconBox, { backgroundColor: '#8B5CF6' }]}>
                 <DollarSign size={20} color="#FFFFFF" strokeWidth={2.5} />
@@ -212,7 +230,7 @@ export function HomeScreen() {
                 <ThemedText style={styles.labelSmall}>No payroll data available</ThemedText>
               )}
             </View>
-          </View>
+          </TouchableOpacity>
 
           {/* Announcements Card */}
           <TouchableOpacity
@@ -349,23 +367,20 @@ const styles = StyleSheet.create({
     lineHeight: 30,
   },
   notificationButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 12,
-    backgroundColor: '#FFFFFF',
+    width: 48,
+    height: 48,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.35)',
+    backgroundColor: 'rgba(255,255,255,0.12)',
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
-    shadowColor: '#000000',
-    shadowOpacity: 0.08,
-    shadowRadius: 5,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
   },
   badgeDot: {
     position: 'absolute',
-    top: 10,
-    right: 11,
+    top: 12,
+    right: 12,
     width: 8,
     height: 8,
     borderRadius: 4,
@@ -375,7 +390,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 28,
+    paddingHorizontal: 20,
     paddingBottom: 110,
   },
   dateTimeRow: {

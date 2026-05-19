@@ -1,5 +1,5 @@
-import React from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import React, { useState } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, TouchableOpacity, View, RefreshControl } from 'react-native';
 
 import { 
   AttendanceHeader, 
@@ -15,6 +15,13 @@ import { Fonts, Spacing } from '@/common/constants/theme';
 
 export default function AttendanceScreen() {
   const attendance = useAttendanceScreen();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await attendance.retryAll();
+    setRefreshing(false);
+  };
 
   return (
     <ThemedView style={styles.container}>
@@ -22,6 +29,14 @@ export default function AttendanceScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
         bounces={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#2B7FFF"
+            colors={['#2B7FFF']}
+          />
+        }
       >
         <AttendanceHeader />
         <View style={styles.content}>

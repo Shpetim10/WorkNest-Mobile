@@ -16,4 +16,9 @@ export interface MobileProfileResponse {
   firstName: string;
   lastName: string;
   profilePictureUrl: string | null;
+  jobTitle?: string | null;
+  department?: string | null;
+  location?: string | null;
+  role?: string | null;
+  email?: string | null;
 }

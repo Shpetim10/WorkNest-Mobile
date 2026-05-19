@@ -1,5 +1,5 @@
-import React from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+import React, { useState } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, View, RefreshControl } from 'react-native';
 
 import { ThemedView } from '@/common/components/themed-view';
 import { Spacing } from '@/common/constants/theme';
@@ -19,7 +19,16 @@ export function LeaveRequestsScreen() {
     closeModal,
     cancelRequest,
     form,
+    refetch,
   } = useLeaveScreen();
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  };
 
   return (
     <ThemedView style={styles.container}>
@@ -27,6 +36,14 @@ export function LeaveRequestsScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
         bounces={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#2B7FFF"
+            colors={['#2B7FFF']}
+          />
+        }
       >
         <LeaveRequestsHeader onAddPress={openModal} />
         

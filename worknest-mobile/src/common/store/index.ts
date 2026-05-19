@@ -1,4 +1,4 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore, Middleware } from '@reduxjs/toolkit';
 
 import { authApi } from '@/features/auth/api/auth-api';
 import { payrollReducer } from '@/features/payroll/store/payroll-slice';

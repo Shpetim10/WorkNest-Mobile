@@ -35,8 +35,12 @@ export function useProfileScreen() {
     firstName: profileData?.firstName ?? '',
     lastName: profileData?.lastName ?? '',
     fullName: profileData ? `${profileData.firstName} ${profileData.lastName}` : '',
-    email: userEmail ?? '',
+    email: profileData?.email ?? userEmail ?? '',
     profilePictureUrl: profileData?.profilePictureUrl ?? null,
+    jobTitle: profileData?.jobTitle ?? null,
+    department: profileData?.department ?? null,
+    location: profileData?.location ?? null,
+    role: profileData?.role ?? null,
   };
 
   const isLoading = isLoadingProfile || isLoggingOut;
