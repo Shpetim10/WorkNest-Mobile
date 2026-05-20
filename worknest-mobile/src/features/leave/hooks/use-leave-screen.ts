@@ -10,8 +10,8 @@ import {
 import type { LeaveType } from '../types';
 
 export function useLeaveScreen() {
-  const { data: balances = [], isLoading: balancesLoading } = useGetLeaveBalanceQuery();
-  const { data: history = [], isLoading: historyLoading } = useGetLeaveRequestsQuery();
+  const { data: balances = [], isLoading: balancesLoading, refetch: refetchBalances } = useGetLeaveBalanceQuery();
+  const { data: history = [], isLoading: historyLoading, refetch: refetchHistory } = useGetLeaveRequestsQuery();
   const [submitLeaveRequest, { isLoading: isSubmitting }] = useSubmitLeaveRequestMutation();
   const [cancelLeaveRequest] = useCancelLeaveRequestMutation();
 
@@ -75,6 +75,9 @@ export function useLeaveScreen() {
     openModal,
     closeModal,
     cancelRequest,
+    refetch: async () => {
+      await Promise.all([refetchBalances(), refetchHistory()]);
+    },
     form: {
       leaveType,
       setLeaveType,

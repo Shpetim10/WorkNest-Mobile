@@ -63,9 +63,8 @@ export function useHomeScreen() {
     latestTitle: dashboardData?.latestAnnouncementTitle ?? 'No announcements today',
   };
 
-  const refetchList = () => {
-    refetchDashboard();
-    refetchProfile();
+  const refetchList = async () => {
+    await Promise.all([refetchDashboard(), refetchProfile()]);
   };
 
   const isLoading = isLoadingDashboard || isLoadingProfile;

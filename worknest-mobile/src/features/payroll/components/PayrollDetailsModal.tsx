@@ -19,7 +19,6 @@ import { Fonts } from '@/common/constants/theme';
 import type { PayrollCalculationResponse, PayrollPeriodKey, PayrollStatus } from '../types/payroll.types';
 import {
   formatPaymentMethod,
-  formatPayrollAmount,
   formatPayrollDate,
   formatPayrollMonthLabel,
   formatPayrollStatus,
@@ -28,6 +27,42 @@ import {
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const LOCKED_STATUSES = new Set(['APPROVED', 'FINALIZED', 'PAID']);
+
+function formatPayrollAmount(value: string | null | undefined, currency: string): string {
+  if (value == null || value === '') {
+    return 'Not available';
+  }
+
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) {
+    return `${currency} ${value}`;
+  }
+
+  try {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(parsed);
+  } catch {
+    return `${currency} ${Math.round(parsed)}`;
+  }
+}
+
+const getLastDayOfMonth = (year: number, month: number): string => {
+  try {
+    const lastDayDate = new Date(year, month, 0);
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    }).format(lastDayDate);
+  } catch {
+    const lastDayDate = new Date(year, month, 0);
+    return lastDayDate.toDateString();
+  }
+};
 
 interface PayrollDetailsModalProps {
   visible: boolean;
@@ -184,8 +219,10 @@ export function PayrollDetailsModal({
 
           <View style={styles.header}>
             <View>
-              <ThemedText style={styles.headerTitle}>Payroll details</ThemedText>
-              <ThemedText style={styles.headerSubtitle}>{periodLabel}</ThemedText>
+              <ThemedText style={styles.headerTitle}>Payroll Details</ThemedText>
+              {payroll?.employeeName ? (
+                <ThemedText style={styles.headerEmployeeName}>{payroll.employeeName}</ThemedText>
+              ) : null}
             </View>
             <TouchableOpacity onPress={onClose} style={styles.closeButton} activeOpacity={0.7}>
               <X size={22} color="#6A7282" />
@@ -215,90 +252,86 @@ export function PayrollDetailsModal({
                 contentContainerStyle={styles.scrollContent}
                 bounces={false}
               >
-                {/* Hero summary card */}
-                <View style={styles.heroCard}>
-                  <View style={styles.heroTopRow}>
-                    <View style={[
-                      styles.heroBadge,
-                      { backgroundColor: statusColors(payroll.payrollStatus).bg }
-                    ]}>
-                      <ThemedText style={[
-                        styles.heroBadgeText,
-                        { color: statusColors(payroll.payrollStatus).text }
-                      ]}>
-                        {formatPayrollStatus(payroll.payrollStatus)}
-                      </ThemedText>
-                    </View>
-                    <View style={styles.heroTopRight}>
-                      {payroll.preview ? (
-                        <View style={styles.previewChip}>
-                          <ThemedText style={styles.previewChipText}>Preview</ThemedText>
-                        </View>
-                      ) : null}
-                      {isLocked ? (
-                        <View style={styles.lockedChip}>
-                          <Lock size={12} color="#166534" />
-                          <ThemedText style={styles.lockedChipText}>Locked</ThemedText>
-                        </View>
-                      ) : null}
-                    </View>
-                  </View>
-
-                  <ThemedText style={styles.heroName}>{payroll.employeeName}</ThemedText>
-                  <ThemedText style={styles.heroPeriod}>
-                    {formatPayrollMonthLabel(payroll.year, payroll.month)}
-                  </ThemedText>
-                  <ThemedText
-                    style={[styles.heroAmount, payroll.totals.netPayNegative && styles.heroAmountNegative]}
-                  >
-                    {formatPayrollAmount(payroll.totals.netPay, payroll.currency)}
-                  </ThemedText>
-                  <ThemedText style={styles.heroCaption}>Net pay</ThemedText>
-
-                  <View style={styles.heroMetaGrid}>
-                    <View style={styles.heroMetaItem}>
-                      <ThemedText style={styles.heroMetaLabel}>Method</ThemedText>
-                      <ThemedText style={styles.heroMetaValue}>
-                        {formatPaymentMethod(payroll.paymentMethod)}
-                      </ThemedText>
-                    </View>
-                    <View style={styles.heroMetaItem}>
-                      <ThemedText style={styles.heroMetaLabel}>Calculation</ThemedText>
-                      <ThemedText style={[
-                        styles.heroMetaValue,
-                        payroll.calculationStatus === 'FAILED' && { color: '#FCA5A5' },
-                        payroll.calculationStatus === 'SUCCESS' && { color: '#6EE7B7' },
-                      ]}>
-                        {payroll.calculationStatus}
-                      </ThemedText>
-                    </View>
-                    <View style={styles.heroMetaItem}>
-                      <ThemedText style={styles.heroMetaLabel}>Currency</ThemedText>
-                      <ThemedText style={styles.heroMetaValue}>{payroll.currency}</ThemedText>
-                    </View>
-                  </View>
-                </View>
-
                 {payroll.preview ? (
                   <View style={styles.infoBanner}>
-                    <AlertTriangle size={15} color="#92400E" />
+                    <AlertTriangle size={14} color="#92400E" />
                     <ThemedText style={styles.infoBannerText}>
-                      Live preview — figures may change until payroll is locked.
+                      Live preview — figures may change until payroll is locked
                     </ThemedText>
                   </View>
                 ) : null}
 
-                {payroll.warnings.length > 0 ? (
+                {/* Net Salary card (light green) */}
+                <View style={styles.greenCard}>
+                  <ThemedText style={styles.greenCardPeriod}>
+                    {formatPayrollMonthLabel(payroll.year, payroll.month)}
+                  </ThemedText>
+                  <ThemedText style={styles.greenCardLabel}>Net Salary</ThemedText>
+                  <ThemedText style={styles.greenCardValue}>
+                    {formatPayrollAmount(payroll.totals.netPay, payroll.currency)}
+                  </ThemedText>
+                </View>
+
+                {/* Summary Info Card */}
+                <View style={styles.summaryCard}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 14, gap: 8 }}>
+                    <View style={styles.summaryStatusBadge}>
+                      <ThemedText style={styles.summaryStatusText}>
+                        {formatPayrollStatus(payroll.payrollStatus)}
+                      </ThemedText>
+                    </View>
+                    {isLocked ? (
+                      <View style={styles.lockedChip}>
+                        <Lock size={12} color="#166534" />
+                        <ThemedText style={styles.lockedChipText}>Locked</ThemedText>
+                      </View>
+                    ) : null}
+                  </View>
+
+                  <View style={styles.summaryMetaGrid}>
+                    <View style={styles.summaryMetaItem}>
+                      <ThemedText style={styles.summaryMetaLabel}>Method</ThemedText>
+                      <ThemedText style={styles.summaryMetaValue}>
+                        {formatPaymentMethod(payroll.paymentMethod)}
+                      </ThemedText>
+                    </View>
+                    <View style={styles.summaryMetaItem}>
+                      <ThemedText style={styles.summaryMetaLabel}>Calculation</ThemedText>
+                      <ThemedText
+                        style={[
+                          styles.summaryMetaValue,
+                          payroll.calculationStatus === 'SUCCESS'
+                            ? styles.successText
+                            : payroll.calculationStatus === 'FAILED'
+                            ? styles.failedText
+                            : null,
+                        ]}
+                      >
+                        {payroll.calculationStatus}
+                      </ThemedText>
+                    </View>
+                    <View style={styles.summaryMetaItem}>
+                      <ThemedText style={styles.summaryMetaLabel}>Currency</ThemedText>
+                      <ThemedText style={styles.summaryMetaValue}>
+                        {payroll.currency}
+                      </ThemedText>
+                    </View>
+                  </View>
+                </View>
+
+                {payroll.warnings && payroll.warnings.length > 0 ? (
                   <View style={styles.warningCard}>
-                    <ThemedText style={styles.warningTitle}>⚠ Warnings</ThemedText>
-                    {payroll.warnings.map((w) => (
-                      <ThemedText key={w} style={styles.warningText}>• {w}</ThemedText>
+                    <ThemedText style={styles.warningTitle}>Warnings</ThemedText>
+                    {payroll.warnings.map((w, index) => (
+                      <ThemedText key={index} style={styles.warningText}>
+                        • {w}
+                      </ThemedText>
                     ))}
                   </View>
                 ) : null}
 
                 {/* Totals — always open */}
-                <SectionCard title="Totals" defaultOpen>
+                <SectionCard title="Totals">
                   <DetailRow
                     label="Base pay"
                     value={formatPayrollAmount(payroll.totals.basePay, currency)}
@@ -348,7 +381,7 @@ export function PayrollDetailsModal({
                 </SectionCard>
 
                 {/* Statutory deductions — open by default (important) */}
-                <SectionCard title="Statutory deductions" defaultOpen>
+                <SectionCard title="Statutory deductions">
                   <DetailRow
                     label="Social security base"
                     value={formatPayrollAmount(payroll.statutoryDeductions.socialSecurityBase, currency)}
@@ -427,13 +460,7 @@ export function PayrollDetailsModal({
                 </SectionCard>
 
                 {/* Adjustments */}
-                <SectionCard
-                  title="Adjustments"
-                  defaultOpen={
-                    payroll.adjustments.bonuses.length > 0 ||
-                    payroll.adjustments.deductions.length > 0
-                  }
-                >
+                <SectionCard title="Adjustments">
                   <DetailRow
                     label="Total bonuses"
                     value={formatPayrollAmount(payroll.adjustments.totalBonus, currency)}
@@ -570,7 +597,7 @@ export function PayrollDetailsModal({
 
                 {/* Overtime — only if present */}
                 {payroll.overtimeDetails ? (
-                  <SectionCard title="Overtime" defaultOpen>
+                  <SectionCard title="Overtime">
                     <DetailRow
                       label="Expected hours"
                       value={String(payroll.overtimeDetails.expectedHours)}
@@ -825,7 +852,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.45)',
   },
   sheet: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     width: '100%',
@@ -835,6 +862,110 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.12,
     shadowRadius: 12,
+  },
+  blueCard: {
+    backgroundColor: '#EFF6FF',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
+  },
+  blueCardTitle: {
+    fontFamily: Fonts.sf.bold,
+    fontSize: 16,
+    color: '#1E3A8A',
+    fontWeight: '700',
+  },
+  blueCardSubtitle: {
+    fontFamily: Fonts.sf.regular,
+    fontSize: 14,
+    color: '#3B82F6',
+    marginTop: 4,
+  },
+  greenCard: {
+    backgroundColor: '#ECFDF5',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+  },
+  greenCardPeriod: {
+    fontFamily: Fonts.sf.bold,
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#065F46',
+    marginBottom: 6,
+  },
+  greenCardLabel: {
+    fontFamily: Fonts.sf.regular,
+    fontSize: 14,
+    color: '#065F46',
+  },
+  greenCardValue: {
+    fontFamily: Fonts.sf.bold,
+    fontSize: 24,
+    color: '#047857',
+    fontWeight: '700',
+    marginTop: 4,
+  },
+  summaryCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 18,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  summaryHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 14,
+  },
+  summaryEmployeeName: {
+    fontFamily: Fonts.sf.bold,
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#0F172A',
+  },
+  summaryStatusBadge: {
+    backgroundColor: '#F1F5F9',
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  summaryStatusText: {
+    fontFamily: Fonts.sf.semibold,
+    fontSize: 12,
+    color: '#475569',
+  },
+  summaryMetaGrid: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  summaryMetaItem: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 14,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+  },
+  summaryMetaLabel: {
+    fontFamily: Fonts.sf.regular,
+    fontSize: 11,
+    color: '#64748B',
+  },
+  summaryMetaValue: {
+    marginTop: 4,
+    fontFamily: Fonts.sf.semibold,
+    fontSize: 12,
+    color: '#334155',
+  },
+  successText: {
+    color: '#0D9488',
+  },
+  failedText: {
+    color: '#DC2626',
   },
   dragHandleContainer: {
     width: '100%',
@@ -866,6 +997,12 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.sf.regular,
     fontSize: 13,
     color: '#64748B',
+  },
+  headerEmployeeName: {
+    marginTop: 4,
+    fontFamily: Fonts.sf.semibold,
+    fontSize: 16,
+    color: '#334155',
   },
   closeButton: {
     padding: 6,

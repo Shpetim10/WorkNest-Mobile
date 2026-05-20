@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { LogOut, Mail, User } from 'lucide-react-native';
+import { LogOut, Mail, Briefcase, MapPin, Lock, ChevronRight } from 'lucide-react-native';
 
 import { ThemedText } from '@/common/components/themed-text';
 import { BottomTabInset, Fonts, Spacing } from '@/common/constants/theme';
@@ -20,7 +20,15 @@ export function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const { profile, isLoading, handleLogout, refetch } = useProfileScreen();
 
-  const headerHeight = insets.top + 135;
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  };
+
+  const headerHeight = insets.top + 320;
 
   if (isLoading) {
     return (
@@ -42,36 +50,8 @@ export function ProfileScreen() {
           colors={['#2B7FFF', '#00BBA7']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={[styles.headerGradient, { paddingTop: insets.top + 28 }]}
+          style={[styles.headerGradient, { paddingTop: insets.top + 20 }]}
         >
-          <View style={styles.headerRow}>
-            <ThemedText style={styles.headerTitle}>My Profile</ThemedText>
-          </View>
-        </LinearGradient>
-      </View>
-
-      {/* Underlapping ScrollView */}
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={[
-          styles.scrollContent,
-          { 
-            paddingTop: headerHeight + Spacing.four,
-            paddingBottom: BottomTabInset + Spacing.six
-          },
-        ]}
-        refreshControl={
-          <RefreshControl
-            refreshing={false}
-            onRefresh={refetch}
-            tintColor="#2B7FFF"
-            colors={['#2B7FFF']}
-          />
-        }
-      >
-        {/* Profile Card */}
-        <View style={styles.profileCard}>
-          {/* Avatar Container */}
           <View style={styles.avatarSection}>
             <View style={styles.avatarContainer}>
               {profile.profilePictureUrl ? (
@@ -84,39 +64,66 @@ export function ProfileScreen() {
                   <ThemedText style={styles.initialsText}>{initials}</ThemedText>
                 </View>
               )}
-              <View style={styles.activeDot} />
+            </View>
+
+            <ThemedText style={styles.nameText}>{profile.fullName || 'Sarah'}</ThemedText>
+
+            {(profile.jobTitle || profile.department) && (
+              <View style={styles.infoRow}>
+                <Briefcase size={16} color="rgba(255,255,255,0.8)" />
+                <ThemedText style={styles.infoText}>{profile.jobTitle || profile.department}</ThemedText>
+              </View>
+            )}
+
+            {profile.email ? (
+              <View style={styles.infoRow}>
+                <Mail size={16} color="rgba(255,255,255,0.8)" />
+                <ThemedText style={styles.infoText}>{profile.email}</ThemedText>
+              </View>
+            ) : null}
+
+            {profile.location && (
+              <View style={styles.infoRow}>
+                <MapPin size={16} color="rgba(255,255,255,0.8)" />
+                <ThemedText style={styles.infoText}>{profile.location}</ThemedText>
+              </View>
+            )}
+          </View>
+        </LinearGradient>
+      </View>
+
+      {/* Underlapping ScrollView */}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { 
+            paddingTop: headerHeight + Spacing.six,
+            paddingBottom: BottomTabInset + Spacing.six
+          },
+        ]}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#2B7FFF"
+            colors={['#2B7FFF']}
+          />
+        }
+      >
+        {/* Change Password Card */}
+        <TouchableOpacity style={styles.actionCard} activeOpacity={0.8}>
+          <View style={styles.actionCardLeft}>
+            <View style={[styles.iconBox, { backgroundColor: '#F0FDF4' }]}>
+              <Lock size={20} color="#10B981" strokeWidth={2.2} />
+            </View>
+            <View style={styles.actionCardText}>
+              <ThemedText style={styles.actionCardTitle}>Change Password</ThemedText>
+              <ThemedText style={styles.actionCardSub}>Update your password</ThemedText>
             </View>
           </View>
-
-          {/* Details Section */}
-          <View style={styles.detailsSection}>
-            <View style={styles.detailItem}>
-              <View style={styles.iconBox}>
-                <User size={20} color="#2B7FFF" strokeWidth={2.2} />
-              </View>
-              <View style={styles.textContainer}>
-                <ThemedText style={styles.labelSmall}>Full Name</ThemedText>
-                <ThemedText style={styles.valueMedium}>
-                  {profile.fullName || 'Sarah'}
-                </ThemedText>
-              </View>
-            </View>
-
-            <View style={styles.divider} />
-
-            <View style={styles.detailItem}>
-              <View style={styles.iconBox}>
-                <Mail size={20} color="#00BBA7" strokeWidth={2.2} />
-              </View>
-              <View style={styles.textContainer}>
-                <ThemedText style={styles.labelSmall}>Email Address</ThemedText>
-                <ThemedText style={styles.valueMedium} numberOfLines={1}>
-                  {profile.email}
-                </ThemedText>
-              </View>
-            </View>
-          </View>
-        </View>
+          <ChevronRight size={20} color="#94A3B8" />
+        </TouchableOpacity>
 
         {/* Logout Button Section */}
         <TouchableOpacity
@@ -124,7 +131,7 @@ export function ProfileScreen() {
           activeOpacity={0.8}
           onPress={handleLogout}
         >
-          <LogOut size={20} color="#FFFFFF" strokeWidth={2.2} />
+          <LogOut size={20} color="#EF4444" strokeWidth={2.2} />
           <ThemedText style={styles.logoutButtonText}>Log Out</ThemedText>
         </TouchableOpacity>
       </ScrollView>
@@ -162,48 +169,17 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 32,
     paddingHorizontal: 28,
     justifyContent: 'center',
-  },
-  headerRow: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-  },
-  headerTitle: {
-    color: '#FFFFFF',
-    fontFamily: Fonts.sf.bold,
-    fontWeight: '700',
-    fontSize: 24,
-    lineHeight: 30,
-    textAlign: 'center',
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: 28,
-  },
-  profileCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    borderWidth: 1.26,
-    borderColor: 'rgba(229, 231, 235, 0.5)',
-    paddingVertical: 28,
-    paddingHorizontal: 24,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
-    shadowRadius: 12,
-    elevation: 4,
-    marginBottom: 24,
-    alignItems: 'center',
+    paddingBottom: 28,
   },
   avatarSection: {
     alignItems: 'center',
-    marginBottom: 28,
+    justifyContent: 'center',
   },
   avatarContainer: {
     position: 'relative',
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 116,
+    height: 116,
+    borderRadius: 58,
     borderWidth: 3,
     borderColor: '#F1F5F9',
     justifyContent: 'center',
@@ -217,12 +193,12 @@ const styles = StyleSheet.create({
   avatar: {
     width: '100%',
     height: '100%',
-    borderRadius: 50,
+    borderRadius: 58,
   },
   initialsContainer: {
     width: '100%',
     height: '100%',
-    borderRadius: 50,
+    borderRadius: 58,
     backgroundColor: '#2B7FFF',
     justifyContent: 'center',
     alignItems: 'center',
@@ -230,28 +206,71 @@ const styles = StyleSheet.create({
   initialsText: {
     fontFamily: Fonts.sf.bold,
     fontWeight: '700',
-    fontSize: 32,
+    fontSize: 36,
     color: '#FFFFFF',
   },
-  activeDot: {
-    position: 'absolute',
-    bottom: 2,
-    right: 2,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: '#22C55E',
-    borderWidth: 3,
-    borderColor: '#FFFFFF',
+  nameText: {
+    color: '#FFFFFF',
+    fontFamily: Fonts.sf.bold,
+    fontWeight: '700',
+    fontSize: 26,
+    marginTop: 24,
+    marginBottom: 12,
+    textAlign: 'center',
   },
-  detailsSection: {
-    width: '100%',
-    gap: 16,
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginBottom: 12,
   },
-  detailItem: {
+  infoText: {
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontFamily: Fonts.sf.regular,
+    fontSize: 15,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 0,
+  },
+  actionCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    borderWidth: 1.26,
+    borderColor: 'rgba(229, 231, 235, 0.5)',
+    paddingVertical: 20,
+    paddingHorizontal: 20,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 4,
+    marginBottom: 16,
+    marginHorizontal: 20,
+  },
+  actionCardLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 16,
+  },
+  actionCardText: {
+    flexDirection: 'column',
+    gap: 2,
+  },
+  actionCardTitle: {
+    fontFamily: Fonts.sf.bold,
+    fontWeight: '700',
+    fontSize: 16,
+    color: '#1E2939',
+  },
+  actionCardSub: {
+    fontFamily: Fonts.sf.regular,
+    fontSize: 13,
+    color: '#64748B',
   },
   iconBox: {
     width: 44,
@@ -261,44 +280,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  textContainer: {
-    flex: 1,
-    flexDirection: 'column',
-  },
-  labelSmall: {
-    fontFamily: Fonts.sf.regular,
-    fontSize: 12,
-    color: '#94A3B8',
-    lineHeight: 15,
-  },
-  valueMedium: {
-    fontFamily: Fonts.sf.semibold,
-    fontWeight: '600',
-    fontSize: 16,
-    color: '#1E2939',
-    marginTop: 2,
-  },
-  divider: {
-    height: 1.2,
-    backgroundColor: '#F1F5F9',
-    marginVertical: 4,
-  },
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#EF4444',
-    borderRadius: 16,
-    paddingVertical: 16,
+    backgroundColor: '#FEF2F2',
+    borderWidth: 1.5,
+    borderColor: '#FECACA',
+    borderRadius: 20,
+    paddingVertical: 18,
     gap: 10,
-    shadowColor: '#EF4444',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.22,
-    shadowRadius: 10,
-    elevation: 4,
+    marginBottom: 20,
+    marginHorizontal: 20,
   },
   logoutButtonText: {
-    color: '#FFFFFF',
+    color: '#EF4444',
     fontFamily: Fonts.sf.bold,
     fontWeight: '700',
     fontSize: 16,

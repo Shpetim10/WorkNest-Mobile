@@ -240,5 +240,6 @@ export function useAnnouncementsScreen() {
     openDetail,
     closeDetail,
     markSelectedAsRead,
+    refetchList,
   };
 }
