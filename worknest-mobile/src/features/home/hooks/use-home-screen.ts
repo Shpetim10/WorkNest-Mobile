@@ -1,7 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useGetDashboardQuery, useGetProfileQuery } from '../api/home-api';
+import { useLocalization } from '@/common/localization';
+import { formatPayrollCurrencyAmount } from '@/features/payroll/utils/payroll-formatters';
+
+function capitalizeFirstLetter(value: string): string {
+  if (!value) {
+    return value;
+  }
+
+  return value.charAt(0).toLocaleUpperCase() + value.slice(1);
+}
 
 export function useHomeScreen() {
+  const { language, t } = useLocalization();
   const [currentTime, setCurrentTime] = useState('');
   const [currentDay, setCurrentDay] = useState('');
 
@@ -20,8 +31,10 @@ export function useHomeScreen() {
   useEffect(() => {
     const updateDateTime = () => {
       const now = new Date();
-      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-      setCurrentDay(days[now.getDay()]);
+      const weekday = new Intl.DateTimeFormat(language === 'sq' ? 'sq-AL' : language, {
+        weekday: 'long',
+      }).format(now);
+      setCurrentDay(capitalizeFirstLetter(weekday));
 
       let hours = now.getHours();
       const minutes = now.getMinutes();
@@ -35,7 +48,7 @@ export function useHomeScreen() {
     updateDateTime();
     const interval = setInterval(updateDateTime, 60000);
     return () => clearInterval(interval);
-  }, []);
+  }, [language]);
 
   const profile = {
     firstName: profileData?.firstName ?? 'Sarah',
@@ -53,14 +66,15 @@ export function useHomeScreen() {
 
   const latestPayroll = {
     period: dashboardData?.latestPayrollMonth ?? null,
-    amount: dashboardData?.latestPayrollNetPay !== null && dashboardData?.latestPayrollNetPay !== undefined
-      ? `$${dashboardData.latestPayrollNetPay.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-      : null,
+    amount: formatPayrollCurrencyAmount(
+      dashboardData?.latestPayrollNetPay,
+      dashboardData?.latestPayrollCurrency
+    ),
   };
 
   const announcements = {
     unreadCount: dashboardData?.announcementUnreadCount ?? 0,
-    latestTitle: dashboardData?.latestAnnouncementTitle ?? 'No announcements today',
+    latestTitle: dashboardData?.latestAnnouncementTitle ?? t('updates.noAnnouncements'),
   };
 
   const refetchList = async () => {

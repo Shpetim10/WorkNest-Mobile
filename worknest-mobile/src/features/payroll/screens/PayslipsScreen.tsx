@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ThemedText } from '@/common/components/themed-text';
 import { ThemedView } from '@/common/components/themed-view';
 import { Fonts } from '@/common/constants/theme';
+import { useLocalization } from '@/common/localization';
 import { PayrollDetailsModal } from '../components/PayrollDetailsModal';
 import { PayslipCard } from '../components/PayslipCard';
 import { usePayrollScreen } from '../hooks/use-payroll-screen';
@@ -25,6 +26,7 @@ interface PayslipsScreenProps {
 export function PayslipsScreen({ isTab = false }: PayslipsScreenProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { t } = useLocalization();
   const {
     periods,
     isFoundationPlan,
@@ -81,7 +83,7 @@ export function PayslipsScreen({ isTab = false }: PayslipsScreenProps) {
                 <ArrowLeft size={24} color="#FFFFFF" />
               </TouchableOpacity>
               <View style={styles.titleContainer}>
-                <ThemedText style={styles.headerTitle}>Payroll</ThemedText>
+                <ThemedText style={styles.headerTitle}>{t('payroll.title')}</ThemedText>
               </View>
             </View>
           </LinearGradient>
@@ -91,9 +93,9 @@ export function PayslipsScreen({ isTab = false }: PayslipsScreenProps) {
           {isFoundationPlan ? (
             <View style={styles.upgradeContainer}>
               <Lock size={36} color="#94A3B8" strokeWidth={1.5} />
-              <ThemedText style={styles.upgradeTitle}>Payroll not included</ThemedText>
+              <ThemedText style={styles.upgradeTitle}>{t('payroll.notIncluded')}</ThemedText>
               <ThemedText style={styles.upgradeText}>
-                Payroll is available on Growth and Professional plans. Upgrade at worknest.com.
+                {t('payroll.upgradeText')}
               </ThemedText>
             </View>
           ) : (

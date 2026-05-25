@@ -4,8 +4,9 @@ import { CalendarDays, ChevronRight } from 'lucide-react-native';
 
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts } from '@/common/constants/theme';
+import { useLocalization } from '@/common/localization';
 import type { PayrollPeriodOption, PayrollStatus } from '../types/payroll.types';
-import { formatPayrollStatus } from '../utils/payroll-formatters';
+import { formatPayrollCurrencyAmount, formatPayrollStatus } from '../utils/payroll-formatters';
 
 interface PayslipCardProps {
   period: PayrollPeriodOption;
@@ -22,21 +23,10 @@ function statusBadgeColors(status: PayrollStatus): { bg: string; text: string } 
   }
 }
 
-function formatNetPay(netPay: number, currency: string): string {
-  try {
-    return new Intl.NumberFormat(undefined, {
-      style: 'currency',
-      currency,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(netPay);
-  } catch {
-    return `${currency} ${netPay.toFixed(2)}`;
-  }
-}
-
 export function PayslipCard({ period, onPress }: PayslipCardProps) {
+  const { t } = useLocalization();
   const badgeColors = period.status ? statusBadgeColors(period.status) : null;
+  const netPay = formatPayrollCurrencyAmount(period.netPay, period.currency);
 
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.75}>
@@ -50,7 +40,7 @@ export function PayslipCard({ period, onPress }: PayslipCardProps) {
             <ThemedText style={styles.periodName}>{period.label}</ThemedText>
             {period.isCurrentMonth ? (
               <View style={styles.currentBadge}>
-                <ThemedText style={styles.currentBadgeText}>Current</ThemedText>
+                <ThemedText style={styles.currentBadgeText}>{t('payroll.current')}</ThemedText>
               </View>
             ) : null}
             {period.status && badgeColors ? (
@@ -61,13 +51,13 @@ export function PayslipCard({ period, onPress }: PayslipCardProps) {
               </View>
             ) : null}
           </View>
-          {period.netPay != null && period.currency ? (
+          {netPay ? (
             <ThemedText style={styles.netPayText}>
-              Net pay: {formatNetPay(period.netPay, period.currency)}
+              {t('payroll.netPay')}: {netPay}
             </ThemedText>
           ) : (
             <ThemedText style={styles.periodDate}>
-              Tap to view your payroll breakdown and download the payslip PDF.
+              {t('payroll.cardHint')}
             </ThemedText>
           )}
         </View>

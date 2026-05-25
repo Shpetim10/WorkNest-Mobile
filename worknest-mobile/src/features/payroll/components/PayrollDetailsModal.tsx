@@ -16,6 +16,7 @@ import { AlertTriangle, ChevronDown, ChevronUp, Download, Lock, RefreshCcw, X } 
 
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts } from '@/common/constants/theme';
+import { useLocalization } from '@/common/localization';
 import type { PayrollCalculationResponse, PayrollPeriodKey, PayrollStatus } from '../types/payroll.types';
 import {
   formatPaymentMethod,
@@ -162,6 +163,7 @@ export function PayrollDetailsModal({
   onRetry,
   onDownload,
 }: PayrollDetailsModalProps) {
+  const { t } = useLocalization();
   const [shouldRender, setShouldRender] = useState(visible);
   const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
   const backdropOpacity = useRef(new Animated.Value(0)).current;
@@ -219,7 +221,7 @@ export function PayrollDetailsModal({
 
           <View style={styles.header}>
             <View>
-              <ThemedText style={styles.headerTitle}>Payroll Details</ThemedText>
+              <ThemedText style={styles.headerTitle}>{t('payroll.details')}</ThemedText>
               {payroll?.employeeName ? (
                 <ThemedText style={styles.headerEmployeeName}>{payroll.employeeName}</ThemedText>
               ) : null}
@@ -232,7 +234,7 @@ export function PayrollDetailsModal({
           {isLoading ? (
             <View style={styles.centerState}>
               <ActivityIndicator size="large" color="#2B7FFF" />
-              <ThemedText style={styles.centerStateText}>Loading payroll details...</ThemedText>
+              <ThemedText style={styles.centerStateText}>{t('payroll.loadingDetails')}</ThemedText>
             </View>
           ) : errorMessage ? (
             <View style={styles.centerState}>
@@ -242,7 +244,7 @@ export function PayrollDetailsModal({
               </ThemedText>
               <TouchableOpacity style={styles.retryButton} onPress={onRetry} activeOpacity={0.8}>
                 <RefreshCcw size={16} color="#FFFFFF" />
-                <ThemedText style={styles.retryButtonText}>Try again</ThemedText>
+                <ThemedText style={styles.retryButtonText}>{t('common.tryAgain')}</ThemedText>
               </TouchableOpacity>
             </View>
           ) : payroll ? (
@@ -266,7 +268,7 @@ export function PayrollDetailsModal({
                   <ThemedText style={styles.greenCardPeriod}>
                     {formatPayrollMonthLabel(payroll.year, payroll.month)}
                   </ThemedText>
-                  <ThemedText style={styles.greenCardLabel}>Net Salary</ThemedText>
+                  <ThemedText style={styles.greenCardLabel}>{t('payroll.netPay')}</ThemedText>
                   <ThemedText style={styles.greenCardValue}>
                     {formatPayrollAmount(payroll.totals.netPay, payroll.currency)}
                   </ThemedText>
@@ -813,7 +815,7 @@ export function PayrollDetailsModal({
                 {isDraftOrFailed ? (
                   <View style={styles.downloadUnavailableNote}>
                     <ThemedText style={styles.downloadUnavailableText}>
-                      PDF not available — payroll must be calculated before downloading.
+                      {t('payroll.pdfUnavailable')}
                     </ThemedText>
                   </View>
                 ) : (
@@ -829,7 +831,7 @@ export function PayrollDetailsModal({
                       <Download size={18} color="#FFFFFF" strokeWidth={2.5} />
                     )}
                     <ThemedText style={styles.downloadButtonText}>
-                      {isDownloading ? 'Downloading...' : 'Download payslip PDF'}
+                      {isDownloading ? t('payroll.downloading') : t('payroll.downloadPdf')}
                     </ThemedText>
                   </TouchableOpacity>
                 )}

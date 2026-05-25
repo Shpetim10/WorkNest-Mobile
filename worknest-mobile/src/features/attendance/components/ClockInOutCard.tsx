@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Clock, MapPin, QrCode } from 'lucide-react-native';
 
 import { Fonts, Spacing } from '@/common/constants/theme';
+import { useLocalization } from '@/common/localization';
 import type { AttendanceWarning } from '@/features/attendance/types/contracts';
 
 interface ClockInOutCardProps {
@@ -33,6 +34,7 @@ export function ClockInOutCard({
   qrRequired,
   locationRequired,
 }: ClockInOutCardProps) {
+  const { t } = useLocalization();
   const isClockOut = actionLabel.toUpperCase().includes('OUT');
   const gradientColors = isClockOut
     ? ['#FF383C', 'rgba(255, 141, 40, 0.8)']
@@ -55,7 +57,7 @@ export function ClockInOutCard({
             </View>
             <Text style={styles.title}>{actionLabel}</Text>
             <Text style={styles.subtitle}>
-              {busy ? 'Submitting attendance...' : actionHint}
+              {busy ? t('attendance.submitting') : actionHint}
             </Text>
             {busy ? <ActivityIndicator size="small" color="#FFFFFF" style={styles.loader} /> : null}
             {blockReasonMessage ? <Text style={styles.blockedText}>{blockReasonMessage}</Text> : null}
@@ -68,13 +70,13 @@ export function ClockInOutCard({
         <View style={styles.pillsRow}>
           {siteName ? <InfoPill icon="site" text={siteName} /> : null}
           {workDate ? <InfoPill icon="date" text={workDate} /> : null}
-          {qrRequired ? <InfoPill icon="qr" text="QR required" /> : null}
-          {locationRequired ? <InfoPill icon="gps" text="GPS required" /> : null}
+          {qrRequired ? <InfoPill icon="qr" text={t('attendance.qrRequired')} /> : null}
+          {locationRequired ? <InfoPill icon="gps" text={t('attendance.gpsRequired')} /> : null}
         </View>
       ) : null}
 
       <Text style={styles.hintText}>
-        Tap the button above to clock in or out and track your attendance.
+        {t('attendance.clockHint')}
       </Text>
     </View>
   );

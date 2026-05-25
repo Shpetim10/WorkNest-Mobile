@@ -22,11 +22,13 @@ import {
 
 import { ThemedText } from '@/common/components/themed-text';
 import { BottomTabInset, Fonts, Spacing } from '@/common/constants/theme';
+import { useLocalization } from '@/common/localization';
 import { useHomeScreen } from '../hooks/use-home-screen';
 
 export function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { t } = useLocalization();
   const {
     isLoading,
     profile,
@@ -94,7 +96,7 @@ export function HomeScreen() {
                 <View style={styles.activeDot} />
               </View>
               <View style={styles.textContainer}>
-                <ThemedText style={styles.greetingText}>Hello,</ThemedText>
+                <ThemedText style={styles.greetingText}>{t('home.hello')}</ThemedText>
                 <ThemedText style={styles.nameText}>{profile.firstName}</ThemedText>
               </View>
             </View>
@@ -149,7 +151,7 @@ export function HomeScreen() {
               <View style={[styles.iconBox, { backgroundColor: '#2B7FFF' }]}>
                 <Clock size={20} color="#FFFFFF" strokeWidth={2.5} />
               </View>
-              <ThemedText style={styles.cardTitle}>Attendance</ThemedText>
+              <ThemedText style={styles.cardTitle}>{t('home.attendance')}</ThemedText>
             </View>
             <View style={styles.cardBody}>
               <View style={styles.attendanceCheckRow}>
@@ -159,11 +161,11 @@ export function HomeScreen() {
                   <View style={styles.notCheckedInDot} />
                 )}
                 <View style={styles.checkTextColumn}>
-                  <ThemedText style={styles.labelSmall}>Today</ThemedText>
+                  <ThemedText style={styles.labelSmall}>{t('home.today')}</ThemedText>
                   <ThemedText style={styles.valueMedium}>
                     {attendance.checkedIn
-                      ? `Checked in at ${attendance.checkInTime}`
-                      : 'Not checked in'}
+                      ? `${t('home.checkedInAt')} ${attendance.checkInTime}`
+                      : t('home.notCheckedIn')}
                   </ThemedText>
                 </View>
               </View>
@@ -180,11 +182,11 @@ export function HomeScreen() {
               <View style={[styles.iconBox, { backgroundColor: '#0D9488' }]}>
                 <Wallet size={20} color="#FFFFFF" strokeWidth={2.2} />
               </View>
-              <ThemedText style={styles.cardTitle}>Leave Balance</ThemedText>
+              <ThemedText style={styles.cardTitle}>{t('home.leaveBalance')}</ThemedText>
             </View>
             <View style={styles.cardBody}>
               {leaveBalances.length === 0 ? (
-                <ThemedText style={styles.labelSmall}>No active leave balances</ThemedText>
+                <ThemedText style={styles.labelSmall}>{t('home.noActiveLeaveBalances')}</ThemedText>
               ) : (
                 leaveBalances.map((balance, index) => {
                   const leaveTypeLabel = balance.leaveType.charAt(0).toUpperCase() + balance.leaveType.slice(1).toLowerCase();
@@ -194,7 +196,7 @@ export function HomeScreen() {
                       <View style={styles.leaveBalanceRow}>
                         <ThemedText style={styles.leaveLabel}>{leaveTypeLabel}</ThemedText>
                         <ThemedText style={styles.leaveValue}>
-                          {balance.remainingDays} days
+                          {balance.remainingDays} {balance.remainingDays === 1 ? t('common.day') : t('common.days')}
                         </ThemedText>
                       </View>
                     </View>
@@ -214,7 +216,7 @@ export function HomeScreen() {
               <View style={[styles.iconBox, { backgroundColor: '#8B5CF6' }]}>
                 <DollarSign size={20} color="#FFFFFF" strokeWidth={2.5} />
               </View>
-              <ThemedText style={styles.cardTitle}>Latest Payroll</ThemedText>
+              <ThemedText style={styles.cardTitle}>{t('home.latestPayroll')}</ThemedText>
             </View>
             <View style={styles.cardBody}>
               {latestPayroll.period ? (
@@ -222,12 +224,16 @@ export function HomeScreen() {
                   <ThemedText style={styles.labelSmall}>
                     {latestPayroll.period}
                   </ThemedText>
-                  <ThemedText style={styles.payrollAmount}>
-                    {latestPayroll.amount}
-                  </ThemedText>
+                  {latestPayroll.amount ? (
+                    <ThemedText style={styles.payrollAmount}>
+                      {latestPayroll.amount}
+                    </ThemedText>
+                  ) : (
+                    <ThemedText style={styles.labelSmall}>{t('home.noPayrollData')}</ThemedText>
+                  )}
                 </>
               ) : (
-                <ThemedText style={styles.labelSmall}>No payroll data available</ThemedText>
+                <ThemedText style={styles.labelSmall}>{t('home.noPayrollData')}</ThemedText>
               )}
             </View>
           </TouchableOpacity>
@@ -243,11 +249,11 @@ export function HomeScreen() {
                 <Bell size={20} color="#FFFFFF" strokeWidth={2.2} />
               </View>
               <View style={styles.announcementTitleGroup}>
-                <ThemedText style={styles.cardTitle}>Announcements</ThemedText>
+                <ThemedText style={styles.cardTitle}>{t('home.announcements')}</ThemedText>
                 {announcements.unreadCount > 0 && (
                   <View style={styles.unreadBadge}>
                     <ThemedText style={styles.unreadBadgeText}>
-                      {announcements.unreadCount} new
+                      {announcements.unreadCount} {t('common.new')}
                     </ThemedText>
                   </View>
                 )}

@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts } from '@/common/constants/theme';
+import { useLocalization } from '@/common/localization';
 
 interface AnnouncementsHeaderProps {
   unreadCount: number;
@@ -15,6 +16,7 @@ interface AnnouncementsHeaderProps {
 export function AnnouncementsHeader({ unreadCount }: AnnouncementsHeaderProps) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { t } = useLocalization();
 
   return (
     <View style={styles.headerWrapper}>
@@ -29,11 +31,11 @@ export function AnnouncementsHeader({ unreadCount }: AnnouncementsHeaderProps) {
             <ArrowLeft size={24} color="#FFFFFF" />
           </TouchableOpacity>
           <View style={styles.titleGroup}>
-            <ThemedText style={styles.title}>Announcements</ThemedText>
+            <ThemedText style={styles.title}>{t('updates.title')}</ThemedText>
             {unreadCount > 0 && (
               <View style={styles.badge}>
                 <ThemedText style={styles.badgeText}>
-                  {unreadCount} new
+                  {unreadCount} {t('common.new')}
                 </ThemedText>
               </View>
             )}

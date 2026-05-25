@@ -7,10 +7,12 @@ import { useRouter } from 'expo-router';
 
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts } from '@/common/constants/theme';
+import { useLocalization } from '@/common/localization';
 
 export function AttendanceHeader() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { t } = useLocalization();
 
   return (
     <View style={styles.headerWrapper}>
@@ -25,7 +27,7 @@ export function AttendanceHeader() {
             <ArrowLeft size={24} color="#FFFFFF" />
           </TouchableOpacity>
           <View style={styles.titleContainer}>
-            <ThemedText style={styles.title}>Attendance</ThemedText>
+            <ThemedText style={styles.title}>{t('attendance.title')}</ThemedText>
           </View>
         </View>
       </LinearGradient>

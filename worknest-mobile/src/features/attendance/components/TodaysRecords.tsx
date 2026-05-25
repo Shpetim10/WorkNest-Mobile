@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Calendar, CheckCircle2, XCircle } from 'lucide-react-native';
 
 import { Fonts, Spacing } from '@/common/constants/theme';
+import { useLocalization } from '@/common/localization';
 import type { AttendanceDayRecord } from '@/features/attendance/types/contracts';
 
 interface TodaysRecordsProps {
@@ -30,6 +31,7 @@ function formatTime(value: string | null, timezone?: string | null) {
 }
 
 export function TodaysRecords({ record, timezone, clockIn, clockOut }: TodaysRecordsProps) {
+  const { t } = useLocalization();
   const effectiveClockIn = record?.clockInTime ?? clockIn ?? null;
   const effectiveClockOut = record?.clockOutTime ?? clockOut ?? null;
   const clockInTime = formatTime(effectiveClockIn, timezone);
@@ -39,13 +41,13 @@ export function TodaysRecords({ record, timezone, clockIn, clockOut }: TodaysRec
     <View style={styles.container}>
       <View style={styles.header}>
         <Calendar size={20} color="#2B7FFF" />
-        <Text style={styles.title}>Today Records</Text>
+        <Text style={styles.title}>{t('attendance.todayRecords')}</Text>
       </View>
       
       <View style={styles.recordRow}>
         <View style={styles.recordLeft}>
           <CheckCircle2 size={18} color="#00C950" />
-          <Text style={styles.recordLabel}>Clock In</Text>
+          <Text style={styles.recordLabel}>{t('attendance.clockIn')}</Text>
         </View>
         <Text style={styles.recordTime}>{clockInTime}</Text>
       </View>
@@ -54,18 +56,18 @@ export function TodaysRecords({ record, timezone, clockIn, clockOut }: TodaysRec
         <View style={styles.recordLeft}>
           <XCircle size={18} color={effectiveClockOut ? '#00C950' : '#A0A0A0'} />
           <Text style={[styles.recordLabel, !effectiveClockOut && { color: '#A0A0A0' }]}>
-            Clock Out
+            {t('attendance.clockOut')}
           </Text>
         </View>
         <Text style={styles.recordTime}>{clockOutTime}</Text>
       </View>
 
       <View style={styles.metaRow}>
-        <Text style={styles.metaLabel}>Day Status</Text>
-        <Text style={styles.metaValue}>{record?.dayStatus ?? 'N/A'}</Text>
+        <Text style={styles.metaLabel}>{t('attendance.dayStatus')}</Text>
+        <Text style={styles.metaValue}>{record?.dayStatus ?? t('common.notAvailable')}</Text>
       </View>
       <View style={styles.metaRow}>
-        <Text style={styles.metaLabel}>Worked Minutes</Text>
+        <Text style={styles.metaLabel}>{t('attendance.workedMinutes')}</Text>
         <Text style={styles.metaValue}>{record?.workedMinutes ?? 0}</Text>
       </View>
     </View>
