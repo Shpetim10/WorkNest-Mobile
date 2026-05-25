@@ -4,6 +4,7 @@ import { ActivityIndicator, ScrollView, StyleSheet, View, RefreshControl } from 
 import { ThemedText } from '@/common/components/themed-text';
 import { ThemedView } from '@/common/components/themed-view';
 import { Fonts } from '@/common/constants/theme';
+import { useLocalization } from '@/common/localization';
 import { useAnnouncementsScreen } from '../hooks/use-announcements-screen';
 import type { MobileAnnouncementListItem } from '../types';
 import { AnnouncementsHeader } from './AnnouncementsHeader';
@@ -11,6 +12,7 @@ import { AnnouncementCard } from './AnnouncementCard';
 import { AnnouncementDetailSheet } from './AnnouncementDetailSheet';
 
 export function AnnouncementsScreen() {
+  const { t } = useLocalization();
   const {
     announcements,
     unreadCount,
@@ -56,7 +58,7 @@ export function AnnouncementsScreen() {
             </View>
           ) : announcements.length === 0 ? (
             <View style={styles.emptyContainer}>
-              <ThemedText style={styles.emptyText}>No announcements yet</ThemedText>
+              <ThemedText style={styles.emptyText}>{t('updates.noAnnouncements')}</ThemedText>
             </View>
           ) : (
             <View style={styles.listContent}>

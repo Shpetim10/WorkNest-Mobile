@@ -21,6 +21,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts, Spacing } from '@/common/constants/theme';
+import { useLocalization } from '@/common/localization';
 import { LeaveType } from '../types';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -53,6 +54,7 @@ export function RequestLeaveBottomSheet({
   isSubmitting,
   form,
 }: RequestLeaveBottomSheetProps) {
+  const { t } = useLocalization();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
@@ -124,13 +126,13 @@ export function RequestLeaveBottomSheet({
   ).current;
 
   const leaveTypes: { label: string; value: LeaveType }[] = [
-    { label: 'Vacation', value: 'VACATION' },
-    { label: 'Sick Leave', value: 'SICK' },
-    { label: 'Personal', value: 'PERSONAL' },
-    { label: 'Unpaid', value: 'UNPAID' },
-    { label: 'Maternity', value: 'MATERNITY' },
-    { label: 'Paternity', value: 'PATERNITY' },
-    { label: 'Other', value: 'OTHER' },
+    { label: t('requests.vacation'), value: 'VACATION' },
+    { label: t('requests.sickLeave'), value: 'SICK' },
+    { label: t('requests.personal'), value: 'PERSONAL' },
+    { label: t('requests.unpaid'), value: 'UNPAID' },
+    { label: t('requests.maternity'), value: 'MATERNITY' },
+    { label: t('requests.paternity'), value: 'PATERNITY' },
+    { label: t('requests.other'), value: 'OTHER' },
   ];
 
   const formatDate = (date: Date) => {
@@ -191,7 +193,7 @@ export function RequestLeaveBottomSheet({
             </View>
 
             <View style={styles.header}>
-              <ThemedText style={styles.title}>Request Leave</ThemedText>
+              <ThemedText style={styles.title}>{t('requests.requestLeave')}</ThemedText>
               <TouchableOpacity onPress={handleDismiss} style={styles.closeButton}>
                 <X size={24} color="#6A7282" />
               </TouchableOpacity>
@@ -206,14 +208,14 @@ export function RequestLeaveBottomSheet({
               <View style={styles.content}>
                 {/* Leave Type Dropdown */}
                 <View style={[styles.field, { zIndex: 100 }]}>
-                  <ThemedText style={styles.label}>Leave Type</ThemedText>
+                  <ThemedText style={styles.label}>{t('requests.leaveType')}</ThemedText>
                   <TouchableOpacity 
                     style={styles.dropdownTrigger}
                     onPress={() => setIsDropdownOpen(!isDropdownOpen)}
                     activeOpacity={0.7}
                   >
                     <ThemedText style={styles.dropdownValue}>
-                      {leaveTypes.find(t => t.value === form.leaveType)?.label || 'Select Type'}
+                      {leaveTypes.find((type) => type.value === form.leaveType)?.label || t('requests.selectType')}
                     </ThemedText>
                     <ChevronDown size={20} color="#64748B" />
                   </TouchableOpacity>
@@ -244,7 +246,7 @@ export function RequestLeaveBottomSheet({
                 {/* Dates */}
                 <View style={styles.dateRow}>
                   <View style={[styles.field, { flex: 1 }]}>
-                    <ThemedText style={styles.label}>Start Date</ThemedText>
+                    <ThemedText style={styles.label}>{t('requests.startDate')}</ThemedText>
                     <TouchableOpacity 
                       style={styles.dateInput}
                       onPress={() => setShowStartDatePicker(true)}
@@ -257,7 +259,7 @@ export function RequestLeaveBottomSheet({
                     </TouchableOpacity>
                   </View>
                   <View style={[styles.field, { flex: 1 }]}>
-                    <ThemedText style={styles.label}>End Date</ThemedText>
+                    <ThemedText style={styles.label}>{t('requests.endDate')}</ThemedText>
                     <TouchableOpacity 
                       style={styles.dateInput}
                       onPress={() => setShowEndDatePicker(true)}
@@ -274,10 +276,10 @@ export function RequestLeaveBottomSheet({
                 {/* Medical Report ID — required for Sick Leave */}
                 {form.leaveType === 'SICK' && (
                   <View style={styles.field}>
-                    <ThemedText style={styles.label}>Medical Report ID (Required)</ThemedText>
+                    <ThemedText style={styles.label}>{t('requests.medicalReportRequired')}</ThemedText>
                     <TextInput
                       style={styles.input}
-                      placeholder="Enter document ID..."
+                      placeholder={t('requests.enterDocumentId')}
                       placeholderTextColor="#94A3B8"
                       value={form.medicalReportDocumentId}
                       onChangeText={form.setMedicalReportDocumentId}
@@ -288,10 +290,10 @@ export function RequestLeaveBottomSheet({
 
                 {/* Note field */}
                 <View style={styles.field}>
-                  <ThemedText style={styles.label}>Note (Optional)</ThemedText>
+                  <ThemedText style={styles.label}>{t('requests.noteOptional')}</ThemedText>
                   <TextInput
                     style={styles.textArea}
-                    placeholder="Add a note..."
+                    placeholder={t('requests.addNote')}
                     placeholderTextColor="#94A3B8"
                     multiline
                     numberOfLines={4}
@@ -304,7 +306,7 @@ export function RequestLeaveBottomSheet({
                 {form.requestedDays > form.availableDaysForType && form.availableDaysForType >= 0 && (
                   <View style={styles.warningContainer}>
                     <ThemedText style={styles.warningText}>
-                      You are requesting {form.requestedDays} day{form.requestedDays !== 1 ? 's' : ''} but only have {form.availableDaysForType} available. Your request will still be submitted for review.
+                      You are requesting {form.requestedDays} {form.requestedDays === 1 ? t('common.day') : t('common.days')} but only have {form.availableDaysForType} available. Your request will still be submitted for review.
                     </ThemedText>
                   </View>
                 )}
@@ -325,7 +327,7 @@ export function RequestLeaveBottomSheet({
                     {isSubmitting ? (
                       <ActivityIndicator color="#FFFFFF" />
                     ) : (
-                      <ThemedText style={styles.submitButtonText}>Submit Request</ThemedText>
+                      <ThemedText style={styles.submitButtonText}>{t('requests.submitRequest')}</ThemedText>
                     )}
                   </LinearGradient>
                 </TouchableOpacity>

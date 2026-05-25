@@ -6,10 +6,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
 import { Fonts, Colors } from '@/common/constants/theme';
+import { useLocalization } from '@/common/localization';
 
 export default function AppTabs() {
   const scheme = useColorScheme();
   const colors = Colors[scheme ?? 'light'];
+  const { t } = useLocalization();
 
   return (
     <Tabs
@@ -18,18 +20,19 @@ export default function AppTabs() {
         headerShown: false,
       }}
     >
-      <Tabs.Screen name="index" options={{ title: 'Home' }} />
-      <Tabs.Screen name="attendance" options={{ title: 'Attendance' }} />
-      <Tabs.Screen name="requests" options={{ title: 'Requests' }} />
-      <Tabs.Screen name="payroll" options={{ title: 'Payroll' }} />
-      <Tabs.Screen name="announcements" options={{ title: 'Announcements' }} />
-      <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
+      <Tabs.Screen name="index" options={{ title: t('nav.home') }} />
+      <Tabs.Screen name="attendance" options={{ title: t('nav.attendance') }} />
+      <Tabs.Screen name="requests" options={{ title: t('nav.requests') }} />
+      <Tabs.Screen name="payroll" options={{ title: t('nav.payroll') }} />
+      <Tabs.Screen name="announcements" options={{ title: t('nav.updates') }} />
+      <Tabs.Screen name="profile" options={{ title: t('nav.profile') }} />
     </Tabs>
   );
 }
 
 function CustomTabBar({ state, descriptors, navigation }: any) {
   const insets = useSafeAreaInsets();
+  const { t } = useLocalization();
   const allowedRoutes = ['index', 'attendance', 'requests', 'payroll', 'announcements', 'profile'];
 
   const getIcon = (routeName: string, focused: boolean) => {
@@ -54,17 +57,17 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
   const getLabel = (routeName: string) => {
     switch (routeName) {
       case 'index':
-        return 'Home';
+        return t('nav.home');
       case 'attendance':
-        return 'Attendance';
+        return t('nav.attendance');
       case 'requests':
-        return 'Requests';
+        return t('nav.requests');
       case 'payroll':
-        return 'Payroll';
+        return t('nav.payroll');
       case 'announcements':
-        return 'Updates';
+        return t('nav.updates');
       case 'profile':
-        return 'Profile';
+        return t('nav.profile');
       default:
         return routeName;
     }

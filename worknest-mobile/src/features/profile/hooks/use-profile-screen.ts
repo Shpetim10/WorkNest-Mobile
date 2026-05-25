@@ -39,6 +39,12 @@ export function useProfileScreen() {
     profilePictureUrl: profileData?.profilePictureUrl ?? null,
     jobTitle: profileData?.jobTitle ?? null,
     department: profileData?.department ?? null,
+    departmentName: profileData?.departmentName ?? null,
+    siteName: profileData?.siteName ?? null,
+    contractType: profileData?.contractType ?? null,
+    contractStatus: profileData?.contractStatus ?? null,
+    contractStartDate: profileData?.contractStartDate ?? null,
+    contractEndDate: profileData?.contractEndDate ?? null,
     location: profileData?.location ?? null,
     role: profileData?.role ?? null,
   };

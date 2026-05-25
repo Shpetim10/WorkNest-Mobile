@@ -15,11 +15,13 @@ import {
 import { GradientText } from '@/common/components/gradient-text';
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts, Spacing } from '@/common/constants/theme';
+import { useLocalization } from '@/common/localization';
 import { LoginForm } from '@/features/auth/components/login-form';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export function LoginScreen() {
+  const { t } = useLocalization();
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
 
   React.useEffect(() => {
@@ -63,10 +65,10 @@ export function LoginScreen() {
           <View style={styles.cardContainer}>
             <View style={styles.titlesContainer}>
               <GradientText 
-                text="Welcome Back" 
+                text={t('auth.welcomeBack')} 
                 style={styles.title} 
               />
-              <ThemedText style={styles.subtitle}>Sign in to continue</ThemedText>
+              <ThemedText style={styles.subtitle}>{t('auth.signInToContinue')}</ThemedText>
             </View>
 
             <LoginForm />
@@ -89,44 +91,47 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    height: SCREEN_HEIGHT * 0.40, // Increased header height to accommodate larger logo
+    height: SCREEN_HEIGHT * 0.38,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingTop: Spacing.six,
+    paddingBottom: Spacing.six,    // nudges logo up from the white card edge
   },
   logoContainer: {
+    width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: Spacing.four,
+    marginTop: 0,
   },
   logo: {
-      width: '80%',      // Occupies 80% of the screen width
-      aspectRatio: 1,    // Forces height to match width (keeps it square)
-      alignSelf: 'center', // Centers the logo horizontally
+    width: '70%',
+    aspectRatio: 230 / 164,
+    alignSelf: 'center',
   },
   cardContainer: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-    marginTop: -60, // Higher card overlap
+    marginTop: -40,
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
     paddingHorizontal: Spacing.four,
-    paddingTop: Spacing.six, // More padding to avoid text cut-off
-    paddingBottom: Spacing.six,
+    paddingTop: Spacing.five,
+    paddingBottom: Spacing.four,
   },
   titlesContainer: {
-    marginBottom: Spacing.five,
+    marginBottom: Spacing.four,
     alignItems: 'center',
   },
   title: {
     fontFamily: Fonts.ny.bold,
-    fontSize: 36, // Larger title
-    lineHeight: 44,
+    fontSize: 32,
+    lineHeight: 40,
     color: '#1E293B',
     marginBottom: Spacing.one,
   },
   subtitle: {
     fontFamily: Fonts.sf.regular,
-    fontSize: 16,
+    fontSize: 15,
     color: '#64748B',
   },
 });

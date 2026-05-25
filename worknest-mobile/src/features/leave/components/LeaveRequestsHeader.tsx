@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts, Spacing } from '@/common/constants/theme';
+import { useLocalization } from '@/common/localization';
 
 interface LeaveRequestsHeaderProps {
   onAddPress: () => void;
@@ -13,6 +14,7 @@ interface LeaveRequestsHeaderProps {
 
 export function LeaveRequestsHeader({ onAddPress }: LeaveRequestsHeaderProps) {
   const insets = useSafeAreaInsets();
+  const { t } = useLocalization();
 
   return (
     <View style={styles.headerWrapper}>
@@ -24,7 +26,7 @@ export function LeaveRequestsHeader({ onAddPress }: LeaveRequestsHeaderProps) {
       >
       <View style={styles.headerRow}>
         <View style={styles.titleContainer}>
-          <ThemedText style={styles.title}>Leave Requests</ThemedText>
+          <ThemedText style={styles.title}>{t('requests.title')}</ThemedText>
         </View>
         <TouchableOpacity 
           style={styles.addButton}

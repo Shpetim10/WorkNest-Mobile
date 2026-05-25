@@ -3,6 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 
 import { Fonts, Spacing } from '@/common/constants/theme';
+import { useLocalization } from '@/common/localization';
 import type { AttendanceMonthDay } from '@/features/attendance/types/contracts';
 
 interface AttendanceCalendarProps {
@@ -46,6 +47,7 @@ export function AttendanceCalendar({
   onDayPress,
   selectedDay,
 }: AttendanceCalendarProps) {
+  const { t } = useLocalization();
   const monthTitle = useMemo(
     () =>
       new Intl.DateTimeFormat(undefined, {
@@ -132,22 +134,22 @@ export function AttendanceCalendar({
       </View>
 
       <View style={styles.legendContainer}>
-        <LegendItem color="#00C950" label="Present" />
-        <LegendItem color="#EF4444" label="Absent" />
-        <LegendItem color="#F59E0B" label="Late" />
-        <LegendItem color="#EAB308" label="Half Day" />
-        <LegendItem color="#3B82F6" label="Leave/Holiday" />
-        <LegendItem color="#F59E0B" label="No Checkout" />
-        <LegendItem color="#94A3B8" label="Pending" />
+        <LegendItem color="#00C950" label={t('attendance.present')} />
+        <LegendItem color="#EF4444" label={t('attendance.absent')} />
+        <LegendItem color="#F59E0B" label={t('attendance.late')} />
+        <LegendItem color="#EAB308" label={t('attendance.halfDay')} />
+        <LegendItem color="#3B82F6" label={t('attendance.leaveHoliday')} />
+        <LegendItem color="#F59E0B" label={t('attendance.noCheckout')} />
+        <LegendItem color="#94A3B8" label={t('attendance.pending')} />
       </View>
 
       {isLoading ? (
-        <Text style={styles.loadingText}>Loading calendar...</Text>
+        <Text style={styles.loadingText}>{t('attendance.loadingCalendar')}</Text>
       ) : selectedDay ? (
         <View style={styles.selectedDayCard}>
           <Text style={styles.selectedDate}>{selectedDay.date}</Text>
-          <Text style={styles.selectedInfo}>Status: {selectedDay.dayStatus}</Text>
-          <Text style={styles.selectedInfo}>Worked minutes: {selectedDay.workedMinutes}</Text>
+          <Text style={styles.selectedInfo}>{t('attendance.status')}: {selectedDay.dayStatus}</Text>
+          <Text style={styles.selectedInfo}>{t('attendance.workedMinutes')}: {selectedDay.workedMinutes}</Text>
         </View>
       ) : null}
     </View>

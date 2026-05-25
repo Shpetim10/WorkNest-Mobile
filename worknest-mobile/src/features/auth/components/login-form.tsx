@@ -12,6 +12,7 @@ import {
 import { GradientButton } from '@/common/components/gradient-button';
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts, Spacing } from '@/common/constants/theme';
+import { useLocalization } from '@/common/localization';
 import { useLoginMutation } from '@/features/auth/api/auth-api';
 import {
   buildFieldErrorMapFromFieldErrors,
@@ -21,6 +22,7 @@ import { parseAuthError } from '@/features/auth/utils/parse-auth-error';
 
 export function LoginForm() {
   const router = useRouter();
+  const { t } = useLocalization();
   const [login, { isLoading }] = useLoginMutation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -59,7 +61,7 @@ export function LoginForm() {
         <Mail size={20} color={iconColor} strokeWidth={2} />
         <TextInput
           style={styles.input}
-          placeholder="Email"
+          placeholder={t('auth.email')}
           placeholderTextColor="#94A3B8"
           keyboardType="email-address"
           autoCapitalize="none"
@@ -75,7 +77,7 @@ export function LoginForm() {
         <Lock size={20} color={iconColor} strokeWidth={2} />
         <TextInput
           style={styles.input}
-          placeholder="Password"
+          placeholder={t('auth.password')}
           placeholderTextColor="#94A3B8"
           secureTextEntry={!showPassword}
           value={password}
@@ -104,14 +106,14 @@ export function LoginForm() {
         onPress={() => router.push('/forgot-password' as any)}
         disabled={isLoading}
       >
-        <ThemedText style={styles.forgotText}>Forgot password?</ThemedText>
+        <ThemedText style={styles.forgotText}>{t('auth.forgotPassword')}</ThemedText>
       </TouchableOpacity>
 
       {errorMessage ? <ThemedText style={styles.errorText}>{errorMessage}</ThemedText> : null}
 
       <View style={styles.buttonContainer}>
         <GradientButton
-          title={isLoading ? 'Logging in...' : 'Login'}
+          title={isLoading ? t('auth.loggingIn') : t('auth.login')}
           onPress={onSubmit}
           disabled={isSubmitDisabled}
         />

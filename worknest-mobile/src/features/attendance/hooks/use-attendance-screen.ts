@@ -20,6 +20,7 @@ import { getFriendlyAttendanceError } from '@/features/attendance/utils/attendan
 import { useAppSelector } from '@/common/store/hooks';
 import { selectTenantContext, selectAuthState } from '@/features/auth';
 import { useCompanyTopic, RealtimeEventType } from '@/features/realtime';
+import { useLocalization } from '@/common/localization';
 
 interface BannerState {
   type: 'success' | 'warning' | 'error';
@@ -73,11 +74,11 @@ function platformName(): ClockAttendanceRequest['platform'] {
   return 'web';
 }
 
-function buildActionCopy(today: AttendanceTodayData | null) {
+function buildActionCopy(today: AttendanceTodayData | null, t: ReturnType<typeof useLocalization>['t']) {
   if (!today) {
     return {
-      label: 'Clock',
-      hint: 'Loading attendance state...',
+      label: t('attendance.clock'),
+      hint: t('attendance.loadingState'),
       disabled: true,
       reason: null as string | null,
     };
@@ -85,17 +86,17 @@ function buildActionCopy(today: AttendanceTodayData | null) {
 
   if (today.blocked) {
     return {
-      label: 'Action Blocked',
-      hint: 'Attendance action is currently blocked.',
+      label: t('attendance.actionBlocked'),
+      hint: t('attendance.blockedHint'),
       disabled: true,
-      reason: today.blockReasonMessage ?? 'Attendance action is currently unavailable.',
+      reason: today.blockReasonMessage ?? t('attendance.unavailableReason'),
     };
   }
 
   if (today.nextAllowedAction === 'CHECK_IN') {
     return {
-      label: 'Clock In',
-      hint: 'Tap to record check-in',
+      label: t('attendance.clockIn'),
+      hint: t('attendance.clockInHint'),
       disabled: false,
       reason: null,
     };
@@ -103,16 +104,16 @@ function buildActionCopy(today: AttendanceTodayData | null) {
 
   if (today.nextAllowedAction === 'CHECK_OUT') {
     return {
-      label: 'Clock Out',
-      hint: 'Tap to record check-out',
+      label: t('attendance.clockOut'),
+      hint: t('attendance.clockOutHint'),
       disabled: false,
       reason: null,
     };
   }
 
   return {
-    label: 'No Action Available',
-    hint: 'Attendance is already completed for today.',
+    label: t('attendance.noActionAvailable'),
+    hint: t('attendance.completedHint'),
     disabled: true,
     reason: today.blockReasonMessage ?? null,
   };
@@ -166,6 +167,7 @@ function askLocationRetry(): Promise<boolean> {
 }
 
 export function useAttendanceScreen(): UseAttendanceScreenResult {
+  const { t } = useLocalization();
   const [monthDate, setMonthDate] = useState(() => new Date());
   const [selectedDay, setSelectedDay] = useState<AttendanceMonthDay | null>(null);
   const [scannerVisible, setScannerVisible] = useState(false);
@@ -287,11 +289,11 @@ export function useAttendanceScreen(): UseAttendanceScreenResult {
       return;
     }
 
-    const actionCopy = buildActionCopy(today);
+    const actionCopy = buildActionCopy(today, t);
     if (actionCopy.disabled) {
       setBanner({
         type: 'error',
-        text: actionCopy.reason ?? 'Attendance action is currently unavailable.',
+        text: actionCopy.reason ?? t('attendance.unavailableReason'),
       });
       return;
     }
@@ -429,9 +431,9 @@ export function useAttendanceScreen(): UseAttendanceScreenResult {
       submittingRef.current = false;
       setWorkflowBusy(false);
     }
-  }, [askForLocationCapture, refetchMonth, refetchToday, requestQrToken, submitClock, today, validateQr, workflowBusy]);
+  }, [askForLocationCapture, refetchMonth, refetchToday, requestQrToken, submitClock, t, today, validateQr, workflowBusy]);
 
-  const actionCopy = useMemo(() => buildActionCopy(today ?? null), [today]);
+  const actionCopy = useMemo(() => buildActionCopy(today ?? null, t), [t, today]);
 
   const isInitialLoading = isLoadingToday || (isLoadingMonth && !monthData);
   const hasLoadError = Boolean(todayError) || Boolean(monthError);

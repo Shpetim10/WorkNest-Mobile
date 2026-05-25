@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts, Spacing } from '@/common/constants/theme';
+import { useLocalization } from '@/common/localization';
 import type { LeaveRequestDto } from '../types';
 import { LeaveRequestCard } from './LeaveRequestCard';
 
@@ -12,9 +13,11 @@ interface LeaveRequestHistoryProps {
 }
 
 export function LeaveRequestHistory({ history, onCancel }: LeaveRequestHistoryProps) {
+  const { t } = useLocalization();
+
   return (
     <View style={styles.container}>
-      <ThemedText style={styles.sectionTitle}>REQUEST HISTORY</ThemedText>
+      <ThemedText style={styles.sectionTitle}>{t('requests.requestHistory')}</ThemedText>
       <View style={styles.list}>
         {history.length > 0 ? (
           history.map((request) => (
@@ -22,7 +25,7 @@ export function LeaveRequestHistory({ history, onCancel }: LeaveRequestHistoryPr
           ))
         ) : (
           <View style={styles.emptyContainer}>
-            <ThemedText style={styles.emptyText}>No request history found.</ThemedText>
+            <ThemedText style={styles.emptyText}>{t('requests.noHistory')}</ThemedText>
           </View>
         )}
       </View>

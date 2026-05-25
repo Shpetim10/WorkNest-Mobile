@@ -4,17 +4,8 @@ import { Calendar, XCircle } from 'lucide-react-native';
 
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts } from '@/common/constants/theme';
+import { useLocalization } from '@/common/localization';
 import type { LeaveRequestDto } from '../types';
-
-const LEAVE_TYPE_LABELS: Record<string, string> = {
-  VACATION: 'Vacation',
-  SICK: 'Sick Leave',
-  PERSONAL: 'Personal',
-  UNPAID: 'Unpaid',
-  MATERNITY: 'Maternity',
-  PATERNITY: 'Paternity',
-  OTHER: 'Other',
-};
 
 interface LeaveRequestCardProps {
   request: LeaveRequestDto;
@@ -22,16 +13,27 @@ interface LeaveRequestCardProps {
 }
 
 export function LeaveRequestCard({ request, onCancel }: LeaveRequestCardProps) {
+  const { t } = useLocalization();
+  const leaveTypeLabels: Record<string, string> = {
+    VACATION: t('requests.vacation'),
+    SICK: t('requests.sickLeave'),
+    PERSONAL: t('requests.personal'),
+    UNPAID: t('requests.unpaid'),
+    MATERNITY: t('requests.maternity'),
+    PATERNITY: t('requests.paternity'),
+    OTHER: t('requests.other'),
+  };
+
   const getStatusConfig = () => {
     switch (request.status) {
       case 'APPROVED':
-        return { bg: '#DCFCE7', text: '#15803D', label: 'Approved' };
+        return { bg: '#DCFCE7', text: '#15803D', label: t('requests.approved') };
       case 'PENDING':
-        return { bg: '#FEF9C2', text: '#A65F00', label: 'Pending' };
+        return { bg: '#FEF9C2', text: '#A65F00', label: t('requests.pending') };
       case 'REJECTED':
-        return { bg: '#FEE2E2', text: '#B91C1C', label: 'Rejected' };
+        return { bg: '#FEE2E2', text: '#B91C1C', label: t('requests.rejected') };
       case 'CANCELLED':
-        return { bg: '#F1F5F9', text: '#64748B', label: 'Cancelled' };
+        return { bg: '#F1F5F9', text: '#64748B', label: t('requests.cancelled') };
       default:
         return { bg: '#F1F5F9', text: '#64748B', label: request.status };
     }
@@ -50,13 +52,13 @@ export function LeaveRequestCard({ request, onCancel }: LeaveRequestCardProps) {
       ? formatDate(request.startDate)
       : `${formatDate(request.startDate)} - ${formatDate(request.endDate)}`;
 
-  const duration = `${request.daysCount} ${request.daysCount === 1 ? 'day' : 'days'}`;
+  const duration = `${request.daysCount} ${request.daysCount === 1 ? t('common.day') : t('common.days')}`;
 
   return (
     <View style={styles.card}>
       <View style={styles.topRow}>
         <ThemedText style={styles.title}>
-          {LEAVE_TYPE_LABELS[request.leaveType] ?? request.leaveType}
+          {leaveTypeLabels[request.leaveType] ?? request.leaveType}
         </ThemedText>
         <View style={[styles.statusPill, { backgroundColor: statusConfig.bg }]}>
           <ThemedText style={[styles.statusText, { color: statusConfig.text }]}>
@@ -75,7 +77,7 @@ export function LeaveRequestCard({ request, onCancel }: LeaveRequestCardProps) {
       {request.status === 'REJECTED' && request.rejectionReason && (
         <View style={styles.rejectionRow}>
           <ThemedText style={styles.rejectionText}>
-            Reason: {request.rejectionReason}
+            {t('requests.reason')}: {request.rejectionReason}
           </ThemedText>
         </View>
       )}
@@ -83,7 +85,7 @@ export function LeaveRequestCard({ request, onCancel }: LeaveRequestCardProps) {
       {request.status === 'APPROVED' && request.approvalNote && (
         <View style={styles.approvalNoteRow}>
           <ThemedText style={styles.approvalNoteText}>
-            Note from approver: {request.approvalNote}
+            {t('requests.noteFromApprover')}: {request.approvalNote}
           </ThemedText>
         </View>
       )}
@@ -95,7 +97,7 @@ export function LeaveRequestCard({ request, onCancel }: LeaveRequestCardProps) {
           activeOpacity={0.7}
         >
           <XCircle size={14} color="#DC2626" />
-          <ThemedText style={styles.cancelText}>Cancel Request</ThemedText>
+          <ThemedText style={styles.cancelText}>{t('requests.cancelRequest')}</ThemedText>
         </TouchableOpacity>
       )}
     </View>

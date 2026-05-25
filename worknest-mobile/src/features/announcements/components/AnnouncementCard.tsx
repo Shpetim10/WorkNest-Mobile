@@ -4,21 +4,22 @@ import { Megaphone } from 'lucide-react-native';
 
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts } from '@/common/constants/theme';
+import { useLocalization } from '@/common/localization';
 import type { MobileAnnouncementListItem } from '../types';
 
-function formatRelativeTime(dateStr: string): string {
+function formatRelativeTime(dateStr: string, t: ReturnType<typeof useLocalization>['t']): string {
   const diffMs = Date.now() - new Date(dateStr).getTime();
   const diffSeconds = Math.floor(diffMs / 1000);
-  if (diffSeconds < 60) return 'just now';
+  if (diffSeconds < 60) return t('updates.justNow');
   const diffMinutes = Math.floor(diffSeconds / 60);
-  if (diffMinutes < 60) return `${diffMinutes}m ago`;
+  if (diffMinutes < 60) return `${diffMinutes}${t('updates.minutesAgo')}`;
   const diffHours = Math.floor(diffMinutes / 60);
-  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffHours < 24) return `${diffHours}${t('updates.hoursAgo')}`;
   const diffDays = Math.floor(diffHours / 24);
-  if (diffDays === 1) return 'yesterday';
-  if (diffDays < 30) return `${diffDays} days ago`;
+  if (diffDays === 1) return t('updates.yesterday');
+  if (diffDays < 30) return `${diffDays} ${t('updates.daysAgo')}`;
   const diffMonths = Math.floor(diffDays / 30);
-  return diffMonths === 1 ? '1 month ago' : `${diffMonths} months ago`;
+  return diffMonths === 1 ? `1 ${t('updates.monthAgo')}` : `${diffMonths} ${t('updates.monthsAgo')}`;
 }
 
 interface AnnouncementCardProps {
@@ -26,16 +27,17 @@ interface AnnouncementCardProps {
   onPress: (item: MobileAnnouncementListItem) => void;
 }
 
-function getCategoryConfig(item: MobileAnnouncementListItem) {
+function getCategoryConfig(item: MobileAnnouncementListItem, t: ReturnType<typeof useLocalization>['t']) {
   if (item.priority === 'IMPORTANT') {
-    return { label: 'Important', bg: '#FFE2E2', text: '#D60000' };
+    return { label: t('updates.important'), bg: '#FFE2E2', text: '#D60000' };
   }
 
-  return { label: 'General', bg: '#DBEAFE', text: '#2563EB' };
+  return { label: t('updates.general'), bg: '#DBEAFE', text: '#2563EB' };
 }
 
 export function AnnouncementCard({ item, onPress }: AnnouncementCardProps) {
-  const category = getCategoryConfig(item);
+  const { t } = useLocalization();
+  const category = getCategoryConfig(item, t);
 
   return (
     <TouchableOpacity
@@ -66,7 +68,7 @@ export function AnnouncementCard({ item, onPress }: AnnouncementCardProps) {
 
           <View style={styles.bottomRow}>
             <ThemedText style={[styles.time, item.read && styles.timeRead]} numberOfLines={1}>
-              {formatRelativeTime(item.createdAt)}
+              {formatRelativeTime(item.createdAt, t)}
             </ThemedText>
             <View style={[styles.categoryPill, { backgroundColor: category.bg }]}>
               <ThemedText style={[styles.categoryText, { color: category.text }]} numberOfLines={1}>

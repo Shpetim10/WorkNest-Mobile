@@ -6,7 +6,7 @@ import type {
   PayrollTreatment,
 } from '../types/payroll.types';
 
-function tryFormatAmount(value: string, currency: string): string {
+function tryFormatAmount(value: string | number, currency: string): string {
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) {
     return `${currency} ${value}`;
@@ -30,6 +30,19 @@ export function formatPayrollAmount(value: string | null | undefined, currency: 
   }
 
   return tryFormatAmount(value, currency);
+}
+
+export function formatPayrollCurrencyAmount(
+  value: number | string | null | undefined,
+  currency: string | null | undefined
+): string | null {
+  const normalizedCurrency = currency?.trim();
+
+  if (value == null || value === '' || !normalizedCurrency) {
+    return null;
+  }
+
+  return tryFormatAmount(value, normalizedCurrency);
 }
 
 export function formatPayrollDate(value: string | null | undefined): string {

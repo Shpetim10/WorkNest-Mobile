@@ -17,6 +17,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts } from '@/common/constants/theme';
+import { useLocalization } from '@/common/localization';
 import type { MobileAnnouncementDetail } from '../types';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -36,6 +37,7 @@ export function AnnouncementDetailSheet({
   onClose,
   onMarkRead,
 }: AnnouncementDetailSheetProps) {
+  const { t } = useLocalization();
   const [shouldRender, setShouldRender] = useState(visible);
   const [isActionPressed, setIsActionPressed] = useState(false);
   const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
@@ -104,7 +106,7 @@ export function AnnouncementDetailSheet({
   if (!shouldRender && !visible) return null;
 
   const isImportant = detail?.priority === 'IMPORTANT';
-  const categoryLabel = isImportant ? 'Important' : 'General';
+  const categoryLabel = isImportant ? t('updates.important') : t('updates.general');
   const categoryStyle = isImportant ? styles.importantBadge : styles.generalBadge;
   const categoryTextStyle = isImportant ? styles.importantBadgeText : styles.generalBadgeText;
 
@@ -121,7 +123,7 @@ export function AnnouncementDetailSheet({
           </View>
 
           <View style={styles.header}>
-            <ThemedText style={styles.headerTitle}>Announcement</ThemedText>
+            <ThemedText style={styles.headerTitle}>{t('updates.announcement')}</ThemedText>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
               <X size={24} color="#6A7282" />
             </TouchableOpacity>
@@ -175,7 +177,7 @@ export function AnnouncementDetailSheet({
                   end={{ x: 1, y: 1 }}
                   style={styles.markReadButton}
                 >
-                  <ThemedText style={styles.markReadButtonText}>Mark as read</ThemedText>
+                  <ThemedText style={styles.markReadButtonText}>{t('updates.markAsRead')}</ThemedText>
                 </LinearGradient>
               </TouchableOpacity>
             </ScrollView>

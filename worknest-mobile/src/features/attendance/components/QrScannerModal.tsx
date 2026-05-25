@@ -15,6 +15,7 @@ import { X, QrCode, AlertCircle } from 'lucide-react-native';
 
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts, Spacing } from '@/common/constants/theme';
+import { useLocalization } from '@/common/localization';
 
 interface QrScannerModalProps {
   visible: boolean;
@@ -24,6 +25,7 @@ interface QrScannerModalProps {
 }
 
 export function QrScannerModal({ visible, onCancel, onScanned, errorMessage }: QrScannerModalProps) {
+  const { t } = useLocalization();
   const [permission, requestPermission] = useCameraPermissions();
   const [manualToken, setManualToken] = React.useState('');
   const [scanned, setScanned] = React.useState(false);
@@ -68,9 +70,9 @@ export function QrScannerModal({ visible, onCancel, onScanned, errorMessage }: Q
           <View style={styles.headerContent}>
             <QrCode size={22} color="#FFFFFF" strokeWidth={2} />
             <View style={styles.headerTextGroup}>
-              <ThemedText style={styles.headerTitle}>Scan Site QR</ThemedText>
+              <ThemedText style={styles.headerTitle}>{t('attendance.scanSiteQr')}</ThemedText>
               <ThemedText style={styles.headerSubtitle}>
-                Point your camera at the site QR code to continue.
+                {t('attendance.scanSiteQrHint')}
               </ThemedText>
             </View>
             <TouchableOpacity style={styles.closeButton} onPress={onCancel} hitSlop={12}>
@@ -92,7 +94,7 @@ export function QrScannerModal({ visible, onCancel, onScanned, errorMessage }: Q
           {!canRenderCamera ? (
             <View style={styles.manualContainer}>
               <ThemedText style={styles.manualLabel}>
-                Camera scanning is unavailable on web. Paste the QR token to continue.
+                {t('attendance.webQrUnavailable')}
               </ThemedText>
               <TextInput
                 style={styles.input}
@@ -100,26 +102,26 @@ export function QrScannerModal({ visible, onCancel, onScanned, errorMessage }: Q
                 onChangeText={setManualToken}
                 autoCapitalize="none"
                 autoCorrect={false}
-                placeholder="Paste QR token"
+                placeholder={t('attendance.pasteQrToken')}
                 placeholderTextColor="#94A3B8"
               />
               <TouchableOpacity style={styles.primaryButton} onPress={onSubmitManualToken}>
-                <ThemedText style={styles.primaryButtonText}>Use Token</ThemedText>
+                <ThemedText style={styles.primaryButtonText}>{t('attendance.useToken')}</ThemedText>
               </TouchableOpacity>
             </View>
           ) : !permission ? (
             <View style={styles.centeredState}>
               <ActivityIndicator size="large" color="#2B7FFF" />
-              <ThemedText style={styles.stateText}>Preparing camera…</ThemedText>
+              <ThemedText style={styles.stateText}>{t('attendance.preparingCamera')}</ThemedText>
             </View>
           ) : !permission.granted ? (
             <View style={styles.centeredState}>
               <QrCode size={48} color="#CBD5E1" strokeWidth={1.5} />
               <ThemedText style={styles.stateText}>
-                Camera permission is required to scan the attendance QR code.
+                {t('attendance.cameraPermission')}
               </ThemedText>
               <TouchableOpacity style={styles.primaryButton} onPress={requestPermission}>
-                <ThemedText style={styles.primaryButtonText}>Allow Camera</ThemedText>
+                <ThemedText style={styles.primaryButtonText}>{t('attendance.allowCamera')}</ThemedText>
               </TouchableOpacity>
             </View>
           ) : (
@@ -133,7 +135,7 @@ export function QrScannerModal({ visible, onCancel, onScanned, errorMessage }: Q
                 <View style={styles.scanOverlay}>
                   <View style={styles.scanFrame} />
                   <ThemedText style={styles.scanHint}>
-                    Align the QR code within the frame
+                    {t('attendance.alignQr')}
                   </ThemedText>
                 </View>
               </CameraView>
@@ -144,7 +146,7 @@ export function QrScannerModal({ visible, onCancel, onScanned, errorMessage }: Q
         {/* Footer */}
         <View style={styles.footer}>
           <TouchableOpacity style={styles.cancelButton} onPress={onCancel} activeOpacity={0.75}>
-            <ThemedText style={styles.cancelButtonText}>Cancel</ThemedText>
+            <ThemedText style={styles.cancelButtonText}>{t('common.cancel')}</ThemedText>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
