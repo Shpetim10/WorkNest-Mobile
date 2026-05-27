@@ -7,6 +7,7 @@ import { clearPersistedSessionArtifacts } from '@/common/storage/secure-session-
 import { useAppDispatch, useAppSelector } from '@/common/store/hooks';
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts, Spacing } from '@/common/constants/theme';
+import { useLocalization } from '@/common/localization';
 import { useResetPasswordMutation } from '@/features/auth/api/auth-api';
 import { clearResetPasswordState, logoutCompleted } from '@/features/auth/store/auth-slice';
 import { selectAuthState } from '@/features/auth/store/selectors';
@@ -27,6 +28,7 @@ const RESET_LINK_ERROR_CODES = new Set([
 
 export function ResetPasswordScreen() {
   const router = useRouter();
+  const { t } = useLocalization();
   const dispatch = useAppDispatch();
   const params = useLocalSearchParams<{ token?: string }>();
   const { userEmail } = useAppSelector(selectAuthState);
@@ -58,18 +60,19 @@ export function ResetPasswordScreen() {
         password: newPassword,
         confirmPassword,
         email: userEmail,
+        t,
       }),
-    [newPassword, confirmPassword, userEmail]
+    [newPassword, confirmPassword, userEmail, t]
   );
 
   const onSubmit = async () => {
     const sanitizedToken = sanitizeAuthFlowToken(token);
     if (!sanitizedToken) {
-      setErrorText('Reset token is required.');
+      setErrorText(t('auth.resetTokenRequired'));
       return;
     }
     if (!passwordValidation.valid) {
-      setErrorText(passwordValidation.errors[0] ?? 'Password is invalid.');
+      setErrorText(passwordValidation.errors[0] ?? t('auth.passwordInvalid'));
       return;
     }
 
@@ -85,13 +88,13 @@ export function ResetPasswordScreen() {
       await clearPersistedSessionArtifacts();
       dispatch(logoutCompleted());
       trackAuthEvent('reset_password_success');
-      Alert.alert('Success', 'Password reset successfully. Please login with your new password.');
+      Alert.alert(t('common.success'), t('auth.resetSuccessMessage'));
       router.replace('/login' as any);
     } catch (error) {
       const parsed = parseAuthError(error);
       const code = parsed.code;
       setFieldErrors(buildFieldErrorMapFromFieldErrors(parsed.fieldErrors));
-      const message = mapBackendErrorCodeToMessage(code, parsed.message);
+      const message = mapBackendErrorCodeToMessage(code, parsed.message, t);
       setErrorText(message);
       setIsInvalidLink(Boolean(code && RESET_LINK_ERROR_CODES.has(code)));
     }
@@ -100,12 +103,12 @@ export function ResetPasswordScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <ThemedText style={styles.title}>Reset Password</ThemedText>
-        <ThemedText style={styles.subtitle}>Set your new password and sign in again.</ThemedText>
+        <ThemedText style={styles.title}>{t('auth.resetPasswordTitle')}</ThemedText>
+        <ThemedText style={styles.subtitle}>{t('auth.resetPasswordSubtitle')}</ThemedText>
 
         <TextInput
           style={styles.input}
-          placeholder="Reset token"
+          placeholder={t('auth.resetToken')}
           placeholderTextColor="#94A3B8"
           value={token}
           onChangeText={setToken}
@@ -116,7 +119,7 @@ export function ResetPasswordScreen() {
 
         <TextInput
           style={styles.input}
-          placeholder="New password"
+          placeholder={t('auth.newPassword')}
           placeholderTextColor="#94A3B8"
           value={newPassword}
           onChangeText={setNewPassword}
@@ -129,7 +132,7 @@ export function ResetPasswordScreen() {
 
         <TextInput
           style={styles.input}
-          placeholder="Confirm password"
+          placeholder={t('auth.confirmPassword')}
           placeholderTextColor="#94A3B8"
           value={confirmPassword}
           onChangeText={setConfirmPassword}
@@ -141,14 +144,14 @@ export function ResetPasswordScreen() {
         ) : null}
 
         <View style={styles.rules}>
-          <ThemedText style={styles.rule}>Password must be at least 8 characters.</ThemedText>
-          <ThemedText style={styles.rule}>Password must include 1 uppercase and 1 digit.</ThemedText>
+          <ThemedText style={styles.rule}>{t('auth.passwordMinLengthError')}</ThemedText>
+          <ThemedText style={styles.rule}>{t('auth.passwordRuleUppercaseDigit')}</ThemedText>
         </View>
 
         {errorText ? <ThemedText style={styles.error}>{errorText}</ThemedText> : null}
 
         <GradientButton
-          title={isLoading ? 'Resetting...' : 'Reset Password'}
+          title={isLoading ? t('auth.resetting') : t('auth.resetPasswordTitle')}
           onPress={onSubmit}
           disabled={isLoading}
         />
@@ -156,7 +159,7 @@ export function ResetPasswordScreen() {
 
         {isInvalidLink ? (
           <TouchableOpacity onPress={() => router.replace('/forgot-password' as any)}>
-            <ThemedText type="link">Request new link</ThemedText>
+            <ThemedText type="link">{t('auth.requestNewLink')}</ThemedText>
           </TouchableOpacity>
         ) : null}
       </View>

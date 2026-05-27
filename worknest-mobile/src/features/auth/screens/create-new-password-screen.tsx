@@ -20,11 +20,13 @@ import { GradientText } from '@/common/components/gradient-text';
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts, Spacing } from '@/common/constants/theme';
 import { useTheme } from '@/common/hooks/use-theme';
+import { useLocalization } from '@/common/localization';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export function CreateNewPasswordScreen() {
   const router = useRouter();
+  const { t } = useLocalization();
   const theme = useTheme();
   
   const [newPassword, setNewPassword] = useState('');
@@ -67,7 +69,7 @@ export function CreateNewPasswordScreen() {
             onPress={() => router.back()}
           >
             <ChevronLeft size={24} color="#1E293B" />
-            <ThemedText style={styles.backText}>Back to Login</ThemedText>
+            <ThemedText style={styles.backText}>{t('auth.backToLogin')}</ThemedText>
           </TouchableOpacity>
 
           <KeyboardAvoidingView
@@ -84,22 +86,22 @@ export function CreateNewPasswordScreen() {
 
               <View style={styles.titleContainer}>
                 <GradientText 
-                  text="Create New Password" 
+                  text={t('auth.createNewPasswordTitle')}
                   style={styles.title} 
                 />
                 <ThemedText style={styles.subtitle}>
-                  Enter your new password below
+                  {t('auth.createNewPasswordSubtitle')}
                 </ThemedText>
               </View>
 
               {/* Input Area */}
               <View style={styles.inputArea}>
-                <ThemedText style={styles.inputLabel}>New Password</ThemedText>
+                <ThemedText style={styles.inputLabel}>{t('auth.newPassword')}</ThemedText>
                 <View style={styles.inputWrapper}>
                   <Lock size={20} color="#94A3B8" />
                   <TextInput
                     style={styles.input}
-                    placeholder="Enter new password"
+                    placeholder={t('auth.enterNewPassword')}
                     placeholderTextColor="#94A3B8"
                     secureTextEntry={!showNewPassword}
                     value={newPassword}
@@ -112,12 +114,12 @@ export function CreateNewPasswordScreen() {
 
                 <View style={{ height: Spacing.three }} />
 
-                <ThemedText style={styles.inputLabel}>Confirm Password</ThemedText>
+                <ThemedText style={styles.inputLabel}>{t('auth.confirmPassword')}</ThemedText>
                 <View style={styles.inputWrapper}>
                   <Lock size={20} color="#94A3B8" />
                   <TextInput
                     style={styles.input}
-                    placeholder="Confirm new password"
+                    placeholder={t('auth.confirmNewPassword')}
                     placeholderTextColor="#94A3B8"
                     secureTextEntry={!showConfirmPassword}
                     value={confirmPassword}
@@ -131,20 +133,20 @@ export function CreateNewPasswordScreen() {
 
               {/* Password Rules Box */}
               <View style={styles.rulesBox}>
-                <ThemedText style={styles.rulesTitle}>Password must:</ThemedText>
+                <ThemedText style={styles.rulesTitle}>{t('auth.passwordRuleTitle')}</ThemedText>
                 <View style={styles.ruleRow}>
                   <View style={styles.bullet} />
-                  <ThemedText style={styles.ruleText}>Be at least 8 characters long</ThemedText>
+                  <ThemedText style={styles.ruleText}>{t('auth.passwordRuleMinLength')}</ThemedText>
                 </View>
                 <View style={styles.ruleRow}>
                   <View style={styles.bullet} />
-                  <ThemedText style={styles.ruleText}>Match in both fields</ThemedText>
+                  <ThemedText style={styles.ruleText}>{t('auth.passwordRuleMatch')}</ThemedText>
                 </View>
               </View>
 
               <View style={styles.buttonContainer}>
                 <GradientButton 
-                  title="Update Password" 
+                  title={t('auth.updatePassword')}
                   onPress={handleUpdate} 
                 />
               </View>

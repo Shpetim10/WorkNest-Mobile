@@ -5,6 +5,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { GradientButton } from '@/common/components/gradient-button';
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts, Spacing } from '@/common/constants/theme';
+import { useLocalization } from '@/common/localization';
 import { useActivateInvitationMutation, useValidateInvitationTokenMutation } from '@/features/auth/api/auth-api';
 import { trackAuthEvent } from '@/features/auth/utils/auth-events';
 import {
@@ -19,6 +20,7 @@ import { clearInvitationFlowState, setInvitationToken } from '@/features/auth/st
 
 export function InvitationActivateScreen() {
   const router = useRouter();
+  const { t } = useLocalization();
   const dispatch = useAppDispatch();
   const params = useLocalSearchParams<{ token?: string; companyName?: string; maskedEmail?: string }>();
   const [token, setToken] = useState('');
@@ -53,22 +55,23 @@ export function InvitationActivateScreen() {
       validatePasswordPolicy({
         password,
         confirmPassword,
+        t,
       }),
-    [password, confirmPassword]
+    [password, confirmPassword, t]
   );
 
   const onActivate = async () => {
     const sanitizedToken = sanitizeAuthFlowToken(token);
     if (!sanitizedToken) {
-      setErrorText('Invitation token is missing.');
+      setErrorText(t('auth.invitationTokenMissing'));
       return;
     }
     if (!gdprConsent) {
-      setErrorText('GDPR consent is required.');
+      setErrorText(t('auth.gdprConsentRequired'));
       return;
     }
     if (!passwordValidation.valid) {
-      setErrorText(passwordValidation.errors[0] ?? 'Password is invalid.');
+      setErrorText(passwordValidation.errors[0] ?? t('auth.passwordInvalid'));
       return;
     }
 
@@ -89,7 +92,7 @@ export function InvitationActivateScreen() {
         role: response.role,
       });
 
-      Alert.alert('Invitation activated', 'Your account is ready. Please login to continue.');
+      Alert.alert(t('auth.invitationActivatedTitle'), t('auth.invitationActivatedMessage'));
       dispatch(clearInvitationFlowState());
       router.replace({
         pathname: '/login' as any,
@@ -101,23 +104,23 @@ export function InvitationActivateScreen() {
     } catch (error) {
       const parsed = parseAuthError(error);
       setFieldErrors(buildFieldErrorMapFromFieldErrors(parsed.fieldErrors));
-      setErrorText(mapBackendErrorCodeToMessage(parsed.code, parsed.message));
+      setErrorText(mapBackendErrorCodeToMessage(parsed.code, parsed.message, t));
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <ThemedText style={styles.title}>Activate Invitation</ThemedText>
+        <ThemedText style={styles.title}>{t('auth.activateInvitationTitle')}</ThemedText>
         <ThemedText style={styles.subtitle}>
-          Set a password, provide consent, and finish account activation.
+          {t('auth.activateInvitationSubtitle')}
         </ThemedText>
 
         <TextInput
           style={styles.input}
           value={password}
           onChangeText={setPassword}
-          placeholder="Password"
+          placeholder={t('auth.password')}
           placeholderTextColor="#94A3B8"
           secureTextEntry
           editable={!isLoading}
@@ -127,7 +130,7 @@ export function InvitationActivateScreen() {
           style={styles.input}
           value={confirmPassword}
           onChangeText={setConfirmPassword}
-          placeholder="Confirm password"
+          placeholder={t('auth.confirmPassword')}
           placeholderTextColor="#94A3B8"
           secureTextEntry
           editable={!isLoading}
@@ -139,7 +142,7 @@ export function InvitationActivateScreen() {
           style={styles.input}
           value={preferredLanguage}
           onChangeText={setPreferredLanguage}
-          placeholder="Preferred language (optional)"
+          placeholder={t('auth.preferredLanguageOptional')}
           placeholderTextColor="#94A3B8"
           autoCapitalize="none"
           editable={!isLoading}
@@ -150,14 +153,14 @@ export function InvitationActivateScreen() {
 
         <View style={styles.gdprRow}>
           <Switch value={gdprConsent} onValueChange={setGdprConsent} disabled={isLoading} />
-          <ThemedText style={styles.gdprText}>I consent to GDPR data processing.</ThemedText>
+          <ThemedText style={styles.gdprText}>{t('auth.gdprConsent')}</ThemedText>
         </View>
         {fieldErrors.gdprConsent ? <ThemedText style={styles.error}>{fieldErrors.gdprConsent}</ThemedText> : null}
 
         {errorText ? <ThemedText style={styles.error}>{errorText}</ThemedText> : null}
 
         <GradientButton
-          title={isLoading ? 'Activating...' : 'Activate Invitation'}
+          title={isLoading ? t('auth.activating') : t('auth.activateInvitation')}
           onPress={onActivate}
           disabled={isLoading}
         />

@@ -1,6 +1,33 @@
 import type { ApiErrorEnvelope } from '@/features/auth/types/contracts';
+import type { TranslationKey } from '@/common/localization';
 
-const CODE_TO_MESSAGE: Record<string, string> = {
+type Translate = (key: TranslationKey) => string;
+
+const CODE_TO_MESSAGE_KEY: Record<string, TranslationKey> = {
+  INVALID_CREDENTIALS: 'auth.error.invalidCredentials',
+  BAD_CREDENTIALS: 'auth.error.invalidCredentials',
+  ACCOUNT_LOCKED: 'auth.error.accountLocked',
+  NO_PLATFORM_ACCESS: 'auth.error.noPlatformAccess',
+  USER_PENDING: 'auth.error.userPending',
+  USER_SUSPENDED: 'auth.error.userSuspended',
+  USER_DEACTIVATED: 'auth.error.userDeactivated',
+  ROLE_ASSIGNMENT_NOT_FOUND: 'auth.error.roleAssignmentNotFound',
+  ROLE_ASSIGNMENT_INACTIVE: 'auth.error.roleAssignmentInactive',
+  ROLE_ASSIGNMENT_FORBIDDEN: 'auth.error.roleAssignmentForbidden',
+  INVALID_REFRESH_TOKEN: 'auth.error.sessionExpired',
+  REFRESH_TOKEN_REVOKED: 'auth.error.sessionExpired',
+  REFRESH_TOKEN_EXPIRED: 'auth.error.sessionExpired',
+  UNAUTHORIZED: 'auth.error.sessionExpired',
+  ACCESS_DENIED: 'auth.error.accessDenied',
+  RESET_TOKEN_INVALID: 'auth.error.resetTokenInvalid',
+  RESET_TOKEN_EXPIRED: 'auth.error.resetTokenExpired',
+  RESET_TOKEN_ALREADY_USED: 'auth.error.resetTokenAlreadyUsed',
+  INVITATION_TOKEN_INVALID: 'auth.error.invitationTokenInvalid',
+  INVITATION_TOKEN_EXPIRED: 'auth.error.invitationTokenExpired',
+  INVITATION_ALREADY_USED: 'auth.error.invitationAlreadyUsed',
+};
+
+const CODE_TO_FALLBACK_MESSAGE: Record<string, string> = {
   INVALID_CREDENTIALS: 'Invalid email or password',
   BAD_CREDENTIALS: 'Invalid email or password',
   ACCOUNT_LOCKED: 'Account temporarily locked. Try again later',
@@ -24,11 +51,15 @@ const CODE_TO_MESSAGE: Record<string, string> = {
   INVITATION_ALREADY_USED: 'This invitation has already been used. Please contact your administrator.',
 };
 
-export function mapBackendErrorCodeToMessage(code?: string, fallback?: string): string {
+export function mapBackendErrorCodeToMessage(code?: string, fallback?: string, t?: Translate): string {
+  const unknownMessage = t ? t('auth.error.unknown') : 'Something went wrong. Please try again.';
+
   if (!code) {
-    return fallback ?? 'Something went wrong. Please try again.';
+    return fallback ?? unknownMessage;
   }
-  return CODE_TO_MESSAGE[code] ?? fallback ?? 'Something went wrong. Please try again.';
+
+  const messageKey = CODE_TO_MESSAGE_KEY[code];
+  return messageKey && t ? t(messageKey) : CODE_TO_FALLBACK_MESSAGE[code] ?? fallback ?? unknownMessage;
 }
 
 export function buildFieldErrorMap(error: ApiErrorEnvelope | null): Record<string, string> {

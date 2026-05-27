@@ -12,6 +12,7 @@ import { useRouter } from 'expo-router';
 import { GradientText } from '@/common/components/gradient-text';
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts, Spacing } from '@/common/constants/theme';
+import { useLocalization } from '@/common/localization';
 import { useAppSelector } from '@/common/store/hooks';
 import { useSelectRoleMutation } from '@/features/auth/api/auth-api';
 import { selectAvailableContexts } from '@/features/auth/store/selectors';
@@ -20,6 +21,7 @@ import { parseAuthError } from '@/features/auth/utils/parse-auth-error';
 
 export function RoleAssignmentScreen() {
   const router = useRouter();
+  const { t } = useLocalization();
   const contexts = useAppSelector(selectAvailableContexts);
   const [selectRole, { isLoading }] = useSelectRoleMutation();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -46,7 +48,7 @@ export function RoleAssignmentScreen() {
       const parsed = parseAuthError(err);
       const maybeCode = parsed.code;
       const maybeMessage = parsed.message;
-      setErrorMessage(mapBackendErrorCodeToMessage(maybeCode, maybeMessage));
+      setErrorMessage(mapBackendErrorCodeToMessage(maybeCode, maybeMessage, t));
       setSelectedAssignmentId(null);
     }
   };
@@ -54,15 +56,15 @@ export function RoleAssignmentScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
-        <GradientText text="Choose Workspace" style={styles.title} />
+        <GradientText text={t('auth.chooseWorkspace')} style={styles.title} />
         <ThemedText style={styles.subtitle}>
-          Select the role assignment you want to use in WorkNest Mobile.
+          {t('auth.chooseWorkspaceSubtitle')}
         </ThemedText>
 
         <View style={styles.list}>
           {rows.length === 0 ? (
             <ThemedText style={styles.errorText}>
-              No role assignments available. Please contact your administrator.
+              {t('auth.noRoleAssignments')}
             </ThemedText>
           ) : null}
           {rows.map((row) => {
@@ -84,7 +86,7 @@ export function RoleAssignmentScreen() {
                 {active ? (
                   <ActivityIndicator color="#2B7FFF" />
                 ) : (
-                  <ThemedText style={styles.cta}>Select</ThemedText>
+                  <ThemedText style={styles.cta}>{t('auth.select')}</ThemedText>
                 )}
               </Pressable>
             );

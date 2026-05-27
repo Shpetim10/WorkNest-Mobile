@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useRouter } from 'expo-router';
 import {
   ActivityIndicator,
   Image,
@@ -33,6 +34,7 @@ import { useLocalization } from '@/common/localization';
 import { useProfileScreen } from '../hooks/use-profile-screen';
 
 export function ProfileScreen() {
+  const router = useRouter();
   const insets = useSafeAreaInsets();
   const { profile, isLoading, handleLogout, refetch } = useProfileScreen();
   const { language, languageLabel, languages, setLanguage, t } = useLocalization();
@@ -215,7 +217,11 @@ export function ProfileScreen() {
         </View>
 
         {/* Change Password Card */}
-        <TouchableOpacity style={styles.actionCard} activeOpacity={0.8}>
+        <TouchableOpacity 
+          style={styles.actionCard} 
+          activeOpacity={0.8}
+          onPress={() => router.push('/change-password')}
+        >
           <View style={styles.actionCardLeft}>
             <View style={[styles.iconBox, { backgroundColor: '#F0FDF4' }]}>
               <Lock size={20} color="#10B981" strokeWidth={2.2} />

@@ -18,7 +18,9 @@ import { Fonts, Spacing } from '@/common/constants/theme';
 import { useLocalization } from '@/common/localization';
 import { LoginForm } from '@/features/auth/components/login-form';
 
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const LOGO_VISUAL_CENTER_OFFSET_RATIO = 9.5 / 230;
+const LOGO_WIDTH_RATIO = 0.7;
 
 export function LoginScreen() {
   const { t } = useLocalization();
@@ -104,9 +106,14 @@ const styles = StyleSheet.create({
     marginTop: 0,
   },
   logo: {
-    width: '70%',
+    width: SCREEN_WIDTH * LOGO_WIDTH_RATIO,
     aspectRatio: 230 / 164,
     alignSelf: 'center',
+    transform: [
+      {
+        translateX: -SCREEN_WIDTH * LOGO_WIDTH_RATIO * LOGO_VISUAL_CENTER_OFFSET_RATIO,
+      },
+    ],
   },
   cardContainer: {
     flex: 1,

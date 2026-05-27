@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View, RefreshControl } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/common/components/themed-text';
 import { ThemedView } from '@/common/components/themed-view';
-import { Fonts } from '@/common/constants/theme';
+import { BottomTabInset, Fonts, Spacing } from '@/common/constants/theme';
 import { useLocalization } from '@/common/localization';
 import { useAnnouncementsScreen } from '../hooks/use-announcements-screen';
 import type { MobileAnnouncementListItem } from '../types';
@@ -13,6 +14,7 @@ import { AnnouncementDetailSheet } from './AnnouncementDetailSheet';
 
 export function AnnouncementsScreen() {
   const { t } = useLocalization();
+  const insets = useSafeAreaInsets();
   const {
     announcements,
     unreadCount,
@@ -27,6 +29,7 @@ export function AnnouncementsScreen() {
   } = useAnnouncementsScreen();
 
   const [refreshing, setRefreshing] = useState(false);
+  const bottomListPadding = BottomTabInset + insets.bottom + Spacing.four;
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -61,7 +64,7 @@ export function AnnouncementsScreen() {
               <ThemedText style={styles.emptyText}>{t('updates.noAnnouncements')}</ThemedText>
             </View>
           ) : (
-            <View style={styles.listContent}>
+            <View style={[styles.listContent, { paddingBottom: bottomListPadding }]}>
               {announcements.map((item: MobileAnnouncementListItem) => (
                 <AnnouncementCard key={item.id} item={item} onPress={openDetail} />
               ))}
@@ -123,7 +126,6 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: 28,
-    paddingBottom: 100,
     gap: 12,
   },
 });

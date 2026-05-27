@@ -4,6 +4,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts } from '@/common/constants/theme';
+import { useLocalization } from '@/common/localization';
 import type { LeaveType } from '../types';
 
 interface LeaveBalanceCardProps {
@@ -13,6 +14,8 @@ interface LeaveBalanceCardProps {
 }
 
 export function LeaveBalanceCard({ title, value, type = 'VACATION' }: LeaveBalanceCardProps) {
+  const { t } = useLocalization();
+
   const getIconConfig = () => {
     switch (type) {
       case 'SICK':
@@ -44,7 +47,7 @@ export function LeaveBalanceCard({ title, value, type = 'VACATION' }: LeaveBalan
           </View>
           <View style={styles.textBlock}>
             <ThemedText style={styles.title}>{title}</ThemedText>
-            <ThemedText style={styles.subtitle}>Available days</ThemedText>
+            <ThemedText style={styles.subtitle}>{t('requests.availableDays')}</ThemedText>
           </View>
         </View>
         <ThemedText style={styles.value}>{value}</ThemedText>

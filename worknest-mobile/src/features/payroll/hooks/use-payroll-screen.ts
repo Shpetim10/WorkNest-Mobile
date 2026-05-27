@@ -4,6 +4,7 @@ import { Directory, File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 
 import { API_BASE_URL } from '@/common/config/network';
+import { useLocalization } from '@/common/localization';
 import { useAppDispatch, useAppSelector } from '@/common/store/hooks';
 import { openPayslipModal, closePayslipModal } from '../store/payroll-slice';
 import { selectIsPayslipModalVisible, selectSelectedPayrollPeriod } from '../store/selectors';
@@ -29,6 +30,7 @@ function getPayslipUrl({ year, month }: PayrollPeriodKey): string {
 
 export function usePayrollScreen() {
   const dispatch = useAppDispatch();
+  const { t } = useLocalization();
   const isModalVisible = useAppSelector(selectIsPayslipModalVisible);
   const selectedPeriod = useAppSelector(selectSelectedPayrollPeriod);
   const accessToken = useAppSelector((state) => state.auth.accessToken);
@@ -105,7 +107,7 @@ export function usePayrollScreen() {
     }
 
     if (!accessToken) {
-      Alert.alert('Session required', 'Please sign in again before downloading your payslip.');
+      Alert.alert(t('payroll.sessionRequiredTitle'), t('payroll.sessionRequiredMessage'));
       return;
     }
 
@@ -117,7 +119,7 @@ export function usePayrollScreen() {
         });
 
         if (!response.ok) {
-          throw new Error('The payslip could not be downloaded right now.');
+          throw new Error(t('payroll.downloadUnavailableMessage'));
         }
 
         const blob = await response.blob();
@@ -128,7 +130,7 @@ export function usePayrollScreen() {
         anchor.click();
         URL.revokeObjectURL(objectUrl);
       } catch (error) {
-        Alert.alert('Download failed', getErrorMessage(error, 'Unable to download payslip.'));
+        Alert.alert(t('payroll.downloadFailedTitle'), getErrorMessage(error, t('payroll.downloadFailedMessage')));
       } finally {
         setIsDownloading(false);
       }
@@ -154,20 +156,20 @@ export function usePayrollScreen() {
         await Sharing.shareAsync(downloaded.uri, {
           mimeType: 'application/pdf',
           UTI: 'com.adobe.pdf',
-          dialogTitle: 'Open Payslip PDF',
+          dialogTitle: t('payroll.openPdfTitle'),
         });
       } else {
-        Alert.alert('Saved', 'Payslip saved to device cache.');
+        Alert.alert(t('payroll.savedTitle'), t('payroll.savedMessage'));
       }
     } catch (error) {
       Alert.alert(
-        'Download failed',
-        getErrorMessage(error, 'Unable to download the payslip for this period.')
+        t('payroll.downloadFailedTitle'),
+        getErrorMessage(error, t('payroll.downloadFailedPeriodMessage'))
       );
     } finally {
       setIsDownloading(false);
     }
-  }, [accessToken, selectedPeriod]);
+  }, [accessToken, selectedPeriod, t]);
 
   return {
     periods,

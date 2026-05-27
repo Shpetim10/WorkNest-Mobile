@@ -47,7 +47,7 @@ export function HomeScreen() {
     setRefreshing(true);
     try {
       await refetchList();
-    } catch (error) {
+    } catch {
       // ignore
     } finally {
       setRefreshing(false);
@@ -81,7 +81,12 @@ export function HomeScreen() {
         >
           <View style={styles.headerRow}>
             {/* Profile Info */}
-            <View style={styles.profileSection}>
+            <TouchableOpacity
+              style={styles.profileSection}
+              activeOpacity={0.82}
+              onPress={() => router.push('/profile' as any)}
+              accessibilityRole="button"
+            >
               <View style={styles.avatarContainer}>
                 {profile.profilePictureUrl ? (
                   <Image
@@ -99,7 +104,7 @@ export function HomeScreen() {
                 <ThemedText style={styles.greetingText}>{t('home.hello')}</ThemedText>
                 <ThemedText style={styles.nameText}>{profile.firstName}</ThemedText>
               </View>
-            </View>
+            </TouchableOpacity>
 
             {/* Bell Notification Button */}
             <TouchableOpacity

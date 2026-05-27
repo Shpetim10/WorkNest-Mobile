@@ -1,16 +1,14 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { StyleSheet, TouchableOpacity, View, Text, useColorScheme } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
-import { Fonts, Colors } from '@/common/constants/theme';
+import { Fonts } from '@/common/constants/theme';
 import { useLocalization } from '@/common/localization';
 
 export default function AppTabs() {
-  const scheme = useColorScheme();
-  const colors = Colors[scheme ?? 'light'];
   const { t } = useLocalization();
 
   return (
@@ -25,15 +23,15 @@ export default function AppTabs() {
       <Tabs.Screen name="requests" options={{ title: t('nav.requests') }} />
       <Tabs.Screen name="payroll" options={{ title: t('nav.payroll') }} />
       <Tabs.Screen name="announcements" options={{ title: t('nav.updates') }} />
-      <Tabs.Screen name="profile" options={{ title: t('nav.profile') }} />
+      <Tabs.Screen name="profile" options={{ title: t('nav.profile'), href: null }} />
     </Tabs>
   );
 }
 
-function CustomTabBar({ state, descriptors, navigation }: any) {
+function CustomTabBar({ state, navigation }: any) {
   const insets = useSafeAreaInsets();
   const { t } = useLocalization();
-  const allowedRoutes = ['index', 'attendance', 'requests', 'payroll', 'announcements', 'profile'];
+  const allowedRoutes = ['index', 'attendance', 'requests', 'payroll', 'announcements'];
 
   const getIcon = (routeName: string, focused: boolean) => {
     switch (routeName) {
@@ -47,8 +45,6 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
         return focused ? 'cash' : 'cash-outline';
       case 'announcements':
         return focused ? 'notifications' : 'notifications-outline';
-      case 'profile':
-        return focused ? 'person' : 'person-outline';
       default:
         return 'help-circle-outline';
     }
@@ -66,8 +62,6 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
         return t('nav.payroll');
       case 'announcements':
         return t('nav.updates');
-      case 'profile':
-        return t('nav.profile');
       default:
         return routeName;
     }
@@ -110,11 +104,11 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
                 end={{ x: 1, y: 1 }}
                 style={styles.activePill}
               >
-                <Ionicons name={iconName as any} size={22} color="#FFFFFF" />
+                <Ionicons name={iconName as any} size={20} color="#FFFFFF" />
               </LinearGradient>
             ) : (
               <View style={styles.inactiveIconWrapper}>
-                <Ionicons name={iconName as any} size={22} color="#94A3B8" />
+                <Ionicons name={iconName as any} size={20} color="#94A3B8" />
               </View>
             )}
             <Text style={[styles.label, isFocused ? styles.labelActive : styles.labelInactive]}>
@@ -131,16 +125,17 @@ const styles = StyleSheet.create({
   tabBarContainer: {
     flexDirection: 'row',
     backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    paddingTop: 12,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingTop: 10,
+    paddingHorizontal: 6,
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
     shadowColor: '#000000',
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
     shadowOffset: { width: 0, height: -4 },
     elevation: 10,
     borderWidth: 1,
@@ -148,25 +143,27 @@ const styles = StyleSheet.create({
   },
   tabButton: {
     flex: 1,
+    minWidth: 0,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    gap: 3,
+    paddingVertical: 2,
   },
   activePill: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
+    width: 42,
+    height: 40,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#2B7FFF',
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 4,
+    shadowOpacity: 0.16,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 2,
   },
   inactiveIconWrapper: {
-    width: 48,
-    height: 48,
+    width: 42,
+    height: 40,
     justifyContent: 'center',
     alignItems: 'center',
   },

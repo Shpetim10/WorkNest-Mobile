@@ -153,14 +153,14 @@ async function getCurrentPositionWithTimeout(): Promise<Location.LocationObject>
   });
 }
 
-function askLocationRetry(): Promise<boolean> {
+function askLocationRetry(t: ReturnType<typeof useLocalization>['t']): Promise<boolean> {
   return new Promise<boolean>((resolve) => {
     Alert.alert(
-      'Location Unavailable',
-      "We couldn't get your location in time. Would you like to retry?",
+      t('attendance.locationUnavailableTitle'),
+      t('attendance.locationUnavailableMessage'),
       [
-        { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
-        { text: 'Retry', onPress: () => resolve(true) },
+        { text: t('common.cancel'), style: 'cancel', onPress: () => resolve(false) },
+        { text: t('common.retry'), onPress: () => resolve(true) },
       ]
     );
   });
@@ -319,7 +319,7 @@ export function useAttendanceScreen(): UseAttendanceScreenResult {
 
             if (!qrValidation.valid) {
               throw new Error(
-                qrValidation.message || 'Invalid QR code. Please scan the correct site QR.'
+                qrValidation.message || t('attendance.invalidQr')
               );
             }
           } catch (err) {
@@ -327,7 +327,7 @@ export function useAttendanceScreen(): UseAttendanceScreenResult {
               // Surface validation errors as banner; abort so user can retry cleanly
               setBanner({
                 type: 'error',
-                text: err.message || 'QR validation failed. Please try again.',
+                text: err.message || t('attendance.qrValidationFailed'),
               });
               throw new Error('SCAN_CANCELLED');
             }
@@ -354,7 +354,7 @@ export function useAttendanceScreen(): UseAttendanceScreenResult {
               throw error;
             }
 
-            const shouldRetry = await askLocationRetry();
+            const shouldRetry = await askLocationRetry(t);
             if (!shouldRetry) {
               throw new Error('LOCATION_TIMEOUT');
             }
@@ -391,12 +391,12 @@ export function useAttendanceScreen(): UseAttendanceScreenResult {
       if (response.warnings?.length) {
         setBanner({
           type: 'warning',
-          text: response.warnings[0]?.message ?? 'Attendance recorded with warnings.',
+          text: response.warnings[0]?.message ?? t('attendance.recordedWithWarnings'),
         });
       } else {
         setBanner({
           type: 'success',
-          text: response.message ?? 'Attendance recorded successfully.',
+          text: response.message ?? t('attendance.recordedSuccessfully'),
         });
       }
 
@@ -410,7 +410,7 @@ export function useAttendanceScreen(): UseAttendanceScreenResult {
       if (error instanceof Error && error.message === 'LOCATION_PERMISSION_DENIED') {
         setBanner({
           type: 'error',
-          text: 'Location is required to record attendance for this site.',
+          text: t('attendance.locationRequiredError'),
         });
         return;
       }
@@ -418,14 +418,14 @@ export function useAttendanceScreen(): UseAttendanceScreenResult {
       if (error instanceof Error && error.message === 'LOCATION_TIMEOUT') {
         setBanner({
           type: 'error',
-          text: "We couldn't get your location in time. Please retry when GPS signal is stable.",
+          text: t('attendance.locationTimeoutError'),
         });
         return;
       }
 
       setBanner({
         type: 'error',
-        text: getFriendlyAttendanceError(error),
+        text: getFriendlyAttendanceError(error, t),
       });
     } finally {
       submittingRef.current = false;
@@ -448,7 +448,7 @@ export function useAttendanceScreen(): UseAttendanceScreenResult {
     selectedDay,
     scannerVisible,
     scannerError,
-    banner: hasLoadError && !today ? { type: 'error', text: "We couldn't load attendance. Please retry." } : banner,
+    banner: hasLoadError && !today ? { type: 'error', text: t('attendance.loadError') } : banner,
     actionButtonLabel: actionCopy.label,
     actionButtonHint: actionCopy.hint,
     actionDisabled: actionCopy.disabled || workflowBusy || isLoadingToday,

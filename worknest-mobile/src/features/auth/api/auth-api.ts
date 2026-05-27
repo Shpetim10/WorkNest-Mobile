@@ -35,6 +35,8 @@ import type {
   ActivateInvitationResponseData,
   ApiErrorEnvelope,
   ApiSuccessEnvelope,
+  ChangePasswordRequest,
+  ChangePasswordResponseData,
   ForgotPasswordRequest,
   ForgotPasswordResponseData,
   InvitationPreflightData,
@@ -216,7 +218,7 @@ const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, AuthError> =
 export const authApi = createApi({
   reducerPath: 'authApi',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['AttendanceToday', 'AttendanceMonth', 'LeaveBalance', 'LeaveRequests', 'Announcements', 'AnnouncementUnreadCount'],
+  tagTypes: ['AttendanceToday', 'AttendanceMonth', 'LeaveBalance', 'LeaveRequests', 'Announcements', 'AnnouncementUnreadCount', 'Notifications', 'NotificationUnreadCount'],
   endpoints: (builder) => ({
     login: builder.mutation<LoginResponseData, { email: string; password: string }>({
       query: ({ email, password }) => ({
@@ -396,6 +398,14 @@ export const authApi = createApi({
         }
       },
     }),
+    changePassword: builder.mutation<ChangePasswordResponseData, ChangePasswordRequest>({
+      query: (body) => ({
+        url: '/api/v1/auth/change-password',
+        method: 'PUT',
+        body,
+      }),
+      transformResponse: (response: ApiSuccessEnvelope<ChangePasswordResponseData>) => response.data,
+    }),
   }),
 });
 
@@ -408,6 +418,8 @@ export const {
   useResetPasswordMutation,
   useValidateInvitationTokenMutation,
   useActivateInvitationMutation,
+  useChangePasswordMutation,
 } = authApi;
 
 export type { AuthError };
+

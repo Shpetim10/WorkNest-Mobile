@@ -50,7 +50,7 @@ export function LoginForm() {
     } catch (error) {
       const parsedError = parseAuthError(error);
       setFieldErrors(buildFieldErrorMapFromFieldErrors(parsedError.fieldErrors));
-      setErrorMessage(mapBackendErrorCodeToMessage(parsedError.code, parsedError.message));
+      setErrorMessage(mapBackendErrorCodeToMessage(parsedError.code, parsedError.message, t));
     }
   };
 

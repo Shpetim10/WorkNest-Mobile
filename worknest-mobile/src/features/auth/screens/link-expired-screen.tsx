@@ -13,11 +13,13 @@ import { ExpiredIcon } from '@/common/components/expired-icon';
 import { BoldTitle } from '@/common/components/bold-title';
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts, Spacing } from '@/common/constants/theme';
+import { useLocalization } from '@/common/localization';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export function LinkExpiredScreen() {
   const router = useRouter();
+  const { t } = useLocalization();
 
   useEffect(() => {
     // Automatically redirect back to login after 3 seconds
@@ -60,17 +62,17 @@ export function LinkExpiredScreen() {
 
             <View style={styles.contentContainer}>
               <BoldTitle 
-                text="Link Expired!" 
+                text={t('auth.linkExpiredTitle')}
                 style={styles.title} 
               />
               
               <ThemedText style={styles.subtitle}>
-                This password reset link has expired. Please request a new one to continue.
+                {t('auth.linkExpiredSubtitle')}
               </ThemedText>
 
               <View style={styles.statusBox}>
                 <ThemedText style={styles.statusText}>
-                  Redirecting to login...
+                  {t('auth.redirectingToLogin')}
                 </ThemedText>
               </View>
             </View>

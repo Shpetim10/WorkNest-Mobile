@@ -5,6 +5,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { GradientButton } from '@/common/components/gradient-button';
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts, Spacing } from '@/common/constants/theme';
+import { useLocalization } from '@/common/localization';
 import { useAppDispatch, useAppSelector } from '@/common/store/hooks';
 import { useValidateInvitationTokenMutation } from '@/features/auth/api/auth-api';
 import { clearInvitationFlowState, setInvitationToken } from '@/features/auth/store/auth-slice';
@@ -25,6 +26,7 @@ const INVITATION_LINK_ERROR_CODES = new Set([
 
 export function InvitationPreflightScreen() {
   const router = useRouter();
+  const { t } = useLocalization();
   const dispatch = useAppDispatch();
   const params = useLocalSearchParams<{ token?: string }>();
   const invitation = useAppSelector(selectInvitationState);
@@ -51,7 +53,7 @@ export function InvitationPreflightScreen() {
   const onValidate = async () => {
     const token = sanitizeAuthFlowToken(tokenInput);
     if (!token) {
-      setErrorText('Invitation token is required.');
+      setErrorText(t('auth.invitationTokenRequired'));
       return;
     }
 
@@ -65,7 +67,7 @@ export function InvitationPreflightScreen() {
     } catch (error) {
       const parsed = parseAuthError(error);
       setFieldErrors(buildFieldErrorMapFromFieldErrors(parsed.fieldErrors));
-      setErrorText(mapBackendErrorCodeToMessage(parsed.code, parsed.message));
+      setErrorText(mapBackendErrorCodeToMessage(parsed.code, parsed.message, t));
       setInvalidTokenUi(Boolean(parsed.code && INVITATION_LINK_ERROR_CODES.has(parsed.code)));
     }
   };
@@ -84,14 +86,14 @@ export function InvitationPreflightScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <ThemedText style={styles.title}>Invitation Token</ThemedText>
+        <ThemedText style={styles.title}>{t('auth.invitationTokenTitle')}</ThemedText>
         <ThemedText style={styles.subtitle}>
-          Validate your invitation before activating your account.
+          {t('auth.invitationPreflightSubtitle')}
         </ThemedText>
 
         <TextInput
           style={styles.input}
-          placeholder="Invitation token"
+          placeholder={t('auth.invitationToken')}
           placeholderTextColor="#94A3B8"
           value={tokenInput}
           onChangeText={setTokenInput}
@@ -101,7 +103,7 @@ export function InvitationPreflightScreen() {
         {fieldErrors.token ? <ThemedText style={styles.error}>{fieldErrors.token}</ThemedText> : null}
 
         <GradientButton
-          title={isLoading ? 'Validating...' : 'Validate Invitation'}
+          title={isLoading ? t('auth.validating') : t('auth.validateInvitation')}
           onPress={onValidate}
           disabled={isLoading}
         />
@@ -110,22 +112,22 @@ export function InvitationPreflightScreen() {
         {errorText ? <ThemedText style={styles.error}>{errorText}</ThemedText> : null}
         {invalidTokenUi ? (
           <TouchableOpacity onPress={() => setTokenInput('')}>
-            <ThemedText type="link">Try another token</ThemedText>
+            <ThemedText type="link">{t('auth.tryAnotherToken')}</ThemedText>
           </TouchableOpacity>
         ) : null}
 
         {invitation.preflight ? (
           <View style={styles.preflightCard}>
             <ThemedText style={styles.preflightTitle}>{invitation.preflight.companyName}</ThemedText>
-            <ThemedText style={styles.preflightMeta}>Email: {invitation.preflight.maskedEmail}</ThemedText>
-            <ThemedText style={styles.preflightMeta}>Role: {invitation.preflight.platformRole}</ThemedText>
+            <ThemedText style={styles.preflightMeta}>{t('common.email')}: {invitation.preflight.maskedEmail}</ThemedText>
+            <ThemedText style={styles.preflightMeta}>{t('common.role')}: {invitation.preflight.platformRole}</ThemedText>
             {invitation.preflight.invitedJobTitle ? (
               <ThemedText style={styles.preflightMeta}>
-                Job title: {invitation.preflight.invitedJobTitle}
+                {t('common.jobTitle')}: {invitation.preflight.invitedJobTitle}
               </ThemedText>
             ) : null}
 
-            <GradientButton title="Continue to Activation" onPress={onContinue} containerStyle={styles.continue} />
+            <GradientButton title={t('auth.continueToActivation')} onPress={onContinue} containerStyle={styles.continue} />
           </View>
         ) : null}
       </View>

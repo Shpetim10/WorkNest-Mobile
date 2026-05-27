@@ -12,9 +12,11 @@ import {
 import { ThemedText } from '@/common/components/themed-text';
 import { ThemedView } from '@/common/components/themed-view';
 import { Fonts, Spacing } from '@/common/constants/theme';
+import { useLocalization } from '@/common/localization';
 
 export default function AttendanceScreen() {
   const attendance = useAttendanceScreen();
+  const { t } = useLocalization();
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = async () => {
@@ -86,13 +88,13 @@ export default function AttendanceScreen() {
           {attendance.isInitialLoading ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="small" color="#2B7FFF" />
-              <ThemedText style={styles.loadingText}>Loading attendance data...</ThemedText>
+              <ThemedText style={styles.loadingText}>{t('attendance.loadingData')}</ThemedText>
             </View>
           ) : null}
 
           <TouchableOpacity style={styles.retryButton} onPress={attendance.retryAll}>
             <ThemedText style={styles.retryText}>
-              {attendance.isRefreshingToday ? 'Refreshing...' : 'Retry Sync'}
+              {attendance.isRefreshingToday ? t('attendance.refreshing') : t('attendance.retrySync')}
             </ThemedText>
           </TouchableOpacity>
         </View>

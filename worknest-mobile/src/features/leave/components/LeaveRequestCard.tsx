@@ -1,9 +1,9 @@
-import React from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Calendar, XCircle } from 'lucide-react-native';
+import React, { useState } from 'react';
+import { Modal, Pressable, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Calendar, X, XCircle } from 'lucide-react-native';
 
 import { ThemedText } from '@/common/components/themed-text';
-import { Fonts } from '@/common/constants/theme';
+import { Fonts, Spacing } from '@/common/constants/theme';
 import { useLocalization } from '@/common/localization';
 import type { LeaveRequestDto } from '../types';
 
@@ -12,8 +12,25 @@ interface LeaveRequestCardProps {
   onCancel?: (id: string) => void;
 }
 
+function startOfDay(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function parseDateOnly(dateStr: string) {
+  const [year, month, day] = dateStr.split('-').map(Number);
+
+  if (!year || !month || !day) {
+    const fallbackDate = new Date(dateStr);
+    return Number.isNaN(fallbackDate.getTime()) ? null : fallbackDate;
+  }
+
+  return new Date(year, month - 1, day);
+}
+
 export function LeaveRequestCard({ request, onCancel }: LeaveRequestCardProps) {
   const { t } = useLocalization();
+  const [isDetailsVisible, setIsDetailsVisible] = useState(false);
+
   const leaveTypeLabels: Record<string, string> = {
     VACATION: t('requests.vacation'),
     SICK: t('requests.sickLeave'),
@@ -47,60 +64,155 @@ export function LeaveRequestCard({ request, onCancel }: LeaveRequestCardProps) {
     return `${months[date.getMonth()]} ${date.getDate()}`;
   };
 
+  const formatDateTime = (dateStr: string | null) => {
+    if (!dateStr) {
+      return null;
+    }
+
+    const date = new Date(dateStr);
+
+    if (Number.isNaN(date.getTime())) {
+      return dateStr;
+    }
+
+    return date.toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  };
+
   const dateRange =
     request.startDate === request.endDate
       ? formatDate(request.startDate)
       : `${formatDate(request.startDate)} - ${formatDate(request.endDate)}`;
 
   const duration = `${request.daysCount} ${request.daysCount === 1 ? t('common.day') : t('common.days')}`;
+  const detailText =
+    request.status === 'REJECTED'
+      ? request.rejectionReason
+      : request.status === 'APPROVED'
+        ? request.approvalNote
+        : null;
+  const detailLabel =
+    request.status === 'REJECTED' ? t('requests.reason') : t('requests.noteFromApprover');
+  const startDate = parseDateOnly(request.startDate);
+  const canCancel =
+    request.status === 'PENDING' ||
+    (request.status === 'APPROVED' &&
+      startDate !== null &&
+      startOfDay(new Date()) < startOfDay(startDate));
 
   return (
-    <View style={styles.card}>
-      <View style={styles.topRow}>
-        <ThemedText style={styles.title}>
-          {leaveTypeLabels[request.leaveType] ?? request.leaveType}
-        </ThemedText>
-        <View style={[styles.statusPill, { backgroundColor: statusConfig.bg }]}>
-          <ThemedText style={[styles.statusText, { color: statusConfig.text }]}>
-            {statusConfig.label}
+    <>
+      <View style={styles.card}>
+        <View style={styles.topRow}>
+          <ThemedText style={styles.title}>
+            {leaveTypeLabels[request.leaveType] ?? request.leaveType}
+          </ThemedText>
+          <View style={[styles.statusPill, { backgroundColor: statusConfig.bg }]}>
+            <ThemedText style={[styles.statusText, { color: statusConfig.text }]}>
+              {statusConfig.label}
+            </ThemedText>
+          </View>
+        </View>
+
+        <View style={styles.detailsRow}>
+          <Calendar size={14} color="#6A7282" />
+          <ThemedText style={styles.detailsText}>
+            {dateRange} - {duration}
           </ThemedText>
         </View>
+
+        {detailText ? (
+          <View style={request.status === 'REJECTED' ? styles.rejectionRow : styles.approvalNoteRow}>
+            <ThemedText
+              style={request.status === 'REJECTED' ? styles.rejectionText : styles.approvalNoteText}
+              numberOfLines={3}
+            >
+              {detailLabel}: {detailText}
+            </ThemedText>
+            <TouchableOpacity
+              style={styles.readMoreButton}
+              onPress={() => setIsDetailsVisible(true)}
+              activeOpacity={0.7}
+            >
+              <ThemedText style={styles.readMoreText}>{t('requests.readMore')}</ThemedText>
+            </TouchableOpacity>
+          </View>
+        ) : null}
+
+        {canCancel && onCancel && (
+          <TouchableOpacity
+            style={styles.cancelRow}
+            onPress={() => onCancel(request.id)}
+            activeOpacity={0.7}
+          >
+            <XCircle size={14} color="#DC2626" />
+            <ThemedText style={styles.cancelText}>{t('requests.cancelRequest')}</ThemedText>
+          </TouchableOpacity>
+        )}
       </View>
 
-      <View style={styles.detailsRow}>
-        <Calendar size={14} color="#6A7282" />
-        <ThemedText style={styles.detailsText}>
-          {dateRange}  •  {duration}
-        </ThemedText>
-      </View>
+      <Modal
+        transparent
+        visible={isDetailsVisible}
+        animationType="fade"
+        onRequestClose={() => setIsDetailsVisible(false)}
+      >
+        <View style={styles.modalRoot}>
+          <Pressable style={styles.modalBackdrop} onPress={() => setIsDetailsVisible(false)} />
+          <View style={styles.detailSheet}>
+            <View style={styles.sheetHandle} />
+            <View style={styles.detailHeader}>
+              <ThemedText style={styles.detailTitle}>{t('requests.requestDetails')}</ThemedText>
+              <TouchableOpacity
+                style={styles.detailCloseButton}
+                onPress={() => setIsDetailsVisible(false)}
+                activeOpacity={0.8}
+              >
+                <X size={20} color="#64748B" />
+              </TouchableOpacity>
+            </View>
 
-      {request.status === 'REJECTED' && request.rejectionReason && (
-        <View style={styles.rejectionRow}>
-          <ThemedText style={styles.rejectionText}>
-            {t('requests.reason')}: {request.rejectionReason}
-          </ThemedText>
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.detailContent}>
+              <View style={styles.detailRow}>
+                <ThemedText style={styles.detailLabel}>{t('requests.leaveType')}</ThemedText>
+                <ThemedText style={styles.detailValue}>{leaveTypeLabels[request.leaveType] ?? request.leaveType}</ThemedText>
+              </View>
+              <View style={styles.detailRow}>
+                <ThemedText style={styles.detailLabel}>{t('requests.dateRange')}</ThemedText>
+                <ThemedText style={styles.detailValue}>{dateRange}</ThemedText>
+              </View>
+              <View style={styles.detailRow}>
+                <ThemedText style={styles.detailLabel}>{t('requests.status')}</ThemedText>
+                <ThemedText style={styles.detailValue}>{statusConfig.label}</ThemedText>
+              </View>
+              <View style={styles.detailRow}>
+                <ThemedText style={styles.detailLabel}>{t('requests.requestedDays')}</ThemedText>
+                <ThemedText style={styles.detailValue}>{duration}</ThemedText>
+              </View>
+              <View style={styles.detailRow}>
+                <ThemedText style={styles.detailLabel}>{t('requests.createdAt')}</ThemedText>
+                <ThemedText style={styles.detailValue}>{formatDateTime(request.createdAt) ?? '-'}</ThemedText>
+              </View>
+              {request.reviewedAt ? (
+                <View style={styles.detailRow}>
+                  <ThemedText style={styles.detailLabel}>{t('requests.reviewedAt')}</ThemedText>
+                  <ThemedText style={styles.detailValue}>{formatDateTime(request.reviewedAt)}</ThemedText>
+                </View>
+              ) : null}
+              {detailText ? (
+                <View style={styles.noteBlock}>
+                  <ThemedText style={styles.noteLabel}>{detailLabel}</ThemedText>
+                  <ThemedText style={styles.noteText}>{detailText}</ThemedText>
+                </View>
+              ) : null}
+            </ScrollView>
+          </View>
         </View>
-      )}
-
-      {request.status === 'APPROVED' && request.approvalNote && (
-        <View style={styles.approvalNoteRow}>
-          <ThemedText style={styles.approvalNoteText}>
-            {t('requests.noteFromApprover')}: {request.approvalNote}
-          </ThemedText>
-        </View>
-      )}
-
-      {(request.status === 'PENDING' || request.status === 'APPROVED') && onCancel && (
-        <TouchableOpacity
-          style={styles.cancelRow}
-          onPress={() => onCancel(request.id)}
-          activeOpacity={0.7}
-        >
-          <XCircle size={14} color="#DC2626" />
-          <ThemedText style={styles.cancelText}>{t('requests.cancelRequest')}</ThemedText>
-        </TouchableOpacity>
-      )}
-    </View>
+      </Modal>
+    </>
   );
 }
 
@@ -119,9 +231,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 12,
     marginBottom: 10,
   },
   title: {
+    flex: 1,
     fontFamily: Fonts.sf.bold,
     fontWeight: '700',
     fontSize: 18,
@@ -145,8 +259,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+    minWidth: 0,
   },
   detailsText: {
+    flex: 1,
     fontFamily: Fonts.sf.regular,
     fontSize: 14,
     lineHeight: 20,
@@ -170,6 +286,15 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     color: '#15803D',
   },
+  readMoreButton: {
+    alignSelf: 'flex-start',
+    marginTop: 6,
+  },
+  readMoreText: {
+    fontFamily: Fonts.sf.semibold,
+    fontSize: 13,
+    color: '#2B7FFF',
+  },
   cancelRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -181,5 +306,102 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.sf.semibold,
     fontSize: 13,
     color: '#DC2626',
+  },
+  modalRoot: {
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+  modalBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(15, 23, 42, 0.35)',
+  },
+  detailSheet: {
+    maxHeight: '82%',
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 28,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 10,
+  },
+  sheetHandle: {
+    width: 42,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#E2E8F0',
+    alignSelf: 'center',
+    marginBottom: 12,
+  },
+  detailHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 16,
+    marginBottom: 16,
+  },
+  detailTitle: {
+    flex: 1,
+    fontFamily: Fonts.sf.bold,
+    fontWeight: '700',
+    fontSize: 20,
+    color: '#1E2939',
+  },
+  detailCloseButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#F8FAFC',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  detailContent: {
+    paddingBottom: Spacing.two,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+  },
+  detailLabel: {
+    flex: 1,
+    fontFamily: Fonts.sf.semibold,
+    fontSize: 14,
+    color: '#64748B',
+  },
+  detailValue: {
+    flex: 1,
+    fontFamily: Fonts.sf.bold,
+    fontWeight: '700',
+    fontSize: 14,
+    color: '#1E2939',
+    textAlign: 'right',
+    lineHeight: 20,
+  },
+  noteBlock: {
+    marginTop: 16,
+    borderRadius: 16,
+    backgroundColor: '#F8FAFC',
+    padding: 14,
+  },
+  noteLabel: {
+    fontFamily: Fonts.sf.bold,
+    fontWeight: '700',
+    fontSize: 14,
+    color: '#1E2939',
+    marginBottom: 8,
+  },
+  noteText: {
+    fontFamily: Fonts.sf.regular,
+    fontSize: 14,
+    lineHeight: 20,
+    color: '#475569',
   },
 });

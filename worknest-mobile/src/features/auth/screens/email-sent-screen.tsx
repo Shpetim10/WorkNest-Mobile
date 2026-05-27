@@ -14,11 +14,13 @@ import { BoldTitle } from '@/common/components/bold-title';
 import { GradientButton } from '@/common/components/gradient-button';
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts, Spacing } from '@/common/constants/theme';
+import { useLocalization } from '@/common/localization';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export function EmailSentScreen() {
   const router = useRouter();
+  const { t } = useLocalization();
 
   return (
     <View style={styles.container}>
@@ -52,17 +54,17 @@ export function EmailSentScreen() {
 
             <View style={styles.contentContainer}>
               <BoldTitle 
-                text="Email Sent Successfully!" 
+                text={t('auth.emailSentTitle')}
                 style={styles.title} 
               />
               
               <ThemedText style={styles.subtitle}>
-                We’ve sent you a password reset link. Please check your email and follow the instructions to continue.
+                {t('auth.emailSentSubtitle')}
               </ThemedText>
 
               <View style={styles.statusBox}>
                 <GradientButton
-                  title="Back to Login"
+                  title={t('auth.backToLogin')}
                   onPress={() => router.replace('/login' as any)}
                 />
               </View>
