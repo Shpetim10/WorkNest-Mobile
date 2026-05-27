@@ -26,6 +26,10 @@ import { LeaveType } from '../types';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
+function startOfDay(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
 interface RequestLeaveBottomSheetProps {
   visible: boolean;
   onClose: () => void;
@@ -142,17 +146,33 @@ export function RequestLeaveBottomSheet({
     return `${day}/${month}/${year}`;
   };
 
+  const today = startOfDay(new Date());
+  const endDateMinimum = startOfDay(form.startDate) > today ? startOfDay(form.startDate) : today;
+
   const handleStartDateChange = (event: any, selectedDate?: Date) => {
     setShowStartDatePicker(Platform.OS === 'ios');
+    if (event?.type === 'dismissed') {
+      return;
+    }
+
     if (selectedDate) {
-      form.setStartDate(selectedDate);
+      const nextStartDate = startOfDay(selectedDate) < today ? today : selectedDate;
+      form.setStartDate(nextStartDate);
+
+      if (startOfDay(form.endDate) < startOfDay(nextStartDate)) {
+        form.setEndDate(nextStartDate);
+      }
     }
   };
 
   const handleEndDateChange = (event: any, selectedDate?: Date) => {
     setShowEndDatePicker(Platform.OS === 'ios');
+    if (event?.type === 'dismissed') {
+      return;
+    }
+
     if (selectedDate) {
-      form.setEndDate(selectedDate);
+      form.setEndDate(startOfDay(selectedDate) < endDateMinimum ? endDateMinimum : selectedDate);
     }
   };
 
@@ -339,6 +359,7 @@ export function RequestLeaveBottomSheet({
                 value={form.startDate}
                 mode="date"
                 display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                minimumDate={today}
                 onChange={handleStartDateChange}
               />
             )}
@@ -347,6 +368,7 @@ export function RequestLeaveBottomSheet({
                 value={form.endDate}
                 mode="date"
                 display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                minimumDate={endDateMinimum}
                 onChange={handleEndDateChange}
               />
             )}

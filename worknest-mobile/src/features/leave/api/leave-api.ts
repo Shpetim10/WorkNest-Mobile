@@ -2,6 +2,12 @@ import { authApi } from '@/features/auth/api/auth-api';
 import type { ApiSuccessEnvelope } from '@/features/auth/types/contracts';
 import type { CreateLeaveRequestBody, LeaveBalanceDto, LeaveRequestDto } from '../types';
 
+type LeaveRequestsResponseData =
+  | LeaveRequestDto[]
+  | {
+      items?: LeaveRequestDto[];
+    };
+
 export const leaveApi = authApi.injectEndpoints({
   endpoints: (builder) => ({
     getLeaveBalance: builder.query<LeaveBalanceDto[], void>({
@@ -11,7 +17,13 @@ export const leaveApi = authApi.injectEndpoints({
     }),
     getLeaveRequests: builder.query<LeaveRequestDto[], void>({
       query: () => ({ url: '/api/v1/mobile/leave/requests', method: 'GET' }),
-      transformResponse: (response: ApiSuccessEnvelope<LeaveRequestDto[]>) => response.data,
+      transformResponse: (response: ApiSuccessEnvelope<LeaveRequestsResponseData>) => {
+        if (Array.isArray(response.data)) {
+          return response.data;
+        }
+
+        return Array.isArray(response.data?.items) ? response.data.items : [];
+      },
       providesTags: ['LeaveRequests'],
     }),
     submitLeaveRequest: builder.mutation<void, CreateLeaveRequestBody>({

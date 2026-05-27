@@ -20,6 +20,7 @@ import { GradientIcon } from '@/common/components/gradient-icon';
 import { BoldTitle } from '@/common/components/bold-title';
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts, Spacing } from '@/common/constants/theme';
+import { useLocalization } from '@/common/localization';
 import { useForgotPasswordMutation } from '@/features/auth/api/auth-api';
 import { trackAuthEvent } from '@/features/auth/utils/auth-events';
 import { mapBackendErrorCodeToMessage } from '@/features/auth/utils/auth-error-messages';
@@ -29,6 +30,7 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export function ForgotPasswordScreen() {
   const router = useRouter();
+  const { t } = useLocalization();
   const [email, setEmail] = useState('');
   const [error, setError] = useState(false);
   const [requestError, setRequestError] = useState<string | null>(null);
@@ -50,8 +52,8 @@ export function ForgotPasswordScreen() {
     } catch (error) {
       const parsedError = parseAuthError(error);
       setRequestError(
-        mapBackendErrorCodeToMessage(parsedError.code, parsedError.message) ||
-          'Unable to send reset email right now. Please try again.'
+        mapBackendErrorCodeToMessage(parsedError.code, parsedError.message, t) ||
+          t('auth.resetEmailFallbackError')
       );
     }
   };
@@ -78,7 +80,7 @@ export function ForgotPasswordScreen() {
         <View style={styles.mainContent}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <ChevronLeft size={24} color="#1E293B" />
-            <ThemedText style={styles.backText}>Back to Login</ThemedText>
+            <ThemedText style={styles.backText}>{t('auth.backToLogin')}</ThemedText>
           </TouchableOpacity>
 
           <KeyboardAvoidingView
@@ -89,19 +91,19 @@ export function ForgotPasswordScreen() {
               <GradientIcon Icon={Mail} size={74} style={styles.mainIcon} />
 
               <View style={styles.titleContainer}>
-                <BoldTitle text="Reset your password" style={styles.title} />
+                <BoldTitle text={t('auth.forgotPasswordTitle')} style={styles.title} />
                 <ThemedText style={styles.subtitle}>
-                  We will send a reset link to your email
+                  {t('auth.forgotPasswordSubtitle')}
                 </ThemedText>
               </View>
 
               <View style={styles.inputArea}>
-                <ThemedText style={styles.inputLabel}>Email Address</ThemedText>
+                <ThemedText style={styles.inputLabel}>{t('auth.emailAddress')}</ThemedText>
                 <View style={[styles.inputWrapper, error && styles.inputWrapperError]}>
                   <Mail size={20} color="#94A3B8" />
                   <TextInput
                     style={styles.input}
-                    placeholder="your.email@company.com"
+                    placeholder={t('auth.emailPlaceholder')}
                     placeholderTextColor="#94A3B8"
                     keyboardType="email-address"
                     autoCapitalize="none"
@@ -115,7 +117,7 @@ export function ForgotPasswordScreen() {
                 </View>
                 {error ? (
                   <ThemedText style={styles.errorText}>
-                    * Please enter your email address
+                    {t('auth.emailRequiredError')}
                   </ThemedText>
                 ) : null}
                 {requestError ? <ThemedText style={styles.errorText}>{requestError}</ThemedText> : null}
@@ -123,7 +125,7 @@ export function ForgotPasswordScreen() {
 
               <View style={styles.buttonContainer}>
                 <GradientButton
-                  title={isLoading ? 'Sending...' : 'Send Reset Link'}
+                  title={isLoading ? t('auth.sending') : t('auth.sendResetLink')}
                   onPress={handleReset}
                   disabled={isLoading}
                 />
@@ -131,7 +133,7 @@ export function ForgotPasswordScreen() {
               </View>
 
               <ThemedText style={styles.footerText}>
-                If the account exists, reset instructions will be sent.
+                {t('auth.resetInstructionsSent')}
               </ThemedText>
             </View>
           </KeyboardAvoidingView>

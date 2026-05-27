@@ -147,3 +147,13 @@ export interface ActivateInvitationResponseData {
   status: string;
   message: string;
 }
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface ChangePasswordResponseData {
+  message: string;
+}
+

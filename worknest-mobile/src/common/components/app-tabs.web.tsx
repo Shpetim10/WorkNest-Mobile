@@ -29,7 +29,7 @@ export default function AppTabs() {
             <TabButton>{t('nav.home')}</TabButton>
           </TabTrigger>
           <TabTrigger name="employees" href={"/employees" as any} asChild>
-            <TabButton>Employees</TabButton>
+            <TabButton>{t('employees.title')}</TabButton>
           </TabTrigger>
           <TabTrigger name="attendance" href={"/attendance" as any} asChild>
             <TabButton>{t('nav.attendance')}</TabButton>
@@ -55,6 +55,7 @@ export function TabButton({ children, isFocused, ...props }: TabTriggerSlotProps
 }
 
 export function CustomTabList(props: TabListProps) {
+  const { t } = useLocalization();
   const scheme = useColorScheme();
   const colors = Colors[scheme ?? 'light'];
 
@@ -69,7 +70,7 @@ export function CustomTabList(props: TabListProps) {
 
         <ExternalLink href="https://docs.expo.dev" asChild>
           <Pressable style={styles.externalPressable}>
-            <ThemedText type="link">Docs</ThemedText>
+            <ThemedText type="link">{t('common.docs')}</ThemedText>
             <SymbolView
               tintColor={colors.text}
               name={Platform.select({ ios: 'arrow.up.right.square', default: 'link' }) as any}

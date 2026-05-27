@@ -200,7 +200,7 @@ export function PayrollDetailsModal({
 
   if (!shouldRender && !visible) return null;
 
-  const periodLabel = period ? formatPayrollMonthLabel(period.year, period.month) : 'Payroll details';
+  const periodLabel = period ? formatPayrollMonthLabel(period.year, period.month) : t('payroll.details');
   const currency = payroll?.currency ?? '';
   const isLocked = payroll ? LOCKED_STATUSES.has(payroll.payrollStatus) : false;
   const isDraftOrFailed = payroll
@@ -240,7 +240,7 @@ export function PayrollDetailsModal({
             <View style={styles.centerState}>
               <AlertTriangle size={28} color="#DC2626" />
               <ThemedText style={styles.centerStateText}>
-                {errorMessage ?? 'Unable to load payroll details for this period.'}
+                {errorMessage ?? t('payroll.detailsLoadError')}
               </ThemedText>
               <TouchableOpacity style={styles.retryButton} onPress={onRetry} activeOpacity={0.8}>
                 <RefreshCcw size={16} color="#FFFFFF" />
@@ -285,20 +285,20 @@ export function PayrollDetailsModal({
                     {isLocked ? (
                       <View style={styles.lockedChip}>
                         <Lock size={12} color="#166534" />
-                        <ThemedText style={styles.lockedChipText}>Locked</ThemedText>
+                        <ThemedText style={styles.lockedChipText}>{t('payroll.locked')}</ThemedText>
                       </View>
                     ) : null}
                   </View>
 
                   <View style={styles.summaryMetaGrid}>
                     <View style={styles.summaryMetaItem}>
-                      <ThemedText style={styles.summaryMetaLabel}>Method</ThemedText>
+                      <ThemedText style={styles.summaryMetaLabel}>{t('payroll.method')}</ThemedText>
                       <ThemedText style={styles.summaryMetaValue}>
                         {formatPaymentMethod(payroll.paymentMethod)}
                       </ThemedText>
                     </View>
                     <View style={styles.summaryMetaItem}>
-                      <ThemedText style={styles.summaryMetaLabel}>Calculation</ThemedText>
+                      <ThemedText style={styles.summaryMetaLabel}>{t('payroll.calculation')}</ThemedText>
                       <ThemedText
                         style={[
                           styles.summaryMetaValue,
@@ -313,7 +313,7 @@ export function PayrollDetailsModal({
                       </ThemedText>
                     </View>
                     <View style={styles.summaryMetaItem}>
-                      <ThemedText style={styles.summaryMetaLabel}>Currency</ThemedText>
+                      <ThemedText style={styles.summaryMetaLabel}>{t('payroll.currency')}</ThemedText>
                       <ThemedText style={styles.summaryMetaValue}>
                         {payroll.currency}
                       </ThemedText>
@@ -323,7 +323,7 @@ export function PayrollDetailsModal({
 
                 {payroll.warnings && payroll.warnings.length > 0 ? (
                   <View style={styles.warningCard}>
-                    <ThemedText style={styles.warningTitle}>Warnings</ThemedText>
+                    <ThemedText style={styles.warningTitle}>{t('payroll.warnings')}</ThemedText>
                     {payroll.warnings.map((w, index) => (
                       <ThemedText key={index} style={styles.warningText}>
                         • {w}
@@ -333,44 +333,44 @@ export function PayrollDetailsModal({
                 ) : null}
 
                 {/* Totals — always open */}
-                <SectionCard title="Totals">
+                <SectionCard title={t('payroll.totals')}>
                   <DetailRow
-                    label="Base pay"
+                    label={t('payroll.basePay')}
                     value={formatPayrollAmount(payroll.totals.basePay, currency)}
                     positive
                   />
                   {payroll.totals.overtimePay != null ? (
                     <DetailRow
-                      label="Overtime pay"
+                      label={t('payroll.overtimePay')}
                       value={formatPayrollAmount(payroll.totals.overtimePay ?? '0', currency)}
                       positive
                     />
                   ) : null}
                   <DetailRow
-                    label="Gross earnings"
+                    label={t('payroll.grossEarnings')}
                     value={formatPayrollAmount(payroll.totals.grossEarnings, currency)}
                     positive
                   />
                   <DetailRow
-                    label="Statutory deductions"
+                    label={t('payroll.statutoryDeductions')}
                     value={formatPayrollAmount(payroll.totals.statutoryDeductions, currency)}
                     negative
                   />
                   <DetailRow
-                    label="Total deductions"
+                    label={t('payroll.totalDeductions')}
                     value={formatPayrollAmount(payroll.totals.totalDeductions, currency)}
                     negative
                   />
                   <View style={styles.divider} />
                   <DetailRow
-                    label="Net pay"
+                    label={t('payroll.netPay')}
                     value={formatPayrollAmount(payroll.totals.netPay, currency)}
                     emphasized
                     negative={payroll.totals.netPayNegative}
                     positive={!payroll.totals.netPayNegative}
                   />
                   <DetailRow
-                    label="Employer cost"
+                    label={t('payroll.employerCost')}
                     value={formatPayrollAmount(payroll.totals.employerCostTotal, currency)}
                   />
                   {payroll.totals.netPayNegative ? (
@@ -383,52 +383,52 @@ export function PayrollDetailsModal({
                 </SectionCard>
 
                 {/* Statutory deductions — open by default (important) */}
-                <SectionCard title="Statutory deductions">
+                <SectionCard title={t('payroll.statutoryDeductions')}>
                   <DetailRow
-                    label="Social security base"
+                    label={t('payroll.socialSecurityBase')}
                     value={formatPayrollAmount(payroll.statutoryDeductions.socialSecurityBase, currency)}
                   />
                   <DetailRow
-                    label="Pension base"
+                    label={t('payroll.pensionBase')}
                     value={formatPayrollAmount(payroll.statutoryDeductions.pensionBase, currency)}
                   />
                   <DetailRow
-                    label="Taxable income"
+                    label={t('payroll.taxableIncome')}
                     value={formatPayrollAmount(payroll.statutoryDeductions.taxableIncome, currency)}
                   />
                   <View style={styles.divider} />
                   <DetailRow
-                    label="Employee social security"
+                    label={t('payroll.employeeSocialSecurity')}
                     value={formatPayrollAmount(payroll.statutoryDeductions.employeeSocialSecurity, currency)}
                     negative
                   />
                   <DetailRow
-                    label="Employee pension"
+                    label={t('payroll.employeePension')}
                     value={formatPayrollAmount(payroll.statutoryDeductions.employeePensionContribution, currency)}
                     negative
                   />
                   <DetailRow
-                    label="Income tax"
+                    label={t('payroll.incomeTax')}
                     value={formatPayrollAmount(payroll.statutoryDeductions.incomeTax, currency)}
                     negative
                   />
                   <DetailRow
-                    label="Total deducted"
+                    label={t('payroll.totalDeducted')}
                     value={formatPayrollAmount(payroll.statutoryDeductions.statutoryDeductionsTotal, currency)}
                     emphasized
                     negative
                   />
                   <View style={styles.divider} />
                   <DetailRow
-                    label="Employer social security"
+                    label={t('payroll.employerSocialSecurity')}
                     value={formatPayrollAmount(payroll.statutoryDeductions.employerSocialSecurity, currency)}
                   />
                   <DetailRow
-                    label="Employer pension"
+                    label={t('payroll.employerPension')}
                     value={formatPayrollAmount(payroll.statutoryDeductions.employerPensionContribution, currency)}
                   />
                   <DetailRow
-                    label="Employer cost total"
+                    label={t('payroll.employerCostTotal')}
                     value={formatPayrollAmount(payroll.statutoryDeductions.employerCostTotal, currency)}
                     emphasized
                   />
@@ -442,18 +442,18 @@ export function PayrollDetailsModal({
                   ) : null}
                   {payroll.statutoryDeductions.bracketBreakdown.length > 0 ? (
                     <View style={styles.inlineGroup}>
-                      <ThemedText style={styles.inlineGroupTitle}>Tax bracket breakdown</ThemedText>
+                      <ThemedText style={styles.inlineGroupTitle}>{t('payroll.taxBracketBreakdown')}</ThemedText>
                       {payroll.statutoryDeductions.bracketBreakdown.map((b, i) => (
                         <View key={`${b.lowerBound}-${i}`} style={styles.inlineCard}>
                           <ThemedText style={styles.inlineCardTitle}>
                             {b.lowerBound} — {b.upperBound ?? 'above'}
                           </ThemedText>
-                          <ThemedText style={styles.inlineCardText}>Rate: {b.rate}</ThemedText>
+                          <ThemedText style={styles.inlineCardText}>{t('payroll.rate')}: {b.rate}</ThemedText>
                           <ThemedText style={styles.inlineCardText}>
-                            Taxable slice: {formatPayrollAmount(b.taxableSlice, currency)}
+                            {t('payroll.taxableSlice')}: {formatPayrollAmount(b.taxableSlice, currency)}
                           </ThemedText>
                           <ThemedText style={styles.inlineCardText}>
-                            Tax: {formatPayrollAmount(b.taxAmount, currency)}
+                            {t('payroll.tax')}: {formatPayrollAmount(b.taxAmount, currency)}
                           </ThemedText>
                         </View>
                       ))}
@@ -462,20 +462,20 @@ export function PayrollDetailsModal({
                 </SectionCard>
 
                 {/* Adjustments */}
-                <SectionCard title="Adjustments">
+                <SectionCard title={t('payroll.adjustments')}>
                   <DetailRow
-                    label="Total bonuses"
+                    label={t('payroll.totalBonuses')}
                     value={formatPayrollAmount(payroll.adjustments.totalBonus, currency)}
                     positive
                   />
                   <DetailRow
-                    label="Total manual deductions"
+                    label={t('payroll.totalManualDeductions')}
                     value={formatPayrollAmount(payroll.adjustments.totalManualDeduction, currency)}
                     negative
                   />
                   {payroll.adjustments.bonuses.length > 0 ? (
                     <View style={styles.inlineGroup}>
-                      <ThemedText style={styles.inlineGroupTitle}>Bonuses</ThemedText>
+                      <ThemedText style={styles.inlineGroupTitle}>{t('payroll.bonuses')}</ThemedText>
                       {payroll.adjustments.bonuses.map((item) => (
                         <View key={item.id} style={styles.inlineCard}>
                           <View style={styles.inlineCardRow}>
@@ -493,7 +493,7 @@ export function PayrollDetailsModal({
                   ) : null}
                   {payroll.adjustments.deductions.length > 0 ? (
                     <View style={styles.inlineGroup}>
-                      <ThemedText style={styles.inlineGroupTitle}>Manual deductions</ThemedText>
+                      <ThemedText style={styles.inlineGroupTitle}>{t('payroll.manualDeductions')}</ThemedText>
                       {payroll.adjustments.deductions.map((item) => (
                         <View key={item.id} style={styles.inlineCard}>
                           <View style={styles.inlineCardRow}>
@@ -512,108 +512,108 @@ export function PayrollDetailsModal({
                 </SectionCard>
 
                 {/* Employment period */}
-                <SectionCard title="Employment period">
+                <SectionCard title={t('payroll.employmentPeriod')}>
                   <DetailRow
-                    label="Start date"
+                    label={t('payroll.startDate')}
                     value={formatPayrollDate(payroll.employmentPeriod.employmentStartDate)}
                   />
                   <DetailRow
-                    label="End date"
+                    label={t('payroll.endDate')}
                     value={formatPayrollDate(payroll.employmentPeriod.employmentEndDate)}
                   />
                   <DetailRow
-                    label="Payable from"
+                    label={t('payroll.payableFrom')}
                     value={formatPayrollDate(payroll.employmentPeriod.payableFrom)}
                   />
                   <DetailRow
-                    label="Payable to"
+                    label={t('payroll.payableTo')}
                     value={formatPayrollDate(payroll.employmentPeriod.payableTo)}
                   />
                 </SectionCard>
 
                 {/* Work period */}
-                <SectionCard title="Work period">
+                <SectionCard title={t('payroll.workPeriod')}>
                   <DetailRow
-                    label="Calendar days"
+                    label={t('payroll.calendarDays')}
                     value={String(payroll.workPeriod.calendarDaysInMonth)}
                   />
                   <DetailRow
-                    label="Working days"
+                    label={t('payroll.workingDays')}
                     value={String(payroll.workPeriod.workingDaysInMonth)}
                   />
                   <DetailRow
-                    label="Payable working days"
+                    label={t('payroll.payableWorkingDays')}
                     value={payroll.workPeriod.payableWorkingDays}
                   />
                   <DetailRow
-                    label="Effective payable days"
+                    label={t('payroll.effectivePayableDays')}
                     value={payroll.workPeriod.effectivePayableWorkingDays}
                   />
                   <DetailRow
-                    label="Daily working hours"
+                    label={t('payroll.dailyWorkingHours')}
                     value={payroll.workPeriod.defaultDailyWorkingHours}
                   />
-                  <DetailRow label="Payable hours" value={payroll.workPeriod.payableHours} />
-                  <DetailRow label="Hours source" value={payroll.workPeriod.workHoursSource} />
+                  <DetailRow label={t('payroll.payableHours')} value={payroll.workPeriod.payableHours} />
+                  <DetailRow label={t('payroll.hoursSource')} value={payroll.workPeriod.workHoursSource} />
                   <DetailRow
-                    label="Effective attendance to"
+                    label={t('payroll.effectiveAttendanceTo')}
                     value={formatPayrollDate(payroll.workPeriod.effectiveAttendanceTo)}
                   />
                 </SectionCard>
 
                 {/* Base pay */}
-                <SectionCard title="Base pay calculation">
-                  <DetailRow label="Formula" value={payroll.basePayCalculation.formula} />
+                <SectionCard title={t('payroll.basePayCalculation')}>
+                  <DetailRow label={t('payroll.formula')} value={payroll.basePayCalculation.formula} />
                   {payroll.basePayCalculation.monthlySalary ? (
                     <DetailRow
-                      label="Monthly salary"
+                      label={t('payroll.monthlySalary')}
                       value={formatPayrollAmount(payroll.basePayCalculation.monthlySalary, currency)}
                     />
                   ) : null}
                   {payroll.basePayCalculation.hourlyRate ? (
                     <DetailRow
-                      label="Hourly rate"
+                      label={t('payroll.hourlyRate')}
                       value={formatPayrollAmount(payroll.basePayCalculation.hourlyRate, currency)}
                     />
                   ) : null}
                   <DetailRow
-                    label="Payable working days"
+                    label={t('payroll.payableWorkingDays')}
                     value={payroll.basePayCalculation.payableWorkingDays}
                   />
                   <DetailRow
-                    label="Working days in month"
+                    label={t('payroll.workingDaysInMonth')}
                     value={String(payroll.basePayCalculation.workingDaysInMonth)}
                   />
-                  <DetailRow label="Payable hours" value={payroll.basePayCalculation.payableHours} />
+                  <DetailRow label={t('payroll.payableHours')} value={payroll.basePayCalculation.payableHours} />
                   <DetailRow
-                    label="Base pay"
+                    label={t('payroll.basePay')}
                     value={formatPayrollAmount(payroll.basePayCalculation.basePay, currency)}
                     emphasized
                     positive
                   />
                   <DetailRow
-                    label="Proration method"
+                    label={t('payroll.prorationMethod')}
                     value={payroll.basePayCalculation.prorationMethod ?? 'Not applicable'}
                   />
                 </SectionCard>
 
                 {/* Overtime — only if present */}
                 {payroll.overtimeDetails ? (
-                  <SectionCard title="Overtime">
+                  <SectionCard title={t('payroll.overtime')}>
                     <DetailRow
-                      label="Expected hours"
+                      label={t('payroll.expectedHours')}
                       value={String(payroll.overtimeDetails.expectedHours)}
                     />
                     <DetailRow
-                      label="Worked hours"
+                      label={t('payroll.workedHours')}
                       value={String(payroll.overtimeDetails.workedHours)}
                     />
                     <DetailRow
-                      label="Overtime hours"
+                      label={t('payroll.overtimeHours')}
                       value={String(payroll.overtimeDetails.overtimeHours)}
                     />
                     <DetailRow
-                      label="Overtime rate"
+                      label={t('payroll.overtimeRate')}
                       value={formatPayrollAmount(
                         String(payroll.overtimeDetails.overtimeHourlyRate),
                         currency
@@ -621,7 +621,7 @@ export function PayrollDetailsModal({
                     />
                     <View style={styles.divider} />
                     <DetailRow
-                      label="Overtime pay"
+                      label={t('payroll.overtimePay')}
                       value={formatPayrollAmount(
                         String(payroll.overtimeDetails.overtimePay),
                         currency
@@ -634,69 +634,69 @@ export function PayrollDetailsModal({
 
                 {/* Hourly attendance — only if present */}
                 {payroll.hourlyAttendancePayment ? (
-                  <SectionCard title="Hourly attendance">
+                  <SectionCard title={t('payroll.hourlyAttendance')}>
                     <DetailRow
-                      label="Full payable hours"
+                      label={t('payroll.fullPayableHours')}
                       value={payroll.hourlyAttendancePayment.fullPayableHours}
                     />
                     <DetailRow
-                      label="Attended hours"
+                      label={t('payroll.attendedHours')}
                       value={payroll.hourlyAttendancePayment.attendedHours}
                     />
                     <DetailRow
-                      label="Full payment"
+                      label={t('payroll.fullPayment')}
                       value={formatPayrollAmount(payroll.hourlyAttendancePayment.fullPayment, currency)}
                     />
                     <DetailRow
-                      label="Attendance deduction"
+                      label={t('payroll.attendanceDeduction')}
                       value={formatPayrollAmount(payroll.hourlyAttendancePayment.attendanceDeduction, currency)}
                       negative
                     />
                     <DetailRow
-                      label="Payment received"
+                      label={t('payroll.paymentReceived')}
                       value={formatPayrollAmount(payroll.hourlyAttendancePayment.paymentReceived, currency)}
                       emphasized
                       positive
                     />
-                    <DetailRow label="Hours source" value={payroll.hourlyAttendancePayment.workHoursSource} />
+                    <DetailRow label={t('payroll.hoursSource')} value={payroll.hourlyAttendancePayment.workHoursSource} />
                   </SectionCard>
                 ) : null}
 
                 {/* Leave */}
-                <SectionCard title="Leave calculation">
+                <SectionCard title={t('payroll.leaveCalculation')}>
                   <DetailRow
-                    label="Annual allowance (days)"
+                    label={t('payroll.annualAllowanceDays')}
                     value={String(payroll.leaveCalculation.annualPaidLeaveAllowanceDays)}
                   />
                   <DetailRow
-                    label="Used before this month"
+                    label={t('payroll.usedBeforeThisMonth')}
                     value={payroll.leaveCalculation.usedPaidLeaveBeforeThisMonth}
                   />
                   <DetailRow
-                    label="Taken this month"
+                    label={t('payroll.takenThisMonth')}
                     value={payroll.leaveCalculation.leaveTakenThisMonth}
                   />
                   <DetailRow
-                    label="Paid leave days"
+                    label={t('payroll.paidLeaveDays')}
                     value={payroll.leaveCalculation.paidLeaveDaysThisMonth}
                   />
                   <DetailRow
-                    label="Paid leave amount"
+                    label={t('payroll.paidLeaveAmount')}
                     value={formatPayrollAmount(payroll.leaveCalculation.paidLeaveAmount, currency)}
                     positive
                   />
                   <DetailRow
-                    label="Unpaid leave days"
+                    label={t('payroll.unpaidLeaveDays')}
                     value={payroll.leaveCalculation.unpaidLeaveDaysThisMonth}
                   />
                   <DetailRow
-                    label="Unpaid leave deduction"
+                    label={t('payroll.unpaidLeaveDeduction')}
                     value={formatPayrollAmount(payroll.leaveCalculation.unpaidLeaveDeduction, currency)}
                     negative
                   />
                   {payroll.leaveCalculation.leaveRecordsIncluded.length > 0 ? (
                     <View style={styles.inlineGroup}>
-                      <ThemedText style={styles.inlineGroupTitle}>Leave records included</ThemedText>
+                      <ThemedText style={styles.inlineGroupTitle}>{t('payroll.leaveRecordsIncluded')}</ThemedText>
                       {payroll.leaveCalculation.leaveRecordsIncluded.map((record) => (
                         <View key={record.id} style={styles.inlineCard}>
                           <ThemedText style={styles.inlineCardTitle}>{record.leaveType}</ThemedText>
@@ -704,10 +704,10 @@ export function PayrollDetailsModal({
                             {formatPayrollDate(record.startDate)} — {formatPayrollDate(record.endDate)}
                           </ThemedText>
                           <ThemedText style={styles.inlineCardText}>
-                            Days counted: {record.daysCountedInPayroll}
+                            {t('payroll.daysCounted')}: {record.daysCountedInPayroll}
                           </ThemedText>
                           <ThemedText style={styles.inlineCardText}>
-                            Treatment: {formatPayrollTreatment(record.payrollTreatment)}
+                            {t('payroll.treatment')}: {formatPayrollTreatment(record.payrollTreatment)}
                           </ThemedText>
                         </View>
                       ))}
@@ -716,97 +716,97 @@ export function PayrollDetailsModal({
                 </SectionCard>
 
                 {/* Sick leave */}
-                <SectionCard title="Sick leave">
-                  <DetailRow label="Status" value={payroll.sickLeaveCalculation.status} />
+                <SectionCard title={t('payroll.sickLeave')}>
+                  <DetailRow label={t('payroll.status')} value={payroll.sickLeaveCalculation.status} />
                   <DetailRow
-                    label="Days taken"
+                    label={t('payroll.daysTaken')}
                     value={payroll.sickLeaveCalculation.daysTakenThisMonth}
                   />
                   <DetailRow
-                    label="Company paid days"
+                    label={t('payroll.companyPaidDays')}
                     value={payroll.sickLeaveCalculation.companyPaidDays}
                   />
                   <DetailRow
-                    label="Unpaid sick leave days"
+                    label={t('payroll.unpaidSickLeaveDays')}
                     value={payroll.sickLeaveCalculation.unpaidSickLeaveDays}
                   />
                   <DetailRow
-                    label="Company paid %"
+                    label={t('payroll.companyPaidPercent')}
                     value={payroll.sickLeaveCalculation.companyPaidPercentage}
                   />
                   <DetailRow
-                    label="Company paid amount"
+                    label={t('payroll.companyPaidAmount')}
                     value={formatPayrollAmount(payroll.sickLeaveCalculation.companyPaidAmount, currency)}
                     positive
                   />
                   <DetailRow
-                    label="Paid deduction equivalent"
+                    label={t('payroll.paidDeductionEquivalent')}
                     value={formatPayrollAmount(payroll.sickLeaveCalculation.paidSickLeaveDeductionEquivalent, currency)}
                     negative
                   />
                   <DetailRow
-                    label="Total deduction"
+                    label={t('payroll.totalDeduction')}
                     value={formatPayrollAmount(payroll.sickLeaveCalculation.totalSickLeaveDeduction, currency)}
                     negative
                     emphasized
                   />
                   <DetailRow
-                    label="Paid sick leave hours"
+                    label={t('payroll.paidSickLeaveHours')}
                     value={payroll.sickLeaveCalculation.paidSickLeaveHours}
                   />
                   <DetailRow
-                    label="Unpaid sick leave hours"
+                    label={t('payroll.unpaidSickLeaveHours')}
                     value={payroll.sickLeaveCalculation.unpaidSickLeaveHours}
                   />
                   <DetailRow
-                    label="Unpaid sick leave amount"
+                    label={t('payroll.unpaidSickLeaveAmount')}
                     value={formatPayrollAmount(payroll.sickLeaveCalculation.unpaidSickLeaveUnpaidAmount, currency)}
                     negative
                   />
                   <DetailRow
-                    label="Insurance covered days"
+                    label={t('payroll.insuranceCoveredDays')}
                     value={payroll.sickLeaveCalculation.insuranceCoveredDays}
                   />
                   <DetailRow
-                    label="Insurance covered amount"
+                    label={t('payroll.insuranceCoveredAmount')}
                     value={formatPayrollAmount(payroll.sickLeaveCalculation.insuranceCoveredAmount, currency)}
                   />
                 </SectionCard>
 
                 {/* Absence details — only if present */}
                 {payroll.absenceDetails ? (
-                  <SectionCard title="Absence details">
+                  <SectionCard title={t('payroll.absenceDetails')}>
                     <View style={styles.infoBanner}>
                       <ThemedText style={styles.infoBannerText}>
-                        Informational only.{payroll.absenceDetails.applied ? ' Deduction applied.' : ' No deduction applied.'}
+                        {t('payroll.informationalOnly')} {payroll.absenceDetails.applied ? t('payroll.deductionApplied') : t('payroll.noDeductionApplied')}
                       </ThemedText>
                     </View>
                     <DetailRow
-                      label="Expected working minutes"
+                      label={t('payroll.expectedWorkingMinutes')}
                       value={payroll.absenceDetails.expectedWorkingMinutes}
                     />
                     <DetailRow
-                      label="Attended minutes"
+                      label={t('payroll.attendedMinutes')}
                       value={payroll.absenceDetails.attendedMinutes}
                     />
                     <DetailRow
-                      label="Absent minutes"
+                      label={t('payroll.absentMinutes')}
                       value={payroll.absenceDetails.absentMinutes}
                     />
                     <DetailRow
-                      label="Monetary equivalent"
+                      label={t('payroll.monetaryEquivalent')}
                       value={formatPayrollAmount(payroll.absenceDetails.monetaryEquivalent, currency)}
                       negative
                     />
                     <DetailRow
-                      label="Applied"
-                      value={payroll.absenceDetails.applied ? 'Yes' : 'No'}
+                      label={t('payroll.applied')}
+                      value={payroll.absenceDetails.applied ? t('common.yes') : t('common.no')}
                     />
                   </SectionCard>
                 ) : null}
 
                 {isRefreshing ? (
-                  <ThemedText style={styles.refreshHint}>Refreshing...</ThemedText>
+                  <ThemedText style={styles.refreshHint}>{t('attendance.refreshing')}</ThemedText>
                 ) : null}
               </ScrollView>
 

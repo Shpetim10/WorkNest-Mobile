@@ -13,11 +13,13 @@ import { SuccessIcon } from '@/common/components/success-icon';
 import { BoldTitle } from '@/common/components/bold-title';
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts, Spacing } from '@/common/constants/theme';
+import { useLocalization } from '@/common/localization';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export function PasswordSuccessScreen() {
   const router = useRouter();
+  const { t } = useLocalization();
 
   useEffect(() => {
     // Automatically redirect back to login after 3 seconds
@@ -58,17 +60,17 @@ export function PasswordSuccessScreen() {
 
             <View style={styles.contentContainer}>
               <BoldTitle 
-                text="Password Updated!" 
+                text={t('auth.passwordUpdatedTitle')}
                 style={styles.title} 
               />
               
               <ThemedText style={styles.subtitle}>
-                Your password has been successfully updated. You can now log in with your new password.
+                {t('auth.passwordUpdatedSubtitle')}
               </ThemedText>
 
               <View style={styles.statusBox}>
                 <ThemedText style={styles.statusText}>
-                  Redirecting to login...
+                  {t('auth.redirectingToLogin')}
                 </ThemedText>
               </View>
             </View>

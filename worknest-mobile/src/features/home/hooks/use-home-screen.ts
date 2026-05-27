@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useGetDashboardQuery, useGetProfileQuery } from '../api/home-api';
 import { useLocalization } from '@/common/localization';
 import { formatPayrollCurrencyAmount } from '@/features/payroll/utils/payroll-formatters';
+import { useGetNotificationsUnreadCountQuery } from '@/features/notifications';
 
 function capitalizeFirstLetter(value: string): string {
   if (!value) {
@@ -27,6 +28,11 @@ export function useHomeScreen() {
     isLoading: isLoadingProfile,
     refetch: refetchProfile,
   } = useGetProfileQuery();
+
+  const {
+    data: unreadNotificationsData,
+    refetch: refetchUnreadNotifications,
+  } = useGetNotificationsUnreadCountQuery();
 
   useEffect(() => {
     const updateDateTime = () => {
@@ -54,7 +60,9 @@ export function useHomeScreen() {
     firstName: profileData?.firstName ?? 'Sarah',
     lastName: profileData?.lastName ?? '',
     profilePictureUrl: profileData?.profilePictureUrl ?? null,
-    hasNotifications: (dashboardData?.announcementUnreadCount ?? 0) > 0,
+    hasNotifications:
+      (dashboardData?.announcementUnreadCount ?? 0) > 0 ||
+      (unreadNotificationsData?.count ?? 0) > 0,
   };
 
   const attendance = {
@@ -78,7 +86,11 @@ export function useHomeScreen() {
   };
 
   const refetchList = async () => {
-    await Promise.all([refetchDashboard(), refetchProfile()]);
+    await Promise.all([
+      refetchDashboard(),
+      refetchProfile(),
+      refetchUnreadNotifications(),
+    ]);
   };
 
   const isLoading = isLoadingDashboard || isLoadingProfile;

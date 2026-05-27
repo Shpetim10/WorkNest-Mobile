@@ -13,11 +13,13 @@ import { ExpiredIcon } from '@/common/components/expired-icon';
 import { BoldTitle } from '@/common/components/bold-title';
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts, Spacing } from '@/common/constants/theme';
+import { useLocalization } from '@/common/localization';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export function SessionExpiredScreen() {
   const router = useRouter();
+  const { t } = useLocalization();
 
   useEffect(() => {
     // Automatically redirect back to login after 3 seconds
@@ -60,17 +62,17 @@ export function SessionExpiredScreen() {
 
             <View style={styles.contentContainer}>
               <BoldTitle 
-                text="Session Expired!" 
+                text={t('auth.sessionExpiredTitle')}
                 style={styles.title} 
               />
               
               <ThemedText style={styles.subtitle}>
-                Your session has expired due to inactivity. Please log in again to continue using your account.
+                {t('auth.sessionExpiredSubtitle')}
               </ThemedText>
 
               <View style={styles.statusBox}>
                 <ThemedText style={styles.statusText}>
-                  Redirecting to login...
+                  {t('auth.redirectingToLogin')}
                 </ThemedText>
               </View>
             </View>

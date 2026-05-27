@@ -1,6 +1,9 @@
 import { useState, useCallback } from 'react';
 import { Alert } from 'react-native';
 
+import { useLocalization } from '@/common/localization';
+import { mapBackendErrorCodeToMessage } from '@/features/auth/utils/auth-error-messages';
+import { parseAuthError } from '@/features/auth/utils/parse-auth-error';
 import {
   useGetLeaveBalanceQuery,
   useGetLeaveRequestsQuery,
@@ -9,7 +12,23 @@ import {
 } from '../api/leave-api';
 import type { LeaveType } from '../types';
 
+function startOfDay(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function isValidDate(date: unknown): date is Date {
+  return date instanceof Date && !Number.isNaN(date.getTime());
+}
+
+function formatDateForApi(date: Date) {
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
 export function useLeaveScreen() {
+  const { t } = useLocalization();
   const { data: balances = [], isLoading: balancesLoading, refetch: refetchBalances } = useGetLeaveBalanceQuery();
   const { data: history = [], isLoading: historyLoading, refetch: refetchHistory } = useGetLeaveRequestsQuery();
   const [submitLeaveRequest, { isLoading: isSubmitting }] = useSubmitLeaveRequestMutation();
@@ -40,32 +59,61 @@ export function useLeaveScreen() {
   }, []);
 
   const submitRequest = useCallback(async () => {
+    if (!isValidDate(startDate) || !isValidDate(endDate)) {
+      Alert.alert(t('requests.validationTitle'), t('requests.datesRequiredError'));
+      return;
+    }
+
+    const today = startOfDay(new Date());
+    const normalizedStartDate = startOfDay(startDate);
+    const normalizedEndDate = startOfDay(endDate);
+
+    if (normalizedStartDate < today) {
+      Alert.alert(t('requests.validationTitle'), t('requests.startDatePastError'));
+      return;
+    }
+
+    if (normalizedEndDate < normalizedStartDate) {
+      Alert.alert(t('requests.validationTitle'), t('requests.endDateBeforeStartError'));
+      return;
+    }
+
     try {
       await submitLeaveRequest({
         leaveType,
-        startDate: startDate.toISOString().split('T')[0],
-        endDate: endDate.toISOString().split('T')[0],
+        startDate: formatDateForApi(normalizedStartDate),
+        endDate: formatDateForApi(normalizedEndDate),
         note: note.trim() || null,
         medicalReportDocumentId: medicalReportDocumentId.trim() || null,
       }).unwrap();
       closeModal();
-    } catch (err: any) {
-      const message = err?.message ?? 'Failed to submit leave request. Please try again.';
-      Alert.alert('Error', message);
+    } catch (err: unknown) {
+      const parsed = parseAuthError(err);
+      const message = parsed.code
+        ? mapBackendErrorCodeToMessage(parsed.code, parsed.message)
+        : parsed.message ?? t('requests.submitRequestError');
+      Alert.alert(t('common.error'), message);
     }
-  }, [leaveType, startDate, endDate, note, medicalReportDocumentId, submitLeaveRequest, closeModal]);
+  }, [leaveType, startDate, endDate, note, medicalReportDocumentId, submitLeaveRequest, closeModal, t]);
 
   const cancelRequest = useCallback(async (requestId: string) => {
     try {
       await cancelLeaveRequest(requestId).unwrap();
-    } catch (err: any) {
+      await Promise.all([refetchBalances(), refetchHistory()]);
+      Alert.alert(t('requests.cancelSuccessTitle'), t('requests.cancelSuccessMessage'));
+    } catch (err: unknown) {
+      const parsed = parseAuthError(err);
       const message =
-        err?.code === 'PAYROLL_PERIOD_LOCKED'
-          ? 'This leave cannot be cancelled because payroll for this period has already been processed.'
-          : (err?.message ?? 'Failed to cancel leave request. Please try again.');
-      Alert.alert('Error', message);
+        parsed.code === 'PAYROLL_PERIOD_LOCKED'
+          ? t('requests.cancelPayrollLockedError')
+          : parsed.code === 'LEAVE_ALREADY_STARTED'
+            ? t('requests.cancelAlreadyStartedError')
+          : parsed.code
+            ? mapBackendErrorCodeToMessage(parsed.code, parsed.message)
+            : parsed.message ?? t('requests.cancelRequestError');
+      Alert.alert(t('common.error'), message);
     }
-  }, [cancelLeaveRequest]);
+  }, [cancelLeaveRequest, refetchBalances, refetchHistory, t]);
 
   return {
     balances,
