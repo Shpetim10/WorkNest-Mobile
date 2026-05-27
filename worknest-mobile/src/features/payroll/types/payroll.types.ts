@@ -34,8 +34,7 @@ export type PayrollTreatment =
   | 'UNPAID_EXCESS'
   | 'UNPAID_EXPLICIT'
   | 'SICK_COMPANY_POLICY'
-  | 'STATUTORY_MATERNITY'
-  | 'STATUTORY_PATERNITY';
+  | 'PARENTAL_COMPANY_POLICY';
 
 export interface EmploymentPeriodDetails {
   employmentStartDate: string | null;

@@ -1,9 +1,10 @@
 import { BlurView } from 'expo-blur';
 import { ChevronLeft, Lock, Eye, EyeOff } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
+  ActivityIndicator,
   Dimensions,
   SafeAreaView,
   StyleSheet,
@@ -19,32 +20,101 @@ import { GradientIcon } from '@/common/components/gradient-icon';
 import { GradientText } from '@/common/components/gradient-text';
 import { ThemedText } from '@/common/components/themed-text';
 import { Fonts, Spacing } from '@/common/constants/theme';
-import { useTheme } from '@/common/hooks/use-theme';
 import { useLocalization } from '@/common/localization';
+import { clearPersistedSessionArtifacts } from '@/common/storage/secure-session-storage';
+import { useAppDispatch, useAppSelector } from '@/common/store/hooks';
+import { useResetPasswordMutation } from '@/features/auth/api/auth-api';
+import { clearResetPasswordState, logoutCompleted } from '@/features/auth/store/auth-slice';
+import { selectAuthState } from '@/features/auth/store/selectors';
+import { trackAuthEvent } from '@/features/auth/utils/auth-events';
+import {
+  mapBackendErrorCodeToMessage,
+} from '@/features/auth/utils/auth-error-messages';
+import { validatePasswordPolicy } from '@/features/auth/utils/password-policy';
+import { parseAuthError } from '@/features/auth/utils/parse-auth-error';
+import { sanitizeAuthFlowToken } from '@/features/auth/utils/token-utils';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
+const RESET_LINK_ERROR_CODES = new Set([
+  'RESET_TOKEN_INVALID',
+  'RESET_TOKEN_EXPIRED',
+  'RESET_TOKEN_ALREADY_USED',
+]);
 
 export function CreateNewPasswordScreen() {
   const router = useRouter();
   const { t } = useLocalization();
-  const theme = useTheme();
-  
+  const dispatch = useAppDispatch();
+  const params = useLocalSearchParams<{ token?: string }>();
+  const { userEmail } = useAppSelector(selectAuthState);
+
+  const [token, setToken] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errorText, setErrorText] = useState<string | null>(null);
+  const [isInvalidLink, setIsInvalidLink] = useState(false);
+  const [resetPassword, { isLoading }] = useResetPasswordMutation();
 
-  const handleUpdate = () => {
-    // Basic validation
-    if (newPassword.length >= 8 && newPassword === confirmPassword) {
-      console.log('Password updated successfully');
+  useEffect(() => {
+    const sanitizedToken = sanitizeAuthFlowToken(params.token);
+    if (sanitizedToken) {
+      setToken(sanitizedToken);
+    }
+  }, [params.token]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(clearResetPasswordState());
+    };
+  }, [dispatch]);
+
+  const passwordValidation = useMemo(
+    () =>
+      validatePasswordPolicy({
+        password: newPassword,
+        confirmPassword,
+        email: userEmail,
+      }),
+    [newPassword, confirmPassword, userEmail]
+  );
+
+  const handleUpdate = async () => {
+    const sanitizedToken = sanitizeAuthFlowToken(token);
+    if (!sanitizedToken) {
+      setErrorText('Reset link is invalid. Please request a new password reset.');
+      return;
+    }
+    if (!passwordValidation.valid) {
+      setErrorText(passwordValidation.errors[0] ?? 'Password is invalid.');
+      return;
+    }
+
+    setErrorText(null);
+    try {
+      await resetPassword({
+        token: sanitizedToken,
+        newPassword,
+        tokenSource: params.token ? 'deep-link' : 'manual',
+      }).unwrap();
+
+      await clearPersistedSessionArtifacts();
+      dispatch(logoutCompleted());
+      trackAuthEvent('reset_password_success');
       router.replace('/(auth)/password-success' as any);
+    } catch (error) {
+      const parsed = parseAuthError(error);
+      const code = parsed.code;
+      const message = mapBackendErrorCodeToMessage(code, parsed.message);
+      setErrorText(message);
+      setIsInvalidLink(Boolean(code && RESET_LINK_ERROR_CODES.has(code)));
     }
   };
 
   return (
     <View style={styles.container}>
-      {/* Background Shadow Glows */}
       <View style={styles.backgroundContainer}>
         <View style={StyleSheet.absoluteFill}>
           <LinearGradient
@@ -63,9 +133,8 @@ export function CreateNewPasswordScreen() {
 
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.mainContent}>
-          {/* Back Navigation */}
-          <TouchableOpacity 
-            style={styles.backButton} 
+          <TouchableOpacity
+            style={styles.backButton}
             onPress={() => router.back()}
           >
             <ChevronLeft size={24} color="#1E293B" />
@@ -76,25 +145,23 @@ export function CreateNewPasswordScreen() {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.keyboardView}
           >
-            {/* Card Content */}
             <View style={styles.card}>
-              <GradientIcon 
-                Icon={Lock} 
-                size={74} 
-                style={styles.mainIcon} 
+              <GradientIcon
+                Icon={Lock}
+                size={74}
+                style={styles.mainIcon}
               />
 
               <View style={styles.titleContainer}>
-                <GradientText 
+                <GradientText
                   text={t('auth.createNewPasswordTitle')}
-                  style={styles.title} 
+                  style={styles.title}
                 />
                 <ThemedText style={styles.subtitle}>
                   {t('auth.createNewPasswordSubtitle')}
                 </ThemedText>
               </View>
 
-              {/* Input Area */}
               <View style={styles.inputArea}>
                 <ThemedText style={styles.inputLabel}>{t('auth.newPassword')}</ThemedText>
                 <View style={styles.inputWrapper}>
@@ -106,6 +173,7 @@ export function CreateNewPasswordScreen() {
                     secureTextEntry={!showNewPassword}
                     value={newPassword}
                     onChangeText={setNewPassword}
+                    editable={!isLoading}
                   />
                   <TouchableOpacity onPress={() => setShowNewPassword(!showNewPassword)}>
                     {showNewPassword ? <EyeOff size={20} color="#94A3B8" /> : <Eye size={20} color="#94A3B8" />}
@@ -124,6 +192,7 @@ export function CreateNewPasswordScreen() {
                     secureTextEntry={!showConfirmPassword}
                     value={confirmPassword}
                     onChangeText={setConfirmPassword}
+                    editable={!isLoading}
                   />
                   <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
                     {showConfirmPassword ? <EyeOff size={20} color="#94A3B8" /> : <Eye size={20} color="#94A3B8" />}
@@ -131,7 +200,6 @@ export function CreateNewPasswordScreen() {
                 </View>
               </View>
 
-              {/* Password Rules Box */}
               <View style={styles.rulesBox}>
                 <ThemedText style={styles.rulesTitle}>{t('auth.passwordRuleTitle')}</ThemedText>
                 <View style={styles.ruleRow}>
@@ -144,12 +212,26 @@ export function CreateNewPasswordScreen() {
                 </View>
               </View>
 
+              {errorText ? (
+                <ThemedText style={styles.errorText}>{errorText}</ThemedText>
+              ) : null}
+
               <View style={styles.buttonContainer}>
-                <GradientButton 
+                <GradientButton
                   title={t('auth.updatePassword')}
-                  onPress={handleUpdate} 
+                  onPress={handleUpdate}
+                  disabled={isLoading}
                 />
+                {isLoading ? <ActivityIndicator color="#2B7FFF" style={styles.loader} /> : null}
               </View>
+
+              {isInvalidLink ? (
+                <TouchableOpacity onPress={() => router.replace('/(auth)/forgot-password' as any)}>
+                  <ThemedText type="link" style={styles.requestNewLink}>
+                    Request a new reset link
+                  </ThemedText>
+                </TouchableOpacity>
+              ) : null}
             </View>
           </KeyboardAvoidingView>
         </View>
@@ -275,7 +357,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F1F7FF',
     borderRadius: 16,
     padding: Spacing.four,
-    marginBottom: Spacing.five,
+    marginBottom: Spacing.four,
   },
   rulesTitle: {
     fontFamily: Fonts.sf.semibold,
@@ -300,7 +382,23 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#64748B',
   },
+  errorText: {
+    color: '#DC2626',
+    fontFamily: Fonts.sf.regular,
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: Spacing.two,
+    width: '100%',
+  },
   buttonContainer: {
     width: '100%',
+    marginBottom: Spacing.three,
+  },
+  loader: {
+    marginTop: Spacing.two,
+  },
+  requestNewLink: {
+    marginTop: Spacing.two,
+    textAlign: 'center',
   },
 });

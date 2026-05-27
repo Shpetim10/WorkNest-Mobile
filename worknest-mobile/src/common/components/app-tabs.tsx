@@ -22,8 +22,8 @@ export default function AppTabs() {
       <Tabs.Screen name="attendance" options={{ title: t('nav.attendance') }} />
       <Tabs.Screen name="requests" options={{ title: t('nav.requests') }} />
       <Tabs.Screen name="payroll" options={{ title: t('nav.payroll') }} />
-      <Tabs.Screen name="announcements" options={{ title: t('nav.updates') }} />
-      <Tabs.Screen name="profile" options={{ title: t('nav.profile'), href: null }} />
+      <Tabs.Screen name="announcements" options={{ title: t('nav.updates'), href: null }} />
+      <Tabs.Screen name="profile" options={{ title: t('nav.profile') }} />
     </Tabs>
   );
 }
@@ -31,7 +31,7 @@ export default function AppTabs() {
 function CustomTabBar({ state, navigation }: any) {
   const insets = useSafeAreaInsets();
   const { t } = useLocalization();
-  const allowedRoutes = ['index', 'attendance', 'requests', 'payroll', 'announcements'];
+  const allowedRoutes = ['index', 'attendance', 'requests', 'payroll', 'profile'];
 
   const getIcon = (routeName: string, focused: boolean) => {
     switch (routeName) {
@@ -43,8 +43,8 @@ function CustomTabBar({ state, navigation }: any) {
         return focused ? 'document-text' : 'document-text-outline';
       case 'payroll':
         return focused ? 'cash' : 'cash-outline';
-      case 'announcements':
-        return focused ? 'notifications' : 'notifications-outline';
+      case 'profile':
+        return focused ? 'person' : 'person-outline';
       default:
         return 'help-circle-outline';
     }
@@ -60,8 +60,8 @@ function CustomTabBar({ state, navigation }: any) {
         return t('nav.requests');
       case 'payroll':
         return t('nav.payroll');
-      case 'announcements':
-        return t('nav.updates');
+      case 'profile':
+        return t('nav.profile');
       default:
         return routeName;
     }

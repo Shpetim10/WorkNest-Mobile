@@ -1,5 +1,5 @@
 export interface LeaveBalanceSummary {
-  leaveType: 'VACATION' | 'SICK' | 'PERSONAL' | 'UNPAID' | 'MATERNITY' | 'PATERNITY' | 'OTHER';
+  leaveType: 'VACATION' | 'SICK' | 'PARENTAL';
   remainingDays: number;
 }
 

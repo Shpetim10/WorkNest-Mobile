@@ -30,7 +30,6 @@ export default function AttendanceScreen() {
       <ScrollView 
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
-        bounces={false}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}

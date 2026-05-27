@@ -13,15 +13,6 @@ interface LeaveBalanceSectionProps {
 
 export function LeaveBalanceSection({ balances }: LeaveBalanceSectionProps) {
   const { t } = useLocalization();
-  const leaveTypeLabels: Record<string, string> = {
-    VACATION: t('requests.vacation'),
-    SICK: t('requests.sickLeave'),
-    PERSONAL: t('requests.personal'),
-    UNPAID: t('requests.unpaid'),
-    MATERNITY: t('requests.maternity'),
-    PATERNITY: t('requests.paternity'),
-    OTHER: t('requests.other'),
-  };
 
   return (
     <View style={styles.container}>
@@ -29,11 +20,7 @@ export function LeaveBalanceSection({ balances }: LeaveBalanceSectionProps) {
       <View style={styles.cardsContainer}>
         {balances.map((balance) => (
           <View key={balance.leaveType} style={styles.cardWrapper}>
-            <LeaveBalanceCard
-              title={leaveTypeLabels[balance.leaveType] ?? balance.leaveType}
-              value={balance.availableDays}
-              type={balance.leaveType}
-            />
+            <LeaveBalanceCard balance={balance} />
           </View>
         ))}
       </View>
@@ -60,6 +47,6 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   cardWrapper: {
-    marginBottom: 16,
+    marginBottom: 14,
   },
 });

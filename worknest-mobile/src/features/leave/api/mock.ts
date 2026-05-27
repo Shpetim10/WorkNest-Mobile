@@ -2,9 +2,9 @@
 import type { LeaveBalanceDto, LeaveRequestDto } from '../types';
 
 export const MOCK_LEAVE_BALANCES: LeaveBalanceDto[] = [
-  { leaveType: 'VACATION', totalDays: 20, usedDays: 5, availableDays: 15 },
-  { leaveType: 'SICK', totalDays: 10, usedDays: 2, availableDays: 8 },
-  { leaveType: 'PERSONAL', totalDays: 5, usedDays: 1, availableDays: 4 },
+  { leaveType: 'VACATION', totalDays: 20, usedDays: 5, availableDays: 15, maxCompanyPaidDays: 20 },
+  { leaveType: 'SICK', totalDays: 12, usedDays: 2, availableDays: 10, maxCompanyPaidDays: 14 },
+  { leaveType: 'PARENTAL', totalDays: 90, usedDays: 0, availableDays: 90, maxCompanyPaidDays: 90 },
 ];
 
 export const MOCK_LEAVE_HISTORY: LeaveRequestDto[] = [

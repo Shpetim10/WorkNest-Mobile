@@ -132,11 +132,7 @@ export function RequestLeaveBottomSheet({
   const leaveTypes: { label: string; value: LeaveType }[] = [
     { label: t('requests.vacation'), value: 'VACATION' },
     { label: t('requests.sickLeave'), value: 'SICK' },
-    { label: t('requests.personal'), value: 'PERSONAL' },
-    { label: t('requests.unpaid'), value: 'UNPAID' },
-    { label: t('requests.maternity'), value: 'MATERNITY' },
-    { label: t('requests.paternity'), value: 'PATERNITY' },
-    { label: t('requests.other'), value: 'OTHER' },
+    { label: t('requests.parental'), value: 'PARENTAL' },
   ];
 
   const formatDate = (date: Date) => {
@@ -150,15 +146,13 @@ export function RequestLeaveBottomSheet({
   const endDateMinimum = startOfDay(form.startDate) > today ? startOfDay(form.startDate) : today;
 
   const handleStartDateChange = (event: any, selectedDate?: Date) => {
-    setShowStartDatePicker(Platform.OS === 'ios');
-    if (event?.type === 'dismissed') {
-      return;
+    if (Platform.OS !== 'ios') {
+      setShowStartDatePicker(false);
     }
-
+    if (event?.type === 'dismissed') return;
     if (selectedDate) {
       const nextStartDate = startOfDay(selectedDate) < today ? today : selectedDate;
       form.setStartDate(nextStartDate);
-
       if (startOfDay(form.endDate) < startOfDay(nextStartDate)) {
         form.setEndDate(nextStartDate);
       }
@@ -166,11 +160,10 @@ export function RequestLeaveBottomSheet({
   };
 
   const handleEndDateChange = (event: any, selectedDate?: Date) => {
-    setShowEndDatePicker(Platform.OS === 'ios');
-    if (event?.type === 'dismissed') {
-      return;
+    if (Platform.OS !== 'ios') {
+      setShowEndDatePicker(false);
     }
-
+    if (event?.type === 'dismissed') return;
     if (selectedDate) {
       form.setEndDate(startOfDay(selectedDate) < endDateMinimum ? endDateMinimum : selectedDate);
     }
@@ -354,23 +347,72 @@ export function RequestLeaveBottomSheet({
               </View>
             </ScrollView>
 
-            {showStartDatePicker && (
-              <DateTimePicker
-                value={form.startDate}
-                mode="date"
-                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                minimumDate={today}
-                onChange={handleStartDateChange}
-              />
-            )}
-            {showEndDatePicker && (
-              <DateTimePicker
-                value={form.endDate}
-                mode="date"
-                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                minimumDate={endDateMinimum}
-                onChange={handleEndDateChange}
-              />
+            {Platform.OS === 'ios' ? (
+              <>
+                {showStartDatePicker && (
+                  <Modal transparent animationType="fade">
+                    <View style={styles.datePickerOverlay}>
+                      <Pressable style={StyleSheet.absoluteFill} onPress={() => setShowStartDatePicker(false)} />
+                      <View style={styles.datePickerContainer}>
+                        <View style={styles.datePickerToolbar}>
+                          <TouchableOpacity onPress={() => setShowStartDatePicker(false)}>
+                            <ThemedText style={styles.datePickerDone}>{t('common.done')}</ThemedText>
+                          </TouchableOpacity>
+                        </View>
+                        <DateTimePicker
+                          value={form.startDate}
+                          mode="date"
+                          display="spinner"
+                          minimumDate={today}
+                          onChange={handleStartDateChange}
+                        />
+                      </View>
+                    </View>
+                  </Modal>
+                )}
+                {showEndDatePicker && (
+                  <Modal transparent animationType="fade">
+                    <View style={styles.datePickerOverlay}>
+                      <Pressable style={StyleSheet.absoluteFill} onPress={() => setShowEndDatePicker(false)} />
+                      <View style={styles.datePickerContainer}>
+                        <View style={styles.datePickerToolbar}>
+                          <TouchableOpacity onPress={() => setShowEndDatePicker(false)}>
+                            <ThemedText style={styles.datePickerDone}>{t('common.done')}</ThemedText>
+                          </TouchableOpacity>
+                        </View>
+                        <DateTimePicker
+                          value={form.endDate}
+                          mode="date"
+                          display="spinner"
+                          minimumDate={endDateMinimum}
+                          onChange={handleEndDateChange}
+                        />
+                      </View>
+                    </View>
+                  </Modal>
+                )}
+              </>
+            ) : (
+              <>
+                {showStartDatePicker && (
+                  <DateTimePicker
+                    value={form.startDate}
+                    mode="date"
+                    display="default"
+                    minimumDate={today}
+                    onChange={handleStartDateChange}
+                  />
+                )}
+                {showEndDatePicker && (
+                  <DateTimePicker
+                    value={form.endDate}
+                    mode="date"
+                    display="default"
+                    minimumDate={endDateMinimum}
+                    onChange={handleEndDateChange}
+                  />
+                )}
+              </>
             )}
           </Animated.View>
         </KeyboardAvoidingView>
@@ -567,6 +609,30 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontFamily: Fonts.sf.bold,
     fontSize: 18,
+  },
+  datePickerOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+  },
+  datePickerContainer: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    paddingBottom: 30,
+  },
+  datePickerToolbar: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
+  },
+  datePickerDone: {
+    fontFamily: Fonts.sf.semibold,
+    fontSize: 16,
+    color: '#2B7FFF',
   },
   warningContainer: {
     backgroundColor: '#FEF9C2',

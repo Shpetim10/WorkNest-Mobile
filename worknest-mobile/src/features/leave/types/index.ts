@@ -1,4 +1,4 @@
-export type LeaveType = 'VACATION' | 'SICK' | 'PERSONAL' | 'UNPAID' | 'MATERNITY' | 'PATERNITY' | 'OTHER';
+export type LeaveType = 'VACATION' | 'SICK' | 'PARENTAL';
 export type LeaveStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
 
 export interface LeaveBalanceDto {
@@ -6,6 +6,7 @@ export interface LeaveBalanceDto {
   totalDays: number;
   usedDays: number;
   availableDays: number;
+  maxCompanyPaidDays: number;
 }
 
 export interface LeaveRequestDto {

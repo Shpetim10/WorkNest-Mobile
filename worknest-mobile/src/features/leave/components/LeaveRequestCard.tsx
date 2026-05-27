@@ -36,8 +36,7 @@ export function LeaveRequestCard({ request, onCancel }: LeaveRequestCardProps) {
     SICK: t('requests.sickLeave'),
     PERSONAL: t('requests.personal'),
     UNPAID: t('requests.unpaid'),
-    MATERNITY: t('requests.maternity'),
-    PATERNITY: t('requests.paternity'),
+    PARENTAL: t('requests.parental'),
     OTHER: t('requests.other'),
   };
 
