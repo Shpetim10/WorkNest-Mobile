@@ -13,13 +13,16 @@ interface LeaveBalanceSectionProps {
 
 export function LeaveBalanceSection({ balances }: LeaveBalanceSectionProps) {
   const { t } = useLocalization();
+  const safeBalances = balances.filter(
+    (balance): balance is LeaveBalanceDto => Boolean(balance) && typeof balance === 'object'
+  );
 
   return (
     <View style={styles.container}>
       <ThemedText style={styles.sectionTitle}>{t('requests.yourBalance')}</ThemedText>
       <View style={styles.cardsContainer}>
-        {balances.map((balance) => (
-          <View key={balance.leaveType} style={styles.cardWrapper}>
+        {safeBalances.map((balance, index) => (
+          <View key={balance.leaveType ?? `leave-balance-${index}`} style={styles.cardWrapper}>
             <LeaveBalanceCard balance={balance} />
           </View>
         ))}

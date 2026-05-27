@@ -16,7 +16,27 @@ function startOfDay(date: Date) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
-function parseDateOnly(dateStr: string) {
+function getDisplayText(value: unknown, fallback: string) {
+  if (typeof value === 'string') {
+    return value.trim() || fallback;
+  }
+
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return String(value);
+  }
+
+  return fallback;
+}
+
+function getOptionalText(value: unknown) {
+  return typeof value === 'string' && value.trim() ? value.trim() : null;
+}
+
+function parseDateOnly(dateStr: unknown) {
+  if (typeof dateStr !== 'string' || !dateStr.trim()) {
+    return null;
+  }
+
   const [year, month, day] = dateStr.split('-').map(Number);
 
   if (!year || !month || !day) {
@@ -24,7 +44,17 @@ function parseDateOnly(dateStr: string) {
     return Number.isNaN(fallbackDate.getTime()) ? null : fallbackDate;
   }
 
-  return new Date(year, month - 1, day);
+  const parsedDate = new Date(year, month - 1, day);
+
+  if (
+    parsedDate.getFullYear() !== year ||
+    parsedDate.getMonth() !== month - 1 ||
+    parsedDate.getDate() !== day
+  ) {
+    return null;
+  }
+
+  return parsedDate;
 }
 
 export function LeaveRequestCard({ request, onCancel }: LeaveRequestCardProps) {
@@ -40,8 +70,13 @@ export function LeaveRequestCard({ request, onCancel }: LeaveRequestCardProps) {
     OTHER: t('requests.other'),
   };
 
+  const fallbackText = t('common.notAvailable');
+  const status = getOptionalText(request.status);
+  const leaveType = getOptionalText(request.leaveType);
+  const leaveTypeLabel = leaveType ? leaveTypeLabels[leaveType] ?? leaveType : fallbackText;
+
   const getStatusConfig = () => {
-    switch (request.status) {
+    switch (status) {
       case 'APPROVED':
         return { bg: '#DCFCE7', text: '#15803D', label: t('requests.approved') };
       case 'PENDING':
@@ -51,20 +86,25 @@ export function LeaveRequestCard({ request, onCancel }: LeaveRequestCardProps) {
       case 'CANCELLED':
         return { bg: '#F1F5F9', text: '#64748B', label: t('requests.cancelled') };
       default:
-        return { bg: '#F1F5F9', text: '#64748B', label: request.status };
+        return { bg: '#F1F5F9', text: '#64748B', label: status ?? fallbackText };
     }
   };
 
   const statusConfig = getStatusConfig();
 
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
+  const formatDate = (dateStr: unknown) => {
+    const date = parseDateOnly(dateStr);
+
+    if (!date) {
+      return null;
+    }
+
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     return `${months[date.getMonth()]} ${date.getDate()}`;
   };
 
-  const formatDateTime = (dateStr: string | null) => {
-    if (!dateStr) {
+  const formatDateTime = (dateStr: unknown) => {
+    if (typeof dateStr !== 'string' || !dateStr.trim()) {
       return null;
     }
 
@@ -81,24 +121,30 @@ export function LeaveRequestCard({ request, onCancel }: LeaveRequestCardProps) {
     });
   };
 
+  const startDateLabel = formatDate(request.startDate);
+  const endDateLabel = formatDate(request.endDate);
   const dateRange =
     request.startDate === request.endDate
-      ? formatDate(request.startDate)
-      : `${formatDate(request.startDate)} - ${formatDate(request.endDate)}`;
-
-  const duration = `${request.daysCount} ${request.daysCount === 1 ? t('common.day') : t('common.days')}`;
+      ? startDateLabel ?? fallbackText
+      : startDateLabel && endDateLabel
+        ? `${startDateLabel} - ${endDateLabel}`
+        : startDateLabel ?? endDateLabel ?? fallbackText;
+  const daysCount = Number(request.daysCount);
+  const duration = Number.isFinite(daysCount)
+    ? `${daysCount} ${daysCount === 1 ? t('common.day') : t('common.days')}`
+    : fallbackText;
   const detailText =
-    request.status === 'REJECTED'
-      ? request.rejectionReason
-      : request.status === 'APPROVED'
-        ? request.approvalNote
+    status === 'REJECTED'
+      ? getOptionalText(request.rejectionReason)
+      : status === 'APPROVED'
+        ? getOptionalText(request.approvalNote)
         : null;
   const detailLabel =
-    request.status === 'REJECTED' ? t('requests.reason') : t('requests.noteFromApprover');
+    status === 'REJECTED' ? t('requests.reason') : t('requests.noteFromApprover');
   const startDate = parseDateOnly(request.startDate);
   const canCancel =
-    request.status === 'PENDING' ||
-    (request.status === 'APPROVED' &&
+    status === 'PENDING' ||
+    (status === 'APPROVED' &&
       startDate !== null &&
       startOfDay(new Date()) < startOfDay(startDate));
 
@@ -107,7 +153,7 @@ export function LeaveRequestCard({ request, onCancel }: LeaveRequestCardProps) {
       <View style={styles.card}>
         <View style={styles.topRow}>
           <ThemedText style={styles.title}>
-            {leaveTypeLabels[request.leaveType] ?? request.leaveType}
+            {leaveTypeLabel}
           </ThemedText>
           <View style={[styles.statusPill, { backgroundColor: statusConfig.bg }]}>
             <ThemedText style={[styles.statusText, { color: statusConfig.text }]}>
@@ -124,9 +170,9 @@ export function LeaveRequestCard({ request, onCancel }: LeaveRequestCardProps) {
         </View>
 
         {detailText ? (
-          <View style={request.status === 'REJECTED' ? styles.rejectionRow : styles.approvalNoteRow}>
+          <View style={status === 'REJECTED' ? styles.rejectionRow : styles.approvalNoteRow}>
             <ThemedText
-              style={request.status === 'REJECTED' ? styles.rejectionText : styles.approvalNoteText}
+              style={status === 'REJECTED' ? styles.rejectionText : styles.approvalNoteText}
               numberOfLines={3}
             >
               {detailLabel}: {detailText}
@@ -144,7 +190,7 @@ export function LeaveRequestCard({ request, onCancel }: LeaveRequestCardProps) {
         {canCancel && onCancel && (
           <TouchableOpacity
             style={styles.cancelRow}
-            onPress={() => onCancel(request.id)}
+            onPress={() => onCancel(getDisplayText(request.id, ''))}
             activeOpacity={0.7}
           >
             <XCircle size={14} color="#DC2626" />
@@ -177,7 +223,7 @@ export function LeaveRequestCard({ request, onCancel }: LeaveRequestCardProps) {
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.detailContent}>
               <View style={styles.detailRow}>
                 <ThemedText style={styles.detailLabel}>{t('requests.leaveType')}</ThemedText>
-                <ThemedText style={styles.detailValue}>{leaveTypeLabels[request.leaveType] ?? request.leaveType}</ThemedText>
+                <ThemedText style={styles.detailValue}>{leaveTypeLabel}</ThemedText>
               </View>
               <View style={styles.detailRow}>
                 <ThemedText style={styles.detailLabel}>{t('requests.dateRange')}</ThemedText>
