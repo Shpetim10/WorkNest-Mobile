@@ -56,7 +56,7 @@ export function LoginScreen() {
           >
             <View style={styles.logoContainer}>
               <Image
-                source={require('@/assets/logos/svg/1.svg')}
+                source={require('@/assets/logos/png/1_hires.png')}
                 style={styles.logo}
                 contentFit="contain"
               />
