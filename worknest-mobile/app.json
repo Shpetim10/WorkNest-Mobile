@@ -1,19 +1,23 @@
 {
   "expo": {
-    "name": "worknest-mobile",
-    "slug": "worknest-mobile",
+    "name": "WorkTrezz",
+    "slug": "worktrezz",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/logos/png/app_icon.png",
     "scheme": [
       "worknest",
       "worknestmobile"
     ],
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "bundleIdentifier": "com.worktrezz.app",
+      "buildNumber": "1",
+      "icon": "./assets/logos/png/app_icon.png"
     },
     "android": {
+      "package": "com.worktrezz.app",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -25,10 +29,17 @@
         {
           "action": "VIEW",
           "data": [
-            { "scheme": "worknest" },
-            { "scheme": "worknestmobile" }
+            {
+              "scheme": "worknest"
+            },
+            {
+              "scheme": "worknestmobile"
+            }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
@@ -42,7 +53,7 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#F8FAFC",
-          "image": "./assets/logos/svg/1.svg",
+          "image": "./assets/logos/png/1_hires.png",
           "imageWidth": 250,
           "resizeMode": "contain"
         }
@@ -53,6 +64,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "25743c20-3050-48c5-8c00-08a4371c17de"
+      }
+    },
+    "owner": "shpetim10"
   }
 }
