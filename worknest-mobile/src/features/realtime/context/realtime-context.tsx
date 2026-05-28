@@ -77,6 +77,8 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
       case RealtimeEventType.ANNOUNCEMENT_DELETED:
         dispatch(authApi.util.invalidateTags(['Announcements', 'AnnouncementUnreadCount']));
         break;
+      case RealtimeEventType.ATTENDANCE_CHECK_IN:
+      case RealtimeEventType.ATTENDANCE_CHECK_OUT:
       case RealtimeEventType.ATTENDANCE_MANUAL_CHECK_IN:
       case RealtimeEventType.ATTENDANCE_MANUAL_CHECK_OUT:
       case RealtimeEventType.ATTENDANCE_EVENT_REVIEWED:
@@ -86,6 +88,7 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
       case RealtimeEventType.LEAVE_REQUEST_SUBMITTED:
       case RealtimeEventType.LEAVE_REQUEST_APPROVED:
       case RealtimeEventType.LEAVE_REQUEST_REJECTED:
+      case RealtimeEventType.LEAVE_REQUEST_CANCELLED:
         dispatch(authApi.util.invalidateTags(['LeaveBalance', 'LeaveRequests']));
         break;
       default:

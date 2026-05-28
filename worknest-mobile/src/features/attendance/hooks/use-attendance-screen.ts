@@ -200,9 +200,11 @@ export function useAttendanceScreen(): UseAttendanceScreenResult {
   const [submitClock] = useSubmitAttendanceClockMutation();
   const [validateQr] = useValidateAttendanceQrMutation();
 
-  // Realtime: admin manual check-in/out or day adjustments refetch attendance state
+  // Realtime: self/admin check-in/out or day adjustments refetch attendance state
   useCompanyTopic(companyId, 'attendance', (envelope) => {
     if (
+      envelope.type === RealtimeEventType.ATTENDANCE_CHECK_IN ||
+      envelope.type === RealtimeEventType.ATTENDANCE_CHECK_OUT ||
       envelope.type === RealtimeEventType.ATTENDANCE_MANUAL_CHECK_IN ||
       envelope.type === RealtimeEventType.ATTENDANCE_MANUAL_CHECK_OUT ||
       envelope.type === RealtimeEventType.ATTENDANCE_EVENT_REVIEWED ||

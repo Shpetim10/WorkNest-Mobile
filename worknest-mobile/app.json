@@ -12,12 +12,12 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "bundleIdentifier": "com.worktrezz.app",
-      "buildNumber": "1",
+      "buildNumber": "2",
       "icon": "./assets/logos/png/app_icon.png"
     },
     "android": {
       "package": "com.worktrezz.app",
-      "versionCode": 1,
+      "versionCode": 2,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",

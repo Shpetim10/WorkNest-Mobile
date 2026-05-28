@@ -20,6 +20,17 @@ export function GlobalNotificationHandler() {
         t('notifications.leaveRejected'),
         reason ? `${t('notifications.leaveRejectedReason')}: ${reason}` : t('notifications.leaveRejectedMessage'),
       );
+    } else if (
+      envelope.type === RealtimeEventType.ATTENDANCE_CHECK_IN ||
+      envelope.type === RealtimeEventType.ATTENDANCE_CHECK_OUT ||
+      envelope.type === RealtimeEventType.ATTENDANCE_MANUAL_CHECK_IN ||
+      envelope.type === RealtimeEventType.ATTENDANCE_MANUAL_CHECK_OUT ||
+      envelope.type === RealtimeEventType.ATTENDANCE_EVENT_REVIEWED ||
+      envelope.type === RealtimeEventType.ATTENDANCE_DAY_ADJUSTED
+    ) {
+      // Employees aren't authorized on the company attendance topic, so their own
+      // attendance changes arrive on the personal queue — refresh today/month state.
+      dispatch(authApi.util.invalidateTags(['AttendanceToday', 'AttendanceMonth']));
     }
   });
 
