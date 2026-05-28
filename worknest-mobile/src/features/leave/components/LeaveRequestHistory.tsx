@@ -14,14 +14,17 @@ interface LeaveRequestHistoryProps {
 
 export function LeaveRequestHistory({ history, onCancel }: LeaveRequestHistoryProps) {
   const { t } = useLocalization();
+  const safeHistory = history.filter(
+    (request): request is LeaveRequestDto => Boolean(request) && typeof request === 'object'
+  );
 
   return (
     <View style={styles.container}>
       <ThemedText style={styles.sectionTitle}>{t('requests.requestHistory')}</ThemedText>
       <View style={styles.list}>
-        {history.length > 0 ? (
-          history.map((request) => (
-            <LeaveRequestCard key={request.id} request={request} onCancel={onCancel} />
+        {safeHistory.length > 0 ? (
+          safeHistory.map((request, index) => (
+            <LeaveRequestCard key={request.id ?? `leave-request-${index}`} request={request} onCancel={onCancel} />
           ))
         ) : (
           <View style={styles.emptyContainer}>

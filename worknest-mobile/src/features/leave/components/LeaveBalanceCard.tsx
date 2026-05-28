@@ -1,4 +1,4 @@
-import { Umbrella, Stethoscope, Heart } from 'lucide-react-native';
+import { Heart, HelpCircle, Stethoscope, Umbrella } from 'lucide-react-native';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -36,12 +36,22 @@ const CARD_CONFIG = {
   },
 };
 
+const DEFAULT_CARD_CONFIG = {
+  icon: (size: number) => <HelpCircle size={size} color="#475569" />,
+  gradient: ['#F8FAFC', '#E2E8F0'] as [string, string],
+  iconBg: '#CBD5E1',
+  accentColor: '#64748B',
+  borderColor: '#CBD5E1',
+};
+
 export function LeaveBalanceCard({ balance }: LeaveBalanceCardProps) {
   const { t } = useLocalization();
-  const config = CARD_CONFIG[balance.leaveType];
+  const config = CARD_CONFIG[balance.leaveType as keyof typeof CARD_CONFIG] ?? DEFAULT_CARD_CONFIG;
 
-  const usedDays = Number(balance.usedDays);
-  const maxPaid = Number(balance.maxCompanyPaidDays ?? balance.totalDays);
+  const usedDays = Number.isFinite(Number(balance.usedDays)) ? Number(balance.usedDays) : 0;
+  const maxPaid = Number.isFinite(Number(balance.maxCompanyPaidDays ?? balance.totalDays))
+    ? Number(balance.maxCompanyPaidDays ?? balance.totalDays)
+    : 0;
   const companyUsed = Math.min(usedDays, maxPaid);
   const extraDays = balance.leaveType === 'VACATION' ? Math.max(0, usedDays - maxPaid) : 0;
   const socialSecurityDays = balance.leaveType !== 'VACATION' ? Math.max(0, usedDays - maxPaid) : 0;
@@ -51,7 +61,7 @@ export function LeaveBalanceCard({ balance }: LeaveBalanceCardProps) {
     VACATION: t('requests.vacation'),
     SICK: t('requests.sickLeave'),
     PARENTAL: t('requests.parental'),
-  }[balance.leaveType];
+  }[balance.leaveType] ?? balance.leaveType;
 
   return (
     <View style={[styles.wrapper, { borderColor: config.borderColor }]}>
